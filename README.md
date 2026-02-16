@@ -86,6 +86,16 @@ Ce projet pédagogique vise à apprendre les différentes strates de prise de d�
 - [ ] Recherche et filtrage avancés
 - [ ] Export et partage (PDF, GEDCOM)
 
+## 📚 Documentation
+
+**[DOCUMENTATION.md](DOCUMENTATION.md)** est un **guide pédagogique** pour les développeurs juniors :
+- Conception évolutive de l'application
+- Cas pratiques rencontrés (suppression, conjoints, validations, etc.)
+- Quiz d'aide au raisonnement
+- Template pour alimenter le guide au fur et à mesure
+
+Les anciens fichiers .md sont archivés dans `docs/archive/`.
+
 ## 🛠️ Installation et Développement
 
 ### Prérequis
@@ -112,20 +122,20 @@ docker-compose up -d
 mysql -h 127.0.0.1 -P 3306 -u root -ppassword gegeDot < scripts/migration_add_person_fields.sql
 ```
 
-4. **Backend**
+4. **Backend** (ou via Docker : `docker-compose up -d backend`)
 ```bash
 cd backend/src/GegeDot.API
 dotnet run --urls=http://localhost:5001
 ```
 
-5. **Frontend**
+5. **Frontend** (obligatoire pour la vue principale)
 ```bash
 cd frontend
 python3 -m http.server 3004 --bind 127.0.0.1
 ```
 
 6. **Accéder à l'application**
-- Frontend : http://localhost:3004/hierarchical-tree-beta-fixed.html
+- Vue principale : http://localhost:3004/professional-fan-view.html
 - Backend API : http://localhost:5001
 - Swagger : http://localhost:5001/swagger
 - phpMyAdmin : http://localhost:8080
