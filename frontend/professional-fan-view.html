@@ -89,6 +89,13 @@
             background: #EEF2FF;
         }
 
+        .sidebar__collapse-btn:focus-visible,
+        .sidebar__nav-item:focus-visible,
+        .ancestral-panel-toggle:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
         .sidebar.sidebar--collapsed .sidebar__collapse-btn {
             transform: rotate(180deg);
         }
@@ -266,6 +273,40 @@
             border: 1px solid var(--color-border);
         }
 
+        .toolbar-hamburger {
+            display: none;
+            padding: 8px 12px;
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-btn);
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 640px) {
+            .toolbar-hamburger {
+                display: inline-flex !important;
+            }
+        }
+
+        @media (min-width: 641px) {
+            .toolbar-hamburger {
+                display: none !important;
+            }
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 99;
+        }
+
+        .sidebar-overlay.sidebar-overlay--visible {
+            display: block;
+        }
+
         @media (min-width: 1201px) {
             .ancestral-panel-toggle {
                 display: none !important;
@@ -341,6 +382,86 @@
         .ancestral-panel__generation-caption {
             font-size: 0.9em;
             color: var(--color-text-muted);
+        }
+
+        .ancestral-panel__badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 10px;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: var(--color-accent);
+            background: rgba(20, 184, 166, 0.15);
+            border-radius: 9999px;
+        }
+
+        .ancestral-panel__region-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .ancestral-panel__region-name {
+            color: var(--color-text);
+        }
+
+        .ancestral-panel__region-pct {
+            color: var(--color-text-muted);
+            font-weight: 600;
+        }
+
+        .ancestral-panel__progress-bar {
+            height: 8px;
+            border-radius: 9999px;
+            background: var(--color-border);
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .ancestral-panel__progress-fill {
+            height: 100%;
+            border-radius: 9999px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+            transition: width 200ms ease;
+        }
+
+        .ancestral-panel__activity-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            font-size: 0.9em;
+        }
+
+        .ancestral-panel__activity-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        .ancestral-panel__activity-label {
+            flex: 1;
+            color: var(--color-text);
+        }
+
+        .ancestral-panel__activity-badge {
+            padding: 2px 8px;
+            font-size: 0.8em;
+            font-weight: 600;
+            background: var(--color-bg);
+            border-radius: 9999px;
+            color: var(--color-text-muted);
+        }
+
+        .ancestral-panel__header-select {
+            margin-top: 12px;
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-btn);
+            font-size: 0.9em;
+            background: var(--color-card);
         }
 
         .header {
@@ -1306,11 +1427,26 @@
             }
         }
 
-        /* Mobile < 640px */
+        /* Mobile < 640px: sidebar hamburger, panel modal sheet */
         @media (max-width: 640px) {
             .sidebar {
-                width: 56px;
-                min-width: 56px;
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                z-index: 100;
+                transform: translateX(-100%);
+                transition: transform 200ms ease;
+                width: 240px;
+                min-width: 240px;
+            }
+            .sidebar.sidebar--mobile-open {
+                transform: translateX(0);
+            }
+            .sidebar .sidebar__logo-text,
+            .sidebar .sidebar__nav-item span,
+            .sidebar .sidebar__profile-name {
+                display: block;
             }
             .toolbar {
                 flex-wrap: wrap;
@@ -1320,6 +1456,12 @@
             }
             .visualization-container {
                 margin: 0 12px 12px;
+            }
+            .ancestral-panel {
+                width: 100%;
+                min-width: 100%;
+                max-width: 100%;
+                box-shadow: -4px 0 20px rgba(0,0,0,0.15);
             }
         }
     </style>
@@ -1349,8 +1491,10 @@
             </div>
         </aside>
 
+        <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
         <main class="main-content">
             <div class="toolbar">
+                <button class="toolbar-hamburger" id="toolbarHamburger" aria-label="Ouvrir le menu" style="display: none;">☰</button>
                 <div class="person-selector">
                     <label for="personSelect">👤 Personne :</label>
                     <select id="personSelect">
@@ -1388,11 +1532,15 @@
             <div class="ancestral-panel__header">
                 <h2 class="ancestral-panel__title">Ancestral Insights</h2>
                 <p class="ancestral-panel__subtitle" id="ancestorCountText">Based on 0 ancestors</p>
+                <select class="ancestral-panel__header-select" id="ancestralPanelPersonSelect" aria-label="Changer de personne">
+                    <option value="">-- Sélectionnez une personne --</option>
+                </select>
             </div>
             <div class="ancestral-panel__card">
                 <div class="ancestral-panel__card-title">Generations Mapped</div>
                 <div class="ancestral-panel__generation-value" id="generationDepth">0</div>
                 <div class="ancestral-panel__generation-caption">Generations discovered</div>
+                <span class="ancestral-panel__badge" id="newHintsBadge">+12 new hints</span>
             </div>
         </aside>
     </div>
@@ -3201,6 +3349,13 @@
                     
                     updateStatus(`${persons.length} personnes chargées`, 'success');
                 }
+
+                // Synchroniser le dropdown du panneau Ancestral Info
+                const panelSelect = document.getElementById('ancestralPanelPersonSelect');
+                if (panelSelect) {
+                    panelSelect.innerHTML = select.innerHTML;
+                    panelSelect.value = select.value;
+                }
                 
                 // Réactiver l'event listener après le rechargement
                 window.skipPersonSelectChange = false;
@@ -3276,6 +3431,8 @@
                 if (personSelect) {
                     personSelect.value = personId;
                 }
+                const panelSelect = document.getElementById('ancestralPanelPersonSelect');
+                if (panelSelect) panelSelect.value = personId;
                 
                 // Réinitialiser le zoom et le pan
                 currentZoom = 1;
@@ -4626,6 +4783,22 @@
                     ancestralPanelToggle.setAttribute('aria-label', ancestralPanel.classList.contains('ancestral-panel--open') ? 'Fermer le panneau' : 'Ouvrir le panneau Ancestral Info');
                 });
             }
+
+            // Hamburger menu (mobile < 640px)
+            const hamburger = document.getElementById('toolbarHamburger');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            if (hamburger && sidebar && sidebarOverlay) {
+                hamburger.addEventListener('click', () => {
+                    sidebar.classList.add('sidebar--mobile-open');
+                    sidebarOverlay.classList.add('sidebar-overlay--visible');
+                    sidebarOverlay.setAttribute('aria-hidden', 'false');
+                });
+                sidebarOverlay.addEventListener('click', () => {
+                    sidebar.classList.remove('sidebar--mobile-open');
+                    sidebarOverlay.classList.remove('sidebar-overlay--visible');
+                    sidebarOverlay.setAttribute('aria-hidden', 'true');
+                });
+            }
             
             // Ajouter un event listener sur le select pour charger automatiquement la vue éventail
             const personSelect = document.getElementById('personSelect');
@@ -4640,7 +4813,24 @@
                     // Charger automatiquement la vue éventail pour la personne sélectionnée
                     loadFanViewForPerson(selectedPersonId);
                 }
+                // Synchroniser le dropdown du panneau
+                const panelSelect = document.getElementById('ancestralPanelPersonSelect');
+                if (panelSelect) panelSelect.value = selectedPersonId || '';
             });
+
+            // Dropdown du panneau Ancestral Info : changer de personne
+            const ancestralPanelSelect = document.getElementById('ancestralPanelPersonSelect');
+            if (ancestralPanelSelect) {
+                ancestralPanelSelect.addEventListener('change', (e) => {
+                    const personId = e.target.value;
+                    if (personId) {
+                        window.skipPersonSelectChange = true;
+                        personSelect.value = personId;
+                        window.skipPersonSelectChange = false;
+                        loadFanViewForPerson(personId);
+                    }
+                });
+            }
             
             // Vérifier si un personId est passé en paramètre URL
             const urlParams = new URLSearchParams(window.location.search);

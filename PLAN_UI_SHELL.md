@@ -1,5 +1,7 @@
 # Plan : Habillage UI - Sidebar et Panneau Ancestral Info (adapté)
 
+**Statut** : Implémenté — DNA et Geographic Origins retirés comme prévu.
+
 ## Contexte
 
 - **Fichier cible** : `frontend/professional-fan-view.html`
