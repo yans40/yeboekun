@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de connexion API - GegeDot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .info {
+            color: blue;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test de connexion API - GegeDot</h1>
+    
+    <div class="test-section">
+        <h2>Configuration</h2>
+        <p><strong>URL API:</strong> <span id="apiUrl">http://localhost:5000/api</span></p>
+        <button onclick="testConnection()">Tester la connexion</button>
+        <button onclick="testGetPersons()">Tester GET /persons</button>
+        <button onclick="testAll()">Tester tout</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Résultats</h2>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000/api';
+        
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            results.appendChild(div);
+            console.log(message);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function testConnection() {
+            clearResults();
+            log('🔄 Test de connexion au backend...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL.replace('/api', '')}/swagger/index.html`, {
+                    method: 'HEAD',
+                    mode: 'cors'
+                });
+                
+                if (response.ok) {
+                    log('✅ Backend accessible (Swagger disponible)', 'success');
+                } else {
+                    log(`⚠️ Backend répond mais avec le statut: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Erreur de connexion: ${error.message}`, 'error');
+                log('💡 Vérifiez que:', 'info');
+                log('   1. Les containers Docker sont démarrés (docker ps)', 'info');
+                log('   2. Le backend écoute sur le port 5000', 'info');
+                log('   3. Le CORS est correctement configuré', 'info');
+            }
+        }
+        
+        async function testGetPersons() {
+            clearResults();
+            log('🔄 Test de GET /persons...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/persons`, {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                log(`📡 Statut HTTP: ${response.status} ${response.statusText}`, 'info');
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    log(`❌ Erreur HTTP: ${errorText}`, 'error');
+                    return;
+                }
+                
+                const persons = await response.json();
+                log(`✅ ${persons.length} personnes récupérées`, 'success');
+                
+                if (persons.length > 0) {
+                    log('📋 Premières personnes:', 'info');
+                    persons.slice(0, 5).forEach((person, index) => {
+                        log(`   ${index + 1}. ${person.fullName} (ID: ${person.id})`, 'info');
+                    });
+                    if (persons.length > 5) {
+                        log(`   ... et ${persons.length - 5} autres`, 'info');
+                    }
+                } else {
+                    log('⚠️ Aucune personne dans la base de données', 'error');
+                    log('💡 Vous pouvez ajouter des personnes via le formulaire ou les scripts SQL', 'info');
+                }
+                
+                // Afficher les données brutes
+                const pre = document.createElement('pre');
+                pre.textContent = JSON.stringify(persons.slice(0, 3), null, 2);
+                document.getElementById('results').appendChild(pre);
+                
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+                
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    log('💡 Problème de connexion réseau:', 'error');
+                    log('   1. Vérifiez que le backend est démarré', 'info');
+                    log('   2. Vérifiez l\'URL de l\'API', 'info');
+                    log('   3. Vérifiez les règles CORS', 'info');
+                }
+            }
+        }
+        
+        async function testAll() {
+            clearResults();
+            log('🚀 Démarrage des tests complets...', 'info');
+            log('', 'info');
+            
+            await testConnection();
+            log('', 'info');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await testGetPersons();
+            
+            log('', 'info');
+            log('✅ Tests terminés', 'success');
+        }
+        
+        // Test automatique au chargement
+        window.addEventListener('load', () => {
+            log('📄 Page de test chargée', 'info');
+            log('Cliquez sur "Tester tout" pour démarrer les tests', 'info');
+        });
+    </script>
+</body>
+</html>

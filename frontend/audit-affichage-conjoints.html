@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Affichage Conjoints</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .audit-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .audit-section h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .test-result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-result.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        .test-result.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-width: 300px;
+        }
+        .person-card {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+        }
+        .person-card h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        .spouse-list {
+            margin-top: 15px;
+        }
+        .spouse-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-left: 4px solid #E24A90;
+            border-radius: 4px;
+        }
+        .spouse-item.current {
+            border-left-color: #4CAF50;
+            background: #e8f5e9;
+        }
+        .visual-test {
+            border: 2px dashed #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f8f9fa;
+            min-height: 400px;
+            position: relative;
+        }
+        .heart-icon {
+            font-size: 24px;
+            color: #E24A90;
+            cursor: pointer;
+            display: inline-block;
+            padding: 10px;
+            border: 2px solid #E24A90;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            line-height: 30px;
+            transition: all 0.3s;
+        }
+        .heart-icon:hover {
+            transform: scale(1.1);
+            background: #ffe0e6;
+        }
+        .heart-icon.active {
+            color: #FF4081;
+            border-color: #FF4081;
+            animation: heartbeat 1s ease-in-out infinite;
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .spouse-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #FF4081;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .spouse-card {
+            position: absolute;
+            width: 200px;
+            padding: 15px;
+            background: white;
+            border: 2px solid #E24A90;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .spouse-card.visible {
+            opacity: 1;
+        }
+        .spouse-card.current {
+            border-color: #4CAF50;
+        }
+        .connection-line {
+            position: absolute;
+            height: 2px;
+            background: #E24A90;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+        .connection-line.visible {
+            opacity: 1;
+        }
+        .connection-line.current {
+            background: #FF4081;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Audit Affichage des Conjoints</h1>
+    
+    <div class="audit-section">
+        <h2>1. Sélection d'une personne</h2>
+        <label for="personSelect">Sélectionner une personne :</label>
+        <select id="personSelect" onchange="loadPersonSpouses()">
+            <option value="">-- Sélectionner une personne --</option>
+        </select>
+        <button onclick="loadAllPersons()">Charger toutes les personnes</button>
+        <div id="personInfo" class="person-card" style="display: none;">
+            <h3 id="personName"></h3>
+            <p><strong>ID :</strong> <span id="personId"></span></p>
+            <p><strong>Genre :</strong> <span id="personGender"></span></p>
+            <div class="heart-icon" id="heartIcon" onclick="toggleSpouses()">
+                ❤️
+                <span class="spouse-badge" id="spouseBadge" style="display: none;"></span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="audit-section">
+        <h2>2. Liste des conjoints (API)</h2>
+        <div id="spousesList"></div>
+    </div>
+    
+    <div class="audit-section">
+        <h2>3. Test visuel d'affichage</h2>
+        <p>Cliquez sur le cœur ❤️ pour afficher/masquer les conjoints</p>
+        <div class="visual-test" id="visualTest">
+            <div id="centralCard" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);">
+                <div class="person-card" style="width: 200px;">
+                    <h3 id="centralPersonName">Personne centrale</h3>
+                    <div class="heart-icon" id="visualHeartIcon" onclick="toggleVisualSpouses()">
+                        ❤️
+                        <span class="spouse-badge" id="visualSpouseBadge" style="display: none;"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="audit-section">
+        <h2>4. Logs d'audit</h2>
+        <button onclick="clearLogs()">Effacer les logs</button>
+        <div id="auditLogs"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5001/api';
+        let allPersons = [];
+        let currentPerson = null;
+        let currentSpouses = [];
+        let isSpousesVisible = false;
+        let spouseCards = [];
+        let connectionLines = [];
+
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('auditLogs');
+            const logEntry = document.createElement('div');
+            logEntry.className = `test-result ${type}`;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logsDiv.appendChild(logEntry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLogs() {
+            document.getElementById('auditLogs').innerHTML = '';
+        }
+
+        async function loadAllPersons() {
+            log('🔄 Chargement de toutes les personnes...', 'info');
+            try {
+                const response = await fetch(`${API_BASE_URL}/persons`);
+                if (response.ok) {
+                    allPersons = await response.json();
+                    log(`✅ ${allPersons.length} personnes chargées`, 'success');
+                    
+                    const select = document.getElementById('personSelect');
+                    select.innerHTML = '<option value="">-- Sélectionner une personne --</option>';
+                    allPersons.forEach(person => {
+                        const option = document.createElement('option');
+                        option.value = person.id;
+                        option.textContent = `${person.fullName} (ID: ${person.id})`;
+                        select.appendChild(option);
+                    });
+                } else {
+                    throw new Error(`Erreur HTTP ${response.status}`);
+                }
+            } catch (error) {
+                log(`❌ Erreur lors du chargement: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadPersonSpouses() {
+            const personId = document.getElementById('personSelect').value;
+            if (!personId) {
+                document.getElementById('personInfo').style.display = 'none';
+                currentPerson = null;
+                currentSpouses = [];
+                return;
+            }
+
+            log(`🔄 Chargement des conjoints pour la personne ${personId}...`, 'info');
+            
+            try {
+                // Charger les informations de la personne
+                const personResponse = await fetch(`${API_BASE_URL}/persons/${personId}`);
+                if (!personResponse.ok) {
+                    throw new Error(`Erreur HTTP ${personResponse.status}`);
+                }
+                currentPerson = await personResponse.json();
+                
+                // Afficher les informations
+                document.getElementById('personName').textContent = currentPerson.fullName;
+                document.getElementById('personId').textContent = currentPerson.id;
+                document.getElementById('personGender').textContent = currentPerson.gender || 'Non spécifié';
+                document.getElementById('personInfo').style.display = 'block';
+                
+                // Charger les conjoints
+                const spousesResponse = await fetch(`${API_BASE_URL}/persons/${personId}/spouses`);
+                if (spousesResponse.ok) {
+                    currentSpouses = await spousesResponse.json();
+                    log(`✅ ${currentSpouses.length} conjoint(s) trouvé(s)`, 'success');
+                    
+                    // Afficher la liste
+                    displaySpousesList();
+                    
+                    // Mettre à jour le badge
+                    updateSpouseBadge();
+                    
+                    // Mettre à jour la carte centrale visuelle
+                    updateVisualCentralCard();
+                } else if (spousesResponse.status === 404) {
+                    currentSpouses = [];
+                    log('ℹ️ Aucun conjoint trouvé', 'info');
+                    displaySpousesList();
+                    updateSpouseBadge();
+                    updateVisualCentralCard();
+                } else {
+                    throw new Error(`Erreur HTTP ${spousesResponse.status}`);
+                }
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        function displaySpousesList() {
+            const container = document.getElementById('spousesList');
+            
+            if (currentSpouses.length === 0) {
+                container.innerHTML = '<div class="test-result info">Aucun conjoint trouvé</div>';
+                return;
+            }
+            
+            container.innerHTML = currentSpouses.map((spouseInfo, index) => {
+                const spouse = spouseInfo.spouse;
+                const isCurrent = spouseInfo.isCurrent;
+                const startDate = spouseInfo.marriageStartDate ? new Date(spouseInfo.marriageStartDate).toLocaleDateString('fr-FR') : 'Non spécifiée';
+                const endDate = spouseInfo.marriageEndDate ? new Date(spouseInfo.marriageEndDate).toLocaleDateString('fr-FR') : 'Actuel';
+                
+                return `
+                    <div class="spouse-item ${isCurrent ? 'current' : ''}">
+                        <strong>${spouse.fullName}</strong> ${isCurrent ? '<span style="color: #4CAF50;">(Actuel)</span>' : ''}
+                        <div style="margin-top: 5px; font-size: 0.9em; color: #666;">
+                            📅 Début: ${startDate} | Fin: ${endDate}
+                            ${spouseInfo.marriageNotes ? `<br>📝 ${spouseInfo.marriageNotes}` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateSpouseBadge() {
+            const badge = document.getElementById('spouseBadge');
+            if (currentSpouses.length > 0) {
+                badge.textContent = currentSpouses.length > 9 ? '9+' : currentSpouses.length;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function updateVisualCentralCard() {
+            const centralName = document.getElementById('centralPersonName');
+            const visualBadge = document.getElementById('visualSpouseBadge');
+            
+            if (currentPerson) {
+                centralName.textContent = currentPerson.fullName;
+                if (currentSpouses.length > 0) {
+                    visualBadge.textContent = currentSpouses.length > 9 ? '9+' : currentSpouses.length;
+                    visualBadge.style.display = 'flex';
+                } else {
+                    visualBadge.style.display = 'none';
+                }
+            }
+        }
+
+        function toggleSpouses() {
+            if (!currentPerson || currentSpouses.length === 0) {
+                log('⚠️ Aucun conjoint à afficher', 'warning');
+                return;
+            }
+            
+            isSpousesVisible = !isSpousesVisible;
+            const heartIcon = document.getElementById('heartIcon');
+            
+            if (isSpousesVisible) {
+                heartIcon.classList.add('active');
+                log(`👁️ Affichage de ${currentSpouses.length} conjoint(s)`, 'info');
+                displayVisualSpouses();
+            } else {
+                heartIcon.classList.remove('active');
+                log('👁️ Masquage des conjoints', 'info');
+                hideVisualSpouses();
+            }
+        }
+
+        function toggleVisualSpouses() {
+            if (!currentPerson || currentSpouses.length === 0) {
+                log('⚠️ Aucun conjoint à afficher', 'warning');
+                return;
+            }
+            
+            isSpousesVisible = !isSpousesVisible;
+            const heartIcon = document.getElementById('visualHeartIcon');
+            
+            if (isSpousesVisible) {
+                heartIcon.classList.add('active');
+                log(`👁️ Affichage visuel de ${currentSpouses.length} conjoint(s)`, 'info');
+                displayVisualSpouses();
+            } else {
+                heartIcon.classList.remove('active');
+                log('👁️ Masquage visuel des conjoints', 'info');
+                hideVisualSpouses();
+            }
+        }
+
+        function displayVisualSpouses() {
+            const visualTest = document.getElementById('visualTest');
+            
+            // Nettoyer les anciennes cartes
+            hideVisualSpouses();
+            
+            if (currentSpouses.length === 0) return;
+            
+            const centerX = visualTest.offsetWidth / 2;
+            const centerY = visualTest.offsetHeight / 2;
+            const radius = 250;
+            const cardWidth = 200;
+            const cardHeight = 150;
+            
+            currentSpouses.forEach((spouseInfo, index) => {
+                const spouse = spouseInfo.spouse;
+                const isCurrent = spouseInfo.isCurrent;
+                const totalSpouses = currentSpouses.length;
+                
+                // Calculer l'angle pour positionner en cercle
+                let angle;
+                if (totalSpouses === 1) {
+                    angle = 0; // À droite
+                } else if (totalSpouses === 2) {
+                    angle = index === 0 ? 0 : Math.PI; // Droite et gauche
+                } else {
+                    angle = (index * 2 * Math.PI) / totalSpouses;
+                }
+                
+                const spouseX = centerX + radius * Math.cos(angle) - cardWidth / 2;
+                const spouseY = centerY + radius * Math.sin(angle) - cardHeight / 2;
+                
+                // Créer la carte du conjoint
+                const spouseCard = document.createElement('div');
+                spouseCard.className = `spouse-card ${isCurrent ? 'current' : ''}`;
+                spouseCard.style.left = spouseX + 'px';
+                spouseCard.style.top = spouseY + 'px';
+                
+                const startDate = spouseInfo.marriageStartDate ? new Date(spouseInfo.marriageStartDate).toLocaleDateString('fr-FR') : 'Non spécifiée';
+                const endDate = spouseInfo.marriageEndDate ? new Date(spouseInfo.marriageEndDate).toLocaleDateString('fr-FR') : 'Actuel';
+                
+                spouseCard.innerHTML = `
+                    <h4 style="margin: 0 0 10px 0;">${spouse.fullName} ${isCurrent ? '<span style="color: #4CAF50; font-size: 0.8em;">(Actuel)</span>' : ''}</h4>
+                    <div style="font-size: 0.85em; color: #666;">
+                        <div>📅 ${startDate}</div>
+                        <div>📅 ${endDate}</div>
+                    </div>
+                `;
+                
+                visualTest.appendChild(spouseCard);
+                spouseCards.push(spouseCard);
+                
+                // Créer la ligne de connexion
+                const connection = document.createElement('div');
+                connection.className = `connection-line ${isCurrent ? 'current' : ''}`;
+                
+                const startX = centerX;
+                const startY = centerY;
+                const endX = spouseX + cardWidth / 2;
+                const endY = spouseY + cardHeight / 2;
+                
+                const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+                const angleDeg = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+                
+                connection.style.left = startX + 'px';
+                connection.style.top = startY + 'px';
+                connection.style.width = length + 'px';
+                connection.style.transformOrigin = '0 0';
+                connection.style.transform = `rotate(${angleDeg}deg)`;
+                
+                visualTest.appendChild(connection);
+                connectionLines.push(connection);
+                
+                // Afficher avec animation
+                setTimeout(() => {
+                    spouseCard.classList.add('visible');
+                    connection.classList.add('visible');
+                }, index * 50);
+            });
+            
+            log(`✅ ${currentSpouses.length} carte(s) de conjoint affichée(s)`, 'success');
+        }
+
+        function hideVisualSpouses() {
+            spouseCards.forEach(card => {
+                card.classList.remove('visible');
+                setTimeout(() => card.remove(), 300);
+            });
+            connectionLines.forEach(line => {
+                line.classList.remove('visible');
+                setTimeout(() => line.remove(), 300);
+            });
+            spouseCards = [];
+            connectionLines = [];
+        }
+
+        // Charger les personnes au démarrage
+        window.addEventListener('load', () => {
+            log('🚀 Page d\'audit chargée', 'success');
+            log('💡 Cliquez sur "Charger toutes les personnes" pour commencer', 'info');
+        });
+    </script>
+</body>
+</html>

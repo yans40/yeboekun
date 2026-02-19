@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Issues - GegeDot</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+        }
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .issues-container {
+            display: grid;
+            gap: 15px;
+        }
+        .issue-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        .issue-card.closed {
+            border-left-color: #28a745;
+            opacity: 0.8;
+        }
+        .issue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+        .issue-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+        .issue-number {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .issue-number:hover {
+            text-decoration: underline;
+        }
+        .issue-meta {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+        .issue-state {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .issue-state.open {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .issue-state.closed {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .issue-labels {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .label {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .issue-body {
+            margin-top: 15px;
+            color: #555;
+            line-height: 1.6;
+            max-height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .stats {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 GitHub Issues - GegeDot</h1>
+        <p>Repository: <strong>yans40/gegeDot</strong></p>
+    </div>
+
+    <div class="controls">
+        <button onclick="loadIssues('open')">📋 Issues Ouvertes</button>
+        <button onclick="loadIssues('closed')">✅ Issues Fermées</button>
+        <button onclick="loadIssues('all')">📊 Toutes les Issues</button>
+        <button onclick="loadStats()">📈 Statistiques</button>
+    </div>
+
+    <div id="stats" class="stats" style="display: none;">
+        <div class="stat-item">
+            <div class="stat-value" id="openCount">-</div>
+            <div class="stat-label">Ouvertes</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="closedCount">-</div>
+            <div class="stat-label">Fermées</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="totalCount">-</div>
+            <div class="stat-label">Total</div>
+        </div>
+    </div>
+
+    <div id="issuesContainer" class="issues-container">
+        <div class="loading">Cliquez sur un bouton pour charger les issues...</div>
+    </div>
+
+    <script>
+        const REPO_OWNER = 'yans40';
+        const REPO_NAME = 'gegeDot';
+        const API_BASE = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`;
+
+        async function fetchIssues(state = 'open') {
+            try {
+                const response = await fetch(`${API_BASE}/issues?state=${state}&per_page=100&sort=created&direction=desc`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const issues = await response.json();
+                return issues;
+            } catch (error) {
+                console.error('Erreur lors de la récupération:', error);
+                return null;
+            }
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('fr-FR', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function createIssueCard(issue) {
+            const card = document.createElement('div');
+            card.className = `issue-card ${issue.state}`;
+            
+            const labels = issue.labels.map(label => {
+                const color = `#${label.color}`;
+                return `<span class="label" style="background: ${color}20; color: ${color};">${label.name}</span>`;
+            }).join('');
+
+            const body = issue.body ? issue.body.substring(0, 300) + (issue.body.length > 300 ? '...' : '') : 'Aucune description';
+
+            card.innerHTML = `
+                <div class="issue-header">
+                    <h3 class="issue-title">
+                        <a href="${issue.html_url}" target="_blank" class="issue-number">#${issue.number}</a>
+                        ${issue.title}
+                    </h3>
+                    <span class="issue-state ${issue.state}">${issue.state === 'open' ? 'OUVERTE' : 'FERMÉE'}</span>
+                </div>
+                <div class="issue-meta">
+                    <span>👤 ${issue.user.login}</span>
+                    <span>📅 ${formatDate(issue.created_at)}</span>
+                    ${issue.closed_at ? `<span>✅ Fermée: ${formatDate(issue.closed_at)}</span>` : ''}
+                    ${issue.comments > 0 ? `<span>💬 ${issue.comments} commentaire(s)</span>` : ''}
+                </div>
+                ${labels ? `<div class="issue-labels">${labels}</div>` : ''}
+                <div class="issue-body">${body.replace(/\n/g, '<br>')}</div>
+            `;
+            
+            return card;
+        }
+
+        async function loadIssues(state) {
+            const container = document.getElementById('issuesContainer');
+            container.innerHTML = '<div class="loading">Chargement des issues...</div>';
+
+            const issues = await fetchIssues(state);
+            
+            if (!issues) {
+                container.innerHTML = '<div class="error">❌ Erreur lors du chargement des issues. Vérifiez votre connexion internet.</div>';
+                return;
+            }
+
+            if (issues.length === 0) {
+                container.innerHTML = '<div class="loading">Aucune issue trouvée.</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            issues.forEach(issue => {
+                const card = createIssueCard(issue);
+                container.appendChild(card);
+            });
+        }
+
+        async function loadStats() {
+            const statsDiv = document.getElementById('stats');
+            statsDiv.style.display = 'flex';
+            
+            const openIssues = await fetchIssues('open');
+            const closedIssues = await fetchIssues('closed');
+            
+            document.getElementById('openCount').textContent = openIssues ? openIssues.length : '?';
+            document.getElementById('closedCount').textContent = closedIssues ? closedIssues.length : '?';
+            document.getElementById('totalCount').textContent = (openIssues?.length || 0) + (closedIssues?.length || 0);
+        }
+
+        // Charger les issues ouvertes par défaut
+        window.addEventListener('load', () => {
+            loadIssues('open');
+        });
+    </script>
+</body>
+</html>

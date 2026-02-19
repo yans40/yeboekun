@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Formulaires GegeDot</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f5f5f5; 
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section { 
+            background: white; 
+            padding: 20px; 
+            margin: 20px 0; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        .test-section h2 { 
+            color: #333; 
+            border-bottom: 2px solid #007bff; 
+            padding-bottom: 10px; 
+            margin-top: 0;
+        }
+        button { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin: 5px; 
+            font-size: 14px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .warning { color: orange; font-weight: bold; }
+        .info { color: blue; }
+        pre { 
+            background: #f8f9fa; 
+            padding: 10px; 
+            border-radius: 4px; 
+            overflow-x: auto; 
+            font-size: 12px;
+        }
+        .test-result { 
+            margin: 10px 0; 
+            padding: 10px; 
+            border-left: 4px solid #007bff; 
+            background: #f8f9fa; 
+        }
+        .summary {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .summary h3 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Audit Complet des Formulaires GegeDot</h1>
+    
+    <div class="summary">
+        <h3>📊 Résumé de l'Audit</h3>
+        <div id="summaryStats">
+            <p>Cliquez sur "Lancer Audit Complet" pour démarrer l'audit.</p>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>1. Test de Création de Personne</h2>
+        <button onclick="testCreatePerson()">Test Création Simple</button>
+        <button onclick="testCreatePersonWithRelations()">Test Création avec Relations</button>
+        <button onclick="testCreateDuplicate()">Test Détection Doublons</button>
+        <button onclick="testCreateInvalidData()">Test Données Invalides</button>
+        <div id="createResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Test de Mise à Jour de Personne</h2>
+        <button onclick="testUpdatePerson()">Test Mise à Jour Simple</button>
+        <button onclick="testUpdatePersonRelations()">Test Mise à Jour Relations</button>
+        <button onclick="testUpdateDuplicate()">Test Mise à Jour Doublons</button>
+        <button onclick="testUpdateWithForce()">Test Mise à Jour avec Force</button>
+        <div id="updateResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Test de Relations</h2>
+        <button onclick="testCreateParentChild()">Test Relation Parent-Enfant</button>
+        <button onclick="testCreateSpouse()">Test Relation Conjoint</button>
+        <button onclick="testGetRelations()">Test Récupération Relations</button>
+        <button onclick="testUpdateRelations()">Test Mise à Jour Relations</button>
+        <div id="relationResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Test de Validation</h2>
+        <button onclick="testValidation()">Test Validations Basiques</button>
+        <button onclick="testDateValidation()">Test Validation Dates</button>
+        <button onclick="testRelationshipValidation()">Test Validation Relations</button>
+        <div id="validationResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. Test de Cas Limites</h2>
+        <button onclick="testEdgeCases()">Test Cas Limites</button>
+        <button onclick="testPerformance()">Test Performances</button>
+        <div id="edgeCaseResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>6. Audit Complet</h2>
+        <button onclick="runFullAudit()">🚀 Lancer Audit Complet</button>
+        <div id="fullAuditResults"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5001/api';
+        let testPersonIds = {};
+        let auditStats = {
+            total: 0,
+            success: 0,
+            errors: 0,
+            warnings: 0
+        };
+        
+        function log(elementId, message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = 'test-result';
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'info';
+            div.innerHTML = `<span class="${className}">[${timestamp}] ${message}</span>`;
+            document.getElementById(elementId).appendChild(div);
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            
+            // Mettre à jour les statistiques
+            auditStats.total++;
+            if (type === 'success') auditStats.success++;
+            else if (type === 'error') auditStats.errors++;
+            else if (type === 'warning') auditStats.warnings++;
+            updateSummary();
+        }
+        
+        function updateSummary() {
+            const summaryDiv = document.getElementById('summaryStats');
+            summaryDiv.innerHTML = `
+                <p><strong>Total:</strong> ${auditStats.total} tests | 
+                <span class="success">✅ ${auditStats.success}</span> | 
+                <span class="error">❌ ${auditStats.errors}</span> | 
+                <span class="warning">⚠️ ${auditStats.warnings}</span></p>
+            `;
+        }
+        
+        function clearResults(elementId) {
+            document.getElementById(elementId).innerHTML = '';
+        }
+        
+        // 1. TESTS DE CRÉATION
+        async function testCreatePerson() {
+            clearResults('createResults');
+            log('createResults', '🔄 Test de création d\'une personne...', 'info');
+            
+            try {
+                const personData = {
+                    firstName: 'Test',
+                    lastName: 'Création',
+                    birthDate: '1990-01-01',
+                    birthPlace: 'Test City',
+                    gender: 'M',
+                    isAlive: true
+                };
+                
+                const response = await fetch(`${API_BASE_URL}/persons`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(personData)
+                });
+                
+                if (response.ok) {
+                    const person = await response.json();
+                    testPersonIds.createTest = person.id;
+                    log('createResults', `✅ Personne créée avec succès (ID: ${person.id})`, 'success');
+                    log('createResults', `Détails: ${person.fullName}, Né(e) le ${person.birthDate}`, 'info');
+                } else {
+                    const error = await response.json().catch(() => ({ message: response.statusText }));
+                    log('createResults', `❌ Erreur: ${error.message || response.statusText} (Status: ${response.status})`, 'error');
+                }
+            } catch (error) {
+                log('createResults', `❌ Erreur réseau: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCreatePersonWithRelations() {
+            clearResults('createResults');
+            log('createResults', '🔄 Test de création avec relations...', 'info');
+            
+            try {
+                // D'abord, récupérer des personnes existantes pour les relations
+                const personsResponse = await fetch(`${API_BASE_URL}/persons`);
+                const persons = await personsResponse.json();
+                
+                if (persons.length < 1) {
+                    log('createResults', '❌ Pas assez de personnes pour créer des relations', 'error');
+                    return;
+                }
+                
+                const parentId = persons[0].id;
+                
+                // Créer une personne avec parent
+                const personData = {
+                    firstName: 'Test',
+                    lastName: 'AvecRelations',
+                    birthDate: '1995-05-15',
+                    gender: 'M',
+                    isAlive: true,
+                    parent1Id: parentId
+                };
+                
+                const response = await fetch(`${API_BASE_URL}/persons`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(personData)
+                });
+                
+                if (response.ok) {
+                    const person = await response.json();
+                    log('createResults', `✅ Personne créée avec parent (ID: ${person.id})`, 'success');
+                    
+                    // Vérifier les parents
+                    const parentsResponse = await fetch(`${API_BASE_URL}/persons/${person.id}/parents`);
+                    if (parentsResponse.ok) {
+                        const parents = await parentsResponse.json();
+                        log('createResults', `✅ Parents récupérés: ${parents.length}`, 'success');
+                        parents.forEach(p => {
+                            log('createResults', `  - ${p.fullName} (ID: ${p.id})`, 'info');
+                        });
+                    }
+                } else {
+                    const error = await response.json().catch(() => ({ message: response.statusText }));
+                    log('createResults', `❌ Erreur: ${error.message || response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log('createResults', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCreateDuplicate() {
+            clearResults('createResults');
+            log('createResults', '🔄 Test de détection de doublons...', 'info');
+            
+            try {
+                // Récupérer une personne existante
+                const personsResponse = await fetch(`${API_BASE_URL}/persons`);
+                const persons = await personsResponse.json();
+                
+                if (persons.length === 0) {
+                    log('createResults', '❌ Aucune personne disponible pour le test', 'error');
+                    return;
+                }
+                
+                const existingPerson = persons.find(p => p.firstName === 'Jean' && p.lastName === 'Dupont') || persons[0];
+                
+                // Créer une personne similaire
+                const personData = {
+                    firstName: existingPerson.firstName,
+                    lastName: existingPerson.lastName,
+                    birthDate: existingPerson.birthDate,
+                    gender: existingPerson.gender,
+                    isAlive: existingPerson.isAlive
+                };
+                
+                // Vérifier les doublons
+                const checkResponse = await fetch(`${API_BASE_URL}/persons/check-duplicates`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(personData)
+                });
+                
+                if (checkResponse.ok) {
+                    const result = await checkResponse.json();
+                    if (result.hasDuplicates) {
+                        log('createResults', `✅ Doublons détectés: ${result.duplicates.length}`, 'success');
+                        result.duplicates.forEach(dup => {
+                            log('createResults', `  - ${dup.firstName} ${dup.lastName} (ID: ${dup.id}, Score: ${(dup.similarityScore * 100).toFixed(1)}%)`, 'warning');
+                        });
+                    } else {
+                        log('createResults', '⚠️ Aucun doublon détecté (peut être normal)', 'warning');
+                    }
+                } else {
+                    log('createResults', `❌ Erreur lors de la vérification: ${checkResponse.statusText}`, 'error');
+                }
+            } catch (error) {
+                log('createResults', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCreateInvalidData() {
+            clearResults('createResults');
+            log('createResults', '🔄 Test de création avec données invalides...', 'info');
+            
+            // Test 1: Prénom vide
+            try {
+                const response = await fetch(`${API_BASE_URL}/persons`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ firstName: '', lastName: 'Test', gender: 'M' })
+                });
+                
+                if (response.status === 400) {
+                    log('createResults', '✅ Validation prénom vide: Erreur détectée', 'success');
+                } else {
+                    log('createResults', '❌ Validation prénom vide: Erreur non détectée', 'error');
+                }
+            } catch (error) {
+                log('createResults', `❌ Erreur: ${error.message}`, 'error');
+            }
+            
+            // Test 2: Nom vide
+            try {
+                const response = await fetch(`${API_BASE_URL}/persons`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ firstName: 'Test', lastName: '', gender: 'M' })
+                });
+                
+                if (response.status === 400) {
+                    log('createResults', '✅ Validation nom vide: Erreur détectée', 'success');
+                } else {
+                    log('createResults', '❌ Validation nom vide: Erreur non détectée', 'error');
+                }
+            } catch (error) {
+                log('createResults', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        // 2. TESTS DE MISE À JOUR
+        async function testUpdatePerson() {
+            clearResults('updateResults');
+            log('updateResults', '🔄 Test de mise à jour...', 'info');
+            
+            try {
+                // Récupérer une personne existante
+                const getResponse = await fetch(`${API_BASE_URL}/persons`);
+                const persons = await getResponse.json();
+                if (persons.length === 0) {
+                    log('updateResults', '❌ Aucune personne disponible pour le test', 'error');
+                    return;
+                }
+                
+                const personId = persons[0].id;
+                const originalName = persons[0].lastName;
+                const updateData = {
+                    firstName: persons[0].firstName,
+                    lastName: originalName + ' (Modifié)',
+                    birthDate: persons[0].birthDate,
+                    gender: persons[0].gender,
+                    isAlive: persons[0].isAlive
+                };
+                
+                const response = await fetch(`${API_BASE_URL}/persons/${personId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+                
+                if (response.ok || response.status === 204) {
+                    log('updateResults', `✅ Personne mise à jour (ID: ${personId})`, 'success');
+                    
+                    // Vérifier la mise à jour
+                    const verifyResponse = await fetch(`${API_BASE_URL}/persons/${personId}`);
+                    if (verifyResponse.ok) {
+                        const updated = await verifyResponse.json();
+                        log('updateResults', `✅ Vérification: ${updated.fullName}`, 'success');
+                        
+                        // Restaurer le nom original
+                        const restoreData = { ...updateData, lastName: originalName };
+                        await fetch(`${API_BASE_URL}/persons/${personId}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(restoreData)
+                        });
+                        log('updateResults', '✅ Nom restauré', 'info');
+                    }
+                } else {
+                    const error = await response.json().catch(() => ({ message: response.statusText }));
+                    log('updateResults', `❌ Erreur: ${error.message || response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log('updateResults', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testUpdatePersonRelations() {
+            clearResults('updateResults');
+            log('updateResults', '🔄 Test de mise à jour des relations...', 'info');
+            log('updateResults', '⚠️ PROBLÈME IDENTIFIÉ: Aucun endpoint pour mettre à jour les relations', 'warning');
+            log('updateResults', '💡 Solution: Créer PUT /api/persons/{id}/relationships', 'info');
+        }
+        
+        async function testUpdateDuplicate() {
+            clearResults('updateResults');
+            log('updateResults', '🔄 Test de mise à jour avec doublon...', 'info');
+            
+            try {
+                const getResponse = await fetch(`${API_BASE_URL}/persons`);
+                const persons = await getResponse.json();
+                if (persons.length < 2) {
+                    log('updateResults', '❌ Pas assez de personnes pour le test', 'error');
+                    return;
+                }
+                
+                const personId = persons[0].id;
+                // Modifier pour ressembler à une autre personne
+                const updateData = {
+                    firstName: persons[1].firstName,
+                    lastName: persons[1].lastName,
+                    birthDate: persons[1].birthDate,
+                    gender: persons[1].gender,
+                    isAlive: persons[1].isAlive
+                };
+                
+                const response = await fetch(`${API_BASE_URL}/persons/${personId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+                
+                if (response.status === 409) {
+                    const error = await response.json();
+                    log('updateResults', `✅ Doublon détecté lors de la mise à jour`, 'success');
+                    log('updateResults', `  Doublons trouvés: ${error.count || 0}`, 'warning');
+                } else if (response.ok || response.status === 204) {
+                    log('updateResults', `⚠️ Mise à jour réussie sans détection de doublon`, 'warning');
+                } else {
+                    const error = await response.json().catch(() => ({ message: response.statusText }));
+                    log('updateResults', `❌ Erreur: ${error.message || response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log('updateResults', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testUpdateWithForce() {
+            clearResults('updateResults');
+            log('updateResults', '🔄 Test de mise à jour avec force=true...', 'info');
+            
+            try {
+                const getResponse = await fetch(`${API_BASE_URL}/persons`);
+                const persons = await getResponse.json();
+                if (persons.length === 0) {
+                    log('updateResults', '❌ Aucune personne disponible', 'error');
+                    return;
+                }
+                
+                const personId = persons[0].id;
+                const updateData = {
+                    firstName: persons[0].firstName,
+                    lastName: persons[0].lastName + ' (Force)',
+                    birthDate: persons[0].birthDate,
+                    gender: persons[0].gender,
+                    isAlive: persons[0].isAlive
+                };
+                
+                const response = await fetch(`${API_BASE_URL}/persons/${personId}?force=true`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+                
+                if (response.ok || response.status === 204) {
+                    log('updateResults', `✅ Mise à jour avec force réussie`, 'success');
+                } else {
+                    const error = await response.json().catch(() => ({ message: response.statusText }));
+                    log('updateResults', `❌ Erreur: ${error.message || response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log('updateResults', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        // 3. TESTS DE RELATIONS
+        async function testCreateParentChild() {
+            clearResults('relationResults');
+            log('relationResults', '🔄 Test de création relation parent-enfant...', 'info');
+            
+            try {
+                const getResponse = await fetch(`${API_BASE_URL}/persons`);
+                const persons = await getResponse.json();
+                if (persons.length < 2) {
+                    log('relationResults', '❌ Pas assez de personnes pour le test', 'error');
+                    return;
+                }
+                
+                const parentId = persons[0].id;
+                const childId = persons[1].id;
+                
+                // Vérifier si la relation existe déjà
+                const childrenResponse = await fetch(`${API_BASE_URL}/persons/${parentId}/children`);
+                const existingChildren = await childrenResponse.json();
+                const alreadyChild = existingChildren.some(c => c.id === childId);
+                
+                if (alreadyChild) {
+                    log('relationResults', `⚠️ Relation existe déjà entre ${persons[0].fullName} et ${persons[1].fullName}`, 'warning');
+                    return;
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/persons/${parentId}/children/${childId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log('relationResults', `✅ Relation parent-enfant créée`, 'success');
+                    log('relationResults', `  Parent: ${persons[0].fullName} (ID: ${parentId})`, 'info');
+                    log('relationResults', `  Enfant: ${persons[1].fullName} (ID: ${childId})`, 'info');
+                    
+                    // Vérifier la relation
+                    const verifyResponse = await fetch(`${API_BASE_URL}/persons/${parentId}/children`);
+                    if (verifyResponse.ok) {
+                        const children = await verifyResponse.json();
+                        log('relationResults', `✅ Enfants vérifiés: ${children.length}`, 'success');
+                    }
+                } else if (response.status === 409) {
+                    log('relationResults', `⚠️ Relation existe déjà`, 'warning');
+                } else {
+                    const error = await response.json().catch(() => ({ message: response.statusText }));
+                    log('relationResults', `❌ Erreur: ${error.message || response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log('relationResults', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCreateSpouse() {
+            clearResults('relationResults');
+            log('relationResults', '🔄 Test de création relation conjoint...', 'info');
+            log('relationResults', '❌ PROBLÈME IDENTIFIÉ: Aucun endpoint pour créer une relation conjoint', 'error');
+            log('relationResults', '💡 Solution: Créer POST /api/persons/{id}/spouse/{spouseId}', 'info');
+            log('relationResults', '💡 Ou: Créer POST /api/persons/{id}/relationships avec RelationshipType=Spouse', 'info');
+        }
+        
+        async function testGetRelations() {
+            clearResults('relationResults');
+            log('relationResults', '🔄 Test de récupération des relations...', 'info');
+            
+            try {
+                const getResponse = await fetch(`${API_BASE_URL}/persons`);
+                const persons = await getResponse.json();
+                if (persons.length === 0) {
+                    log('relationResults', '❌ Aucune personne disponible', 'error');
+                    return;
+                }
+                
+                const personId = persons[0].id;
+                
+                // Récupérer les parents
+                const parentsResponse = await fetch(`${API_BASE_URL}/persons/${personId}/parents`);
+                if (parentsResponse.ok) {
+                    const parents = await parentsResponse.json();
+                    log('relationResults', `✅ Parents récupérés: ${parents.length}`, 'success');
+                    parents.forEach(p => log('relationResults', `  - ${p.fullName}`, 'info'));
+                }
+                
+                // Récupérer les enfants
+                const childrenResponse = await fetch(`${API_BASE_URL}/persons/${personId}/children`);
+                if (childrenResponse.ok) {
+                    const children = await childrenResponse.json();
+                    log('relationResults', `✅ Enfants récupérés: ${children.length}`, 'success');
+                    children.forEach(c => log('relationResults', `  - ${c.fullName}`, 'info'));
+                }
+                
+                // Récupérer le conjoint
+                const spouseResponse = await fetch(`${API_BASE_URL}/persons/${personId}/spouse`);
+                if (spouseResponse.ok) {
+                    const spouse = await spouseResponse.json();
+                    log('relationResults', `✅ Conjoint récupéré: ${spouse.fullName}`, 'success');
+                } else if (spouseResponse.status === 404) {
+                    log('relationResults', `ℹ️ Aucun conjoint trouvé (normal)`, 'info');
+                }
+                
+            } catch (error) {
+                log('relationResults', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testUpdateRelations() {
+            clearResults('relationResults');
+            log('relationResults', '🔄 Test de mise à jour des relations...', 'info');
+            log('relationResults', '❌ PROBLÈME IDENTIFIÉ: Aucun endpoint pour mettre à jour les relations', 'error');
+            log('relationResults', '💡 Solution: Créer PUT /api/persons/{id}/relationships', 'info');
+            log('relationResults', '💡 Permettre de modifier/supprimer/ajouter des relations', 'info');
+        }
+        
+        // 4. TESTS DE VALIDATION
+        async function testValidation() {
+            clearResults('validationResults');
+            log('validationResults', '🔄 Test de validation...', 'info');
+            
+            // Test 1: Prénom vide
+            try {
+                const response = await fetch(`${API_BASE_URL}/persons`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ firstName: '', lastName: 'Test', gender: 'M' })
+                });
+                
+                if (response.status === 400) {
+                    const error = await response.json();
+                    log('validationResults', '✅ Validation prénom vide: Erreur détectée', 'success');
+                    if (error.errors) {
+                        Object.keys(error.errors).forEach(field => {
+                            log('validationResults', `  - ${field}: ${error.errors[field][0]}`, 'info');
+                        });
+                    }
+                } else {
+                    log('validationResults', '❌ Validation prénom vide: Erreur non détectée', 'error');
+                }
+            } catch (error) {
+                log('validationResults', `❌ Erreur: ${error.message}`, 'error');
+            }
+            
+            // Test 2: Nom vide
+            try {
+                const response = await fetch(`${API_BASE_URL}/persons`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ firstName: 'Test', lastName: '', gender: 'M' })
+                });
+                
+                if (response.status === 400) {
+                    log('validationResults', '✅ Validation nom vide: Erreur détectée', 'success');
+                } else {
+                    log('validationResults', '❌ Validation nom vide: Erreur non détectée', 'error');
+                }
+            } catch (error) {
+                log('validationResults', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testDateValidation() {
+            clearResults('validationResults');
+            log('validationResults', '🔄 Test de validation des dates...', 'info');
+            
+            // Test: Date de décès avant date de naissance
+            try {
+                const response = await fetch(`${API_BASE_URL}/persons`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        firstName: 'Test',
+                        lastName: 'Dates',
+                        birthDate: '2000-01-01',
+                        deathDate: '1990-01-01', // Avant la naissance
+                        gender: 'M',
+                        isAlive: false
+                    })
+                });
+                
+                if (response.status === 400) {
+                    log('validationResults', '✅ Validation date décès: Erreur détectée', 'success');
+                } else {
+                    log('validationResults', '⚠️ Validation date décès: À vérifier côté backend', 'warning');
+                }
+            } catch (error) {
+                log('validationResults', `❌ Erreur: ${error.message}`, 'error');
+            }
+            
+            // Test: Personne vivante avec date de décès
+            try {
+                const response = await fetch(`${API_BASE_URL}/persons`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        firstName: 'Test',
+                        lastName: 'Vivant',
+                        birthDate: '2000-01-01',
+                        deathDate: '2020-01-01',
+                        gender: 'M',
+                        isAlive: true // Vivant mais avec date de décès
+                    })
+                });
+                
+                if (response.status === 400) {
+                    log('validationResults', '✅ Validation isAlive: Erreur détectée', 'success');
+                } else {
+                    log('validationResults', '⚠️ Validation isAlive: À vérifier côté backend', 'warning');
+                }
+            } catch (error) {
+                log('validationResults', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testRelationshipValidation() {
+            clearResults('validationResults');
+            log('validationResults', '🔄 Test de validation des relations...', 'info');
+            
+            // Test: Relation avec soi-même
+            try {
+                const getResponse = await fetch(`${API_BASE_URL}/persons`);
+                const persons = await getResponse.json();
+                if (persons.length === 0) {
+                    log('validationResults', '❌ Aucune personne disponible', 'error');
+                    return;
+                }
+                
+                const personId = persons[0].id;
+                const response = await fetch(`${API_BASE_URL}/persons/${personId}/children/${personId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.status === 400 || response.status === 409) {
+                    log('validationResults', '✅ Validation relation avec soi-même: Erreur détectée', 'success');
+                } else {
+                    log('validationResults', '⚠️ Validation relation avec soi-même: À vérifier', 'warning');
+                }
+            } catch (error) {
+                log('validationResults', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        // 5. TESTS DE CAS LIMITES
+        async function testEdgeCases() {
+            clearResults('edgeCaseResults');
+            log('edgeCaseResults', '🔄 Test de cas limites...', 'info');
+            
+            // Test 1: Personne avec beaucoup d'enfants
+            log('edgeCaseResults', 'Test: Personne avec beaucoup d\'enfants...', 'info');
+            try {
+                const getResponse = await fetch(`${API_BASE_URL}/persons`);
+                const persons = await getResponse.json();
+                const testParent = persons.find(p => p.fullName && p.fullName.includes('BeaucoupEnfants'));
+                
+                if (testParent) {
+                    const childrenResponse = await fetch(`${API_BASE_URL}/persons/${testParent.id}/children`);
+                    if (childrenResponse.ok) {
+                        const children = await childrenResponse.json();
+                        log('edgeCaseResults', `✅ Personne avec ${children.length} enfants trouvée`, 'success');
+                    }
+                } else {
+                    log('edgeCaseResults', 'ℹ️ Personne de test non trouvée (exécuter le script SQL d\'abord)', 'info');
+                }
+            } catch (error) {
+                log('edgeCaseResults', `❌ Erreur: ${error.message}`, 'error');
+            }
+            
+            // Test 2: Relations circulaires (à implémenter)
+            log('edgeCaseResults', 'Test: Détection de relations circulaires...', 'info');
+            log('edgeCaseResults', '⚠️ À implémenter: Vérification des cycles dans les relations', 'warning');
+            
+            // Test 3: Mise à jour avec relations multiples
+            log('edgeCaseResults', 'Test: Mise à jour avec plusieurs relations...', 'info');
+            log('edgeCaseResults', '⚠️ À implémenter: Endpoint pour mettre à jour les relations', 'warning');
+        }
+        
+        async function testPerformance() {
+            clearResults('edgeCaseResults');
+            log('edgeCaseResults', '🔄 Test de performances...', 'info');
+            
+            try {
+                const startTime = performance.now();
+                const response = await fetch(`${API_BASE_URL}/persons`);
+                const endTime = performance.now();
+                
+                if (response.ok) {
+                    const persons = await response.json();
+                    const duration = (endTime - startTime).toFixed(2);
+                    log('edgeCaseResults', `✅ Récupération de ${persons.length} personnes en ${duration}ms`, 'success');
+                    
+                    if (duration > 1000) {
+                        log('edgeCaseResults', `⚠️ Performance: Temps de réponse élevé (>1s)`, 'warning');
+                    }
+                }
+            } catch (error) {
+                log('edgeCaseResults', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        // 6. AUDIT COMPLET
+        async function runFullAudit() {
+            clearResults('fullAuditResults');
+            auditStats = { total: 0, success: 0, errors: 0, warnings: 0 };
+            
+            log('fullAuditResults', '🚀 Démarrage de l\'audit complet...', 'info');
+            log('fullAuditResults', '', 'info');
+            
+            // Tests de création
+            log('fullAuditResults', '=== TESTS DE CRÉATION ===', 'info');
+            await testCreatePerson();
+            await new Promise(r => setTimeout(r, 500));
+            await testCreateDuplicate();
+            await new Promise(r => setTimeout(r, 500));
+            await testCreateInvalidData();
+            await new Promise(r => setTimeout(r, 1000));
+            
+            // Tests de mise à jour
+            log('fullAuditResults', '', 'info');
+            log('fullAuditResults', '=== TESTS DE MISE À JOUR ===', 'info');
+            await testUpdatePerson();
+            await new Promise(r => setTimeout(r, 500));
+            await testUpdateDuplicate();
+            await new Promise(r => setTimeout(r, 500));
+            await testUpdateWithForce();
+            await new Promise(r => setTimeout(r, 1000));
+            
+            // Tests de relations
+            log('fullAuditResults', '', 'info');
+            log('fullAuditResults', '=== TESTS DE RELATIONS ===', 'info');
+            await testCreateParentChild();
+            await new Promise(r => setTimeout(r, 500));
+            await testGetRelations();
+            await new Promise(r => setTimeout(r, 1000));
+            
+            // Tests de validation
+            log('fullAuditResults', '', 'info');
+            log('fullAuditResults', '=== TESTS DE VALIDATION ===', 'info');
+            await testValidation();
+            await new Promise(r => setTimeout(r, 500));
+            await testDateValidation();
+            await new Promise(r => setTimeout(r, 1000));
+            
+            // Tests de cas limites
+            log('fullAuditResults', '', 'info');
+            log('fullAuditResults', '=== TESTS DE CAS LIMITES ===', 'info');
+            await testEdgeCases();
+            await new Promise(r => setTimeout(r, 500));
+            await testPerformance();
+            
+            log('fullAuditResults', '', 'info');
+            log('fullAuditResults', '✅ Audit terminé', 'success');
+            log('fullAuditResults', `📊 Résumé: ${auditStats.success} succès, ${auditStats.errors} erreurs, ${auditStats.warnings} avertissements`, 'info');
+        }
+    </script>
+</body>
+</html>
