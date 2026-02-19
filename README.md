@@ -94,6 +94,8 @@ Ce projet pédagogique vise à apprendre les différentes strates de prise de d�
 - Quiz d'aide au raisonnement
 - Template pour alimenter le guide au fur et à mesure
 
+**[docs/deploiement.md](docs/deploiement.md)** : plan détaillé pour déployer sur Render (backend, frontend, MySQL).
+
 Les anciens fichiers .md sont archivés dans `docs/archive/`.
 
 ## 🛠️ Installation et Développement
