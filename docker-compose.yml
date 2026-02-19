@@ -22,16 +22,13 @@ services:
 
   # Backend .NET API
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: mcr.microsoft.com/dotnet/sdk:9.0
     container_name: gegeDot-backend
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=mysql;Database=gegeDot;Uid=gegedot;Pwd=password;Port=3306;
     ports:
-      - "5000:5000"
-      - "5001:5001"
+      - "5001:5000"
     depends_on:
       - mysql
     networks:
@@ -39,6 +36,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./backend:/app
+    working_dir: /app/src/GegeDot.API
     command: dotnet watch run --urls="http://+:5000"
 
   # Frontend React
