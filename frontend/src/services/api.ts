@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { Person, CreatePersonDto, UpdatePersonDto, Relationship, CreateRelationshipDto, Tree, CreateTreeDto } from '@/types';
 
 class ApiService {
@@ -6,7 +6,7 @@ class ApiService {
 
   constructor() {
     this.api = axios.create({
-      baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
+      baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5001/api',
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
@@ -15,11 +15,11 @@ class ApiService {
 
     // Intercepteur pour les requêtes
     this.api.interceptors.request.use(
-      (config) => {
+      (config: InternalAxiosRequestConfig) => {
         console.log(`Making ${config.method?.toUpperCase()} request to ${config.url}`);
         return config;
       },
-      (error) => {
+      (error: unknown) => {
         console.error('Request error:', error);
         return Promise.reject(error);
       }
@@ -31,8 +31,9 @@ class ApiService {
         console.log(`Response from ${response.config.url}:`, response.status);
         return response;
       },
-      (error) => {
-        console.error('Response error:', error.response?.data || error.message);
+      (error: unknown) => {
+        const err = error as { response?: { data?: unknown }; message?: string };
+        console.error('Response error:', err.response?.data || err.message);
         return Promise.reject(error);
       }
     );
