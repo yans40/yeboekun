@@ -29,6 +29,8 @@ public interface IDuplicateDetectionService
 public class DuplicateCandidate
 {
     public int PersonId { get; set; }
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
     public DateTime? BirthDate { get; set; }
     public string? BirthPlace { get; set; }

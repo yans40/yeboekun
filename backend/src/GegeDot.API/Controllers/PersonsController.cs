@@ -204,6 +204,29 @@ public class PersonsController : ControllerBase
     {
         try
         {
+            // Validation manuelle pour les champs obligatoires
+            if (string.IsNullOrWhiteSpace(createPersonDto.FirstName))
+            {
+                ModelState.AddModelError(nameof(createPersonDto.FirstName), "Le prénom est obligatoire");
+            }
+            
+            if (string.IsNullOrWhiteSpace(createPersonDto.LastName))
+            {
+                ModelState.AddModelError(nameof(createPersonDto.LastName), "Le nom est obligatoire");
+            }
+            
+            // Validation des dates
+            if (createPersonDto.DeathDate.HasValue && createPersonDto.BirthDate.HasValue && 
+                createPersonDto.DeathDate.Value < createPersonDto.BirthDate.Value)
+            {
+                ModelState.AddModelError(nameof(createPersonDto.DeathDate), "La date de décès doit être postérieure à la date de naissance");
+            }
+            
+            if (createPersonDto.IsAlive && createPersonDto.DeathDate.HasValue)
+            {
+                ModelState.AddModelError(nameof(createPersonDto.DeathDate), "Une personne vivante ne peut pas avoir de date de décès");
+            }
+            
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -221,7 +244,7 @@ public class PersonsController : ControllerBase
     /// Met à jour une personne existante
     /// </summary>
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdatePerson(int id, UpdatePersonDto updatePersonDto)
+    public async Task<IActionResult> UpdatePerson(int id, UpdatePersonDto updatePersonDto, [FromQuery] bool force = false)
     {
         try
         {
@@ -231,12 +254,227 @@ public class PersonsController : ControllerBase
             if (!await _personService.PersonExistsAsync(id))
                 return NotFound($"Personne avec l'ID {id} non trouvée");
 
+            // Vérifier les doublons avant la mise à jour (en excluant la personne actuelle)
+            // Sauf si force=true est spécifié
+            if (!force)
+            {
+                var existingPerson = await _personService.GetPersonByIdAsync(id);
+                if (existingPerson == null)
+                    return NotFound($"Personne avec l'ID {id} non trouvée");
+
+                // Créer une personne temporaire avec les nouvelles données pour la vérification
+                var tempPerson = _mapper.Map<Person>(updatePersonDto);
+                tempPerson.Id = id; // Conserver l'ID pour exclure cette personne de la détection
+
+                var duplicates = await _duplicateDetectionService.FindDuplicatesAsync(tempPerson);
+
+                // Si des doublons sont trouvés (en excluant la personne elle-même), retourner un avertissement
+                if (duplicates.Any())
+                {
+                    return Conflict(new
+                    {
+                        message = "Des doublons potentiels ont été détectés. Voulez-vous continuer quand même ?",
+                        hasDuplicates = true,
+                        duplicates = duplicates,
+                        count = duplicates.Count
+                    });
+                }
+            }
+
             await _personService.UpdatePersonAsync(id, updatePersonDto);
             return NoContent();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erreur lors de la mise à jour de la personne {PersonId}", id);
+            return StatusCode(500, "Erreur interne du serveur");
+        }
+    }
+
+    /// <summary>
+    /// Crée une relation parent-enfant
+    /// </summary>
+    [HttpPost("{parentId}/children/{childId}")]
+    public async Task<IActionResult> CreateParentChildRelationship(int parentId, int childId)
+    {
+        try
+        {
+            // Vérifier que les deux personnes existent
+            var parentExists = await _unitOfWork.Persons.ExistsAsync(parentId);
+            var childExists = await _unitOfWork.Persons.ExistsAsync(childId);
+            
+            if (!parentExists)
+                return NotFound($"Parent avec l'ID {parentId} non trouvé");
+            if (!childExists)
+                return NotFound($"Enfant avec l'ID {childId} non trouvé");
+            
+            // Vérifier que la relation n'existe pas déjà
+            var relationshipExists = await _unitOfWork.Relationships.RelationshipExistsAsync(
+                parentId, 
+                childId, 
+                RelationshipType.Parent);
+            
+            if (relationshipExists)
+                return Conflict("Cette relation parent-enfant existe déjà");
+            
+            // Créer la relation
+            var relationship = new Relationship
+            {
+                Person1Id = parentId,
+                Person2Id = childId,
+                RelationshipType = RelationshipType.Parent,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            
+            await _unitOfWork.Relationships.AddAsync(relationship);
+            return Ok(new { message = "Relation parent-enfant créée avec succès", relationshipId = relationship.Id });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur lors de la création de la relation parent-enfant");
+            return StatusCode(500, "Erreur interne du serveur");
+        }
+    }
+
+    /// <summary>
+    /// Crée une relation de conjoint entre deux personnes
+    /// </summary>
+    [HttpPost("{personId}/spouses/{spouseId}")]
+    public async Task<IActionResult> CreateSpouseRelationship(int personId, int spouseId, [FromBody] CreateSpouseRelationshipDto? dto = null)
+    {
+        try
+        {
+            // Vérifier que les deux personnes existent
+            var personExists = await _unitOfWork.Persons.ExistsAsync(personId);
+            var spouseExists = await _unitOfWork.Persons.ExistsAsync(spouseId);
+            
+            if (!personExists)
+                return NotFound($"Personne avec l'ID {personId} non trouvée");
+            if (!spouseExists)
+                return NotFound($"Conjoint avec l'ID {spouseId} non trouvé");
+            
+            // Vérifier qu'on ne crée pas une relation avec soi-même
+            if (personId == spouseId)
+                return BadRequest("Une personne ne peut pas être son propre conjoint");
+            
+            // Vérifier que la relation n'existe pas déjà (dans les deux sens)
+            var relationshipExists1 = await _unitOfWork.Relationships.RelationshipExistsAsync(
+                personId, 
+                spouseId, 
+                RelationshipType.Spouse);
+            var relationshipExists2 = await _unitOfWork.Relationships.RelationshipExistsAsync(
+                spouseId, 
+                personId, 
+                RelationshipType.Spouse);
+            
+            if (relationshipExists1 || relationshipExists2)
+                return Conflict("Cette relation de conjoint existe déjà");
+            
+            // Créer la relation dans les deux sens (réciproque)
+            // Relation Person1 -> Person2
+            var relationship1 = new Relationship
+            {
+                Person1Id = personId,
+                Person2Id = spouseId,
+                RelationshipType = RelationshipType.Spouse,
+                StartDate = dto?.StartDate,
+                EndDate = dto?.EndDate,
+                Notes = dto?.Notes,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            
+            // Relation Person2 -> Person1 (réciproque)
+            var relationship2 = new Relationship
+            {
+                Person1Id = spouseId,
+                Person2Id = personId,
+                RelationshipType = RelationshipType.Spouse,
+                StartDate = dto?.StartDate,
+                EndDate = dto?.EndDate,
+                Notes = dto?.Notes,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            
+            await _unitOfWork.Relationships.AddAsync(relationship1);
+            await _unitOfWork.Relationships.AddAsync(relationship2);
+            await _unitOfWork.SaveChangesAsync();
+            
+            return Ok(new { 
+                message = "Relation de conjoint créée avec succès (réciproque)", 
+                relationshipId1 = relationship1.Id,
+                relationshipId2 = relationship2.Id
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur lors de la création de la relation de conjoint");
+            return StatusCode(500, "Erreur interne du serveur");
+        }
+    }
+
+    /// <summary>
+    /// Récupère tous les conjoints d'une personne (actuels et passés)
+    /// </summary>
+    [HttpGet("{id}/spouses")]
+    public async Task<ActionResult<IEnumerable<object>>> GetAllSpouses(int id)
+    {
+        try
+        {
+            var person = await _personService.GetPersonByIdAsync(id);
+            if (person == null)
+                return NotFound($"Personne avec l'ID {id} non trouvée");
+
+            // Récupérer toutes les relations de la personne
+            var relationships = await _unitOfWork.Relationships.GetByPersonIdAsync(id);
+            
+            // Trouver tous les mariages (Spouse = 3)
+            var marriages = relationships
+                .Where(r => r.RelationshipType == RelationshipType.Spouse)
+                .OrderByDescending(r => r.StartDate ?? DateTime.MinValue)
+                .ToList();
+
+            if (!marriages.Any())
+                return Ok(new List<object>());
+
+            var spousesList = new List<object>();
+            var processedSpouseIds = new HashSet<int>(); // Pour éviter les doublons dus aux relations réciproques
+            
+            foreach (var marriage in marriages)
+            {
+                // Déterminer qui est le conjoint
+                var spouseId = marriage.Person1Id == id 
+                    ? marriage.Person2Id 
+                    : marriage.Person1Id;
+
+                // Ignorer si ce conjoint a déjà été traité (évite les doublons des relations réciproques)
+                if (processedSpouseIds.Contains(spouseId))
+                    continue;
+
+                processedSpouseIds.Add(spouseId);
+
+                // Récupérer le conjoint
+                var spouse = await _personService.GetPersonByIdAsync(spouseId);
+                if (spouse != null)
+                {
+                    spousesList.Add(new
+                    {
+                        spouse = spouse,
+                        marriageStartDate = marriage.StartDate,
+                        marriageEndDate = marriage.EndDate,
+                        isCurrent = marriage.EndDate == null,
+                        marriageNotes = marriage.Notes
+                    });
+                }
+            }
+
+            return Ok(spousesList);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur lors de la récupération des conjoints de la personne {PersonId}", id);
             return StatusCode(500, "Erreur interne du serveur");
         }
     }

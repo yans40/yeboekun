@@ -33,13 +33,30 @@ public class DuplicateDetectionService : IDuplicateDetectionService
 
             var similarityScore = CalculateSimilarityScore(person, existingPerson);
 
-            if (similarityScore >= _defaultSimilarityThreshold)
+            // Cas spécial : Prénom identique ET date de naissance identique (ou très proche)
+            // Même si le score global est un peu plus bas, c'est probablement un doublon
+            bool sameFirstName = person.FirstName.Equals(existingPerson.FirstName, StringComparison.OrdinalIgnoreCase);
+            bool sameBirthDate = person.BirthDate.HasValue && existingPerson.BirthDate.HasValue &&
+                                Math.Abs((person.BirthDate.Value - existingPerson.BirthDate.Value).TotalDays) <= 30;
+            
+            bool isSpecialCase = sameFirstName && sameBirthDate;
+            double threshold = isSpecialCase ? 0.65 : _defaultSimilarityThreshold; // Seuil plus bas pour cas spéciaux
+
+            if (similarityScore >= threshold)
             {
                 var matchReason = DetermineMatchReason(person, existingPerson, similarityScore);
+                
+                // Ajouter une note spéciale si c'est un cas spécial
+                if (isSpecialCase && !person.LastName.Equals(existingPerson.LastName, StringComparison.OrdinalIgnoreCase))
+                {
+                    matchReason += " (Prénom et date identiques, nom différent)";
+                }
 
                 candidates.Add(new DuplicateCandidate
                 {
                     PersonId = existingPerson.Id,
+                    FirstName = existingPerson.FirstName,
+                    LastName = existingPerson.LastName,
                     FullName = existingPerson.FullName,
                     BirthDate = existingPerson.BirthDate,
                     BirthPlace = existingPerson.BirthPlace,
@@ -71,6 +88,25 @@ public class DuplicateDetectionService : IDuplicateDetectionService
         var nameScore = CalculateNameSimilarity(person1, person2);
         var dateScore = CalculateDateSimilarity(person1, person2);
         var placeScore = CalculatePlaceSimilarity(person1, person2);
+
+        // Cas spécial : Prénom identique ET date de naissance identique (ou très proche)
+        // Même si le nom de famille change, c'est probablement la même personne
+        bool sameFirstName = person1.FirstName.Equals(person2.FirstName, StringComparison.OrdinalIgnoreCase);
+        bool sameBirthDate = person1.BirthDate.HasValue && person2.BirthDate.HasValue &&
+                            Math.Abs((person1.BirthDate.Value - person2.BirthDate.Value).TotalDays) <= 30;
+        
+        if (sameFirstName && sameBirthDate)
+        {
+            // Si prénom identique et date identique, score minimum élevé même si nom différent
+            // Score basé sur : prénom (100%) + date (100%) + lieu si disponible
+            var specialScore = 0.7; // Base élevée pour prénom + date identiques
+            if (placeScore > 0.5)
+                specialScore = 0.85; // Si lieu aussi similaire, score très élevé
+            
+            // Prendre le maximum entre le score normal et le score spécial
+            var normalScore = (nameScore * 0.5) + (dateScore * 0.3) + (placeScore * 0.2);
+            return Math.Max(normalScore, specialScore);
+        }
 
         // Poids : Nom 50%, Date 30%, Lieu 20%
         return (nameScore * 0.5) + (dateScore * 0.3) + (placeScore * 0.2);

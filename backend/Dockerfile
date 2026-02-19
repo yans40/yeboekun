@@ -1,5 +1,5 @@
-# Utiliser l'image officielle .NET 8 SDK pour la compilation
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# Utiliser l'image officielle .NET 9 SDK pour la compilation
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Copier les fichiers de projet et restaurer les dépendances
@@ -22,8 +22,8 @@ RUN dotnet build "GegeDot.API.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "GegeDot.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Image finale avec runtime .NET 8
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+# Image finale avec runtime .NET 9
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
