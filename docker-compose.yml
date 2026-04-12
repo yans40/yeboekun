@@ -37,7 +37,7 @@ services:
     volumes:
       - ./backend:/app
     working_dir: /app/src/GegeDot.API
-    command: dotnet watch run --urls="http://+:5000"
+    command: dotnet run --urls="http://+:5000"
 
   # Frontend React
   frontend:

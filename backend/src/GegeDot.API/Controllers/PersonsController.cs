@@ -524,7 +524,7 @@ public class PersonsController : ControllerBase
     /// Récupère l'arbre familial d'une personne (inspiré du repository distant)
     /// </summary>
     [HttpGet("{id}/family")]
-    public async Task<ActionResult<object>> GetFamilyTree(int id)
+    public async Task<ActionResult<FamilyDataDto>> GetFamilyTree(int id)
     {
         try
         {
@@ -535,7 +535,7 @@ public class PersonsController : ControllerBase
             var children = await _personService.GetChildrenAsync(id);
             var parents = await _personService.GetParentsAsync(id);
             var siblings = await _personService.GetSiblingsAsync(id);
-            
+
             // Récupérer le conjoint actuel
             PersonDto? spouse = null;
             try
@@ -554,30 +554,30 @@ public class PersonsController : ControllerBase
             // Calculer les statistiques familiales
             var totalFamilyMembers = 1 + parents.Count() + children.Count() + siblings.Count() + (spouse != null ? 1 : 0);
 
-            var familyData = new
+            var familyData = new FamilyDataDto
             {
-                person = person,
-                parents = parents,
-                children = children,
-                siblings = siblings,
-                spouse = spouse,
-                grandparents = new List<PersonDto>(), // Pas encore implémenté
-                grandchildren = new List<PersonDto>(), // Pas encore implémenté
-                totalFamilyMembers = totalFamilyMembers,
-                familyStats = new
+                Person = person,
+                Parents = parents,
+                Children = children,
+                Siblings = siblings,
+                Spouse = spouse,
+                Grandparents = new List<PersonDto>(), // Pas encore implémenté
+                Grandchildren = new List<PersonDto>(), // Pas encore implémenté
+                TotalFamilyMembers = totalFamilyMembers,
+                FamilyStats = new FamilyStatsDto
                 {
-                    totalMembers = totalFamilyMembers,
-                    parentsCount = parents.Count(),
-                    childrenCount = children.Count(),
-                    siblingsCount = siblings.Count(),
-                    hasParents = parents.Any(),
-                    hasChildren = children.Any(),
-                    hasSiblings = siblings.Any(),
-                    hasSpouse = spouse != null
+                    TotalMembers = totalFamilyMembers,
+                    ParentsCount = parents.Count(),
+                    ChildrenCount = children.Count(),
+                    SiblingsCount = siblings.Count(),
+                    HasParents = parents.Any(),
+                    HasChildren = children.Any(),
+                    HasSiblings = siblings.Any(),
+                    HasSpouse = spouse != null
                 }
             };
 
-            _logger.LogInformation("Arbre familial récupéré pour {PersonName} (ID: {PersonId}) - {TotalMembers} membres", 
+            _logger.LogInformation("Arbre familial récupéré pour {PersonName} (ID: {PersonId}) - {TotalMembers} membres",
                 person.FullName, id, totalFamilyMembers);
 
             return Ok(familyData);

@@ -2,67 +2,44 @@
   "name": "gegedot-frontend",
   "version": "1.0.0-beta",
   "description": "Frontend pour l'application GegeDot - Arbre Généalogique",
-  "main": "index.html",
+  "type": "module",
   "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "serve": "python3 -m http.server 3004",
-    "lint": "eslint *.html",
-    "build": "echo 'Build completed'",
-    "start": "npm run serve"
+    "test:coverage": "jest --coverage"
   },
-  "keywords": [
-    "genealogy",
-    "family-tree",
-    "visualization",
-    "d3.js"
-  ],
+  "keywords": ["genealogy", "family-tree", "visualization"],
   "author": "GegeDot Team",
   "license": "MIT",
+  "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.1.6",
+    "@mui/material": "^6.1.6",
+    "axios": "^1.7.9",
+    "d3": "^7.8.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
   "devDependencies": {
+    "@types/d3": "^7.4.3",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
-    "eslint": "^8.57.0",
-    "eslint-plugin-html": "^7.1.0"
-  },
-  "dependencies": {
-    "axios": "^1.7.9",
-    "d3": "^7.8.5"
+    "eslint": "^8.57.0"
   },
   "jest": {
     "testEnvironment": "jsdom",
     "testMatch": [
       "**/__tests__/**/*.js",
       "**/?(*.)+(spec|test).js"
-    ],
-    "collectCoverageFrom": [
-      "**/*.html",
-      "!**/node_modules/**",
-      "!**/test-suite.html"
-    ],
-    "coverageReporters": [
-      "text",
-      "lcov",
-      "html"
     ]
-  },
-  "eslintConfig": {
-    "env": {
-      "browser": true,
-      "es2021": true,
-      "jest": true
-    },
-    "extends": [
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "ecmaVersion": "latest",
-      "sourceType": "module"
-    },
-    "rules": {
-      "no-console": "warn",
-      "no-unused-vars": "warn"
-    }
   }
 }
