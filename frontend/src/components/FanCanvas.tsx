@@ -155,6 +155,7 @@ export const FanCanvas: React.FC<FanCanvasProps> = ({
               centralPersonId={centralPersonId}
               parentChildMap={parentChildMap}
               childParentMap={childParentMap}
+              spousePairs={layout.spousePairs}
             />
             {layout.positions.map((pos: CardPosition) => {
               const person = [
@@ -162,6 +163,7 @@ export const FanCanvas: React.FC<FanCanvasProps> = ({
                 ...familyData.parents,
                 ...familyData.siblings,
                 ...familyData.children,
+                ...(familyData.spouses ?? []).map(s => s.spouse),
               ].find(p => p.id === pos.personId);
               if (!person) return null;
               return (
@@ -173,6 +175,7 @@ export const FanCanvas: React.FC<FanCanvasProps> = ({
                   isCentral={pos.isCentral}
                   isChild={pos.isChild}
                   isSibling={pos.isSibling}
+                  isSpouse={pos.isSpouse}
                   onPersonClick={onPersonSelect}
                   onPersonEdit={onPersonEdit}
                 />

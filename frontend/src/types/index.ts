@@ -183,6 +183,13 @@ export interface CardPosition {
   isCentral: boolean;
   isChild: boolean;
   isSibling: boolean;
+  isSpouse: boolean;
+}
+
+/** A married couple represented in the layout */
+export interface SpousePair {
+  person1Id: number;
+  person2Id: number;
 }
 
 /** Result of the layout algorithm */
@@ -192,6 +199,7 @@ export interface FamilyTreeLayout {
   totalHeight: number;
   centralX: number;
   centralY: number;
+  spousePairs: SpousePair[];
 }
 
 /** Extended person with relationship IDs (for form submission) */

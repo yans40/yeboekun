@@ -24,6 +24,7 @@ interface GenealogyCardProps {
   isCentral?: boolean;
   isChild?: boolean;
   isSibling?: boolean;
+  isSpouse?: boolean;
   onPersonClick: (personId: number) => void;
   onPersonEdit: (personId: number) => void;
 }
@@ -34,6 +35,7 @@ export const GenealogyCard: React.FC<GenealogyCardProps> = ({
   y,
   isCentral = false,
   isChild = false,
+  isSpouse = false,
   onPersonClick,
   onPersonEdit,
 }) => {
@@ -41,7 +43,7 @@ export const GenealogyCard: React.FC<GenealogyCardProps> = ({
   const [editHovered, setEditHovered] = useState(false);
 
   const width = isChild ? CHILD_CARD_WIDTH : CARD_WIDTH;
-  const genderColor = GENDER_COLORS[person.gender] ?? GENDER_COLORS.O;
+  const genderColor = (person.gender ? GENDER_COLORS[person.gender] : null) ?? GENDER_COLORS.O;
 
   const birthYear = formatYear(person.birthDate);
   const deathYear = formatYear(person.deathDate);
@@ -64,6 +66,8 @@ export const GenealogyCard: React.FC<GenealogyCardProps> = ({
       : '0 4px 20px rgba(0,0,0,0.07)',
     border: isCentral
       ? `2px solid ${genderColor}`
+      : isSpouse
+      ? '1.5px solid #C084FC'
       : '1px solid #E5E7EB',
     cursor: 'pointer',
     transition: 'box-shadow 150ms, transform 150ms',

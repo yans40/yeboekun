@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { FamilyData, FamilyTreeLayout } from '../types';
+import { FamilyData, FamilyTreeLayout, SpouseInfo } from '../types';
 import { buildLayout } from '../utils/familyTreeLayout';
 import apiService from '../services/api';
 
@@ -21,7 +21,15 @@ export function useFamilyTree() {
   const loadFamilyTree = useCallback(async (personId: number) => {
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
-      const familyData = await apiService.getFamilyData(personId);
+      const raw = await apiService.getFamilyData(personId);
+      // Le backend /family retourne `spouse` (singulier, PersonDto|null) plutôt que `spouses`.
+      // On normalise ici pour notre interface FamilyData qui attend spouses: SpouseInfo[].
+      const rawAny = raw as any;
+      let spouses: SpouseInfo[] = Array.isArray(raw.spouses) ? raw.spouses : [];
+      if (spouses.length === 0 && rawAny.spouse) {
+        spouses = [{ spouse: rawAny.spouse }];
+      }
+      const familyData: FamilyData = { ...raw, spouses };
       const layout = buildLayout(familyData);
       setState({ familyData, layout, loading: false, error: null });
     } catch (err) {

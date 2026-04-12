@@ -1,5 +1,5 @@
 import React from 'react';
-import { CardPosition } from '../types';
+import { CardPosition, SpousePair } from '../types';
 import { CARD_WIDTH, CARD_HEIGHT, CHILD_CARD_WIDTH } from '../utils/familyTreeLayout';
 
 interface ConnectionLayerProps {
@@ -9,6 +9,8 @@ interface ConnectionLayerProps {
   parentChildMap: Map<number, number[]>;
   /** parentId → childIds (descendants of central person) */
   childParentMap: Map<number, number[]>;
+  /** Réservé pour usage futur (affichage conjoint) */
+  spousePairs: SpousePair[];
 }
 
 interface LineProps {

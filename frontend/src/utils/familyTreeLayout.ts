@@ -151,6 +151,7 @@ export function buildLayout(familyData: FamilyData): FamilyTreeLayout {
         isCentral: entry.isCentral,
         isChild: level === -1,
         isSibling: level === 0 && !entry.isCentral,
+        isSpouse: false,
       });
       minX = Math.min(minX, x);
       maxX = Math.max(maxX, x + CARD_WIDTH);
@@ -167,5 +168,6 @@ export function buildLayout(familyData: FamilyData): FamilyTreeLayout {
     totalHeight: isFinite(maxY - minY) ? maxY - minY + 200 : 2000,
     centralX: centralPos?.x ?? CANVAS_CENTER_X,
     centralY: centralPos?.y ?? centralPersonY,
+    spousePairs: [],
   };
 }
