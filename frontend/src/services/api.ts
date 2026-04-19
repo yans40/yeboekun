@@ -1,12 +1,12 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { Person, CreatePersonDto, UpdatePersonDto, Relationship, CreateRelationshipDto, Tree, CreateTreeDto } from '@/types';
+import { Person, CreatePersonDto, UpdatePersonDto, Relationship, CreateRelationshipDto, Tree, CreateTreeDto, FamilyData, SpouseInfo } from '@/types';
 
 class ApiService {
   private api: AxiosInstance;
 
   constructor() {
     this.api = axios.create({
-      baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5001/api',
+      baseURL: '/api',
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
@@ -16,11 +16,9 @@ class ApiService {
     // Intercepteur pour les requêtes
     this.api.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
-        console.log(`Making ${config.method?.toUpperCase()} request to ${config.url}`);
         return config;
       },
       (error: unknown) => {
-        console.error('Request error:', error);
         return Promise.reject(error);
       }
     );
@@ -28,12 +26,9 @@ class ApiService {
     // Intercepteur pour les réponses
     this.api.interceptors.response.use(
       (response: AxiosResponse) => {
-        console.log(`Response from ${response.config.url}:`, response.status);
         return response;
       },
       (error: unknown) => {
-        const err = error as { response?: { data?: unknown }; message?: string };
-        console.error('Response error:', err.response?.data || err.message);
         return Promise.reject(error);
       }
     );
@@ -81,7 +76,7 @@ class ApiService {
   }
 
   async updatePerson(id: number, person: UpdatePersonDto): Promise<void> {
-    await this.api.put(`/persons/${id}`, person);
+    await this.api.put(`/persons/${id}?force=true`, person);
   }
 
   async deletePerson(id: number): Promise<void> {
@@ -96,6 +91,17 @@ class ApiService {
 
   async createRelationship(relationship: CreateRelationshipDto): Promise<Relationship> {
     const response = await this.api.post<Relationship>('/relationships', relationship);
+    return response.data;
+  }
+
+  // Family tree API
+  async getFamilyData(id: number): Promise<FamilyData> {
+    const response = await this.api.get<FamilyData>(`/persons/${id}/family`);
+    return response.data;
+  }
+
+  async getSpouses(id: number): Promise<SpouseInfo[]> {
+    const response = await this.api.get<SpouseInfo[]>(`/persons/${id}/spouses`);
     return response.data;
   }
 

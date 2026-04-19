@@ -10,7 +10,7 @@ export interface Person {
   deathPlace?: string;
   photoUrl?: string;
   biography?: string;
-  gender: 'M' | 'F' | 'O';
+  gender: 'M' | 'F' | 'O' | null;
   isAlive: boolean;
   fullName: string;
   age?: number;
@@ -42,7 +42,7 @@ export interface UpdatePersonDto {
   deathPlace?: string;
   photoUrl?: string;
   biography?: string;
-  gender: 'M' | 'F' | 'O';
+  gender: 'M' | 'F' | 'O' | null;
   isAlive: boolean;
 }
 
@@ -154,4 +154,56 @@ export interface TreeStatistics {
   oldestPerson?: Person;
   youngestPerson?: Person;
   mostCommonSurname?: string;
+}
+
+// ─── Family tree visualization types ─────────────────────────────────────────
+
+export interface SpouseInfo {
+  spouse: Person;
+  marriageStartDate?: string;
+  marriageEndDate?: string;
+  marriageNotes?: string;
+}
+
+/** Response from GET /persons/{id}/family */
+export interface FamilyData {
+  person: Person;
+  parents: Person[];
+  siblings: Person[];
+  children: Person[];
+  spouses: SpouseInfo[];
+}
+
+/** Position of a single card in the virtual canvas */
+export interface CardPosition {
+  personId: number;
+  x: number;
+  y: number;
+  level: number;      // 0=central, >0=ancestors, -1=children
+  isCentral: boolean;
+  isChild: boolean;
+  isSibling: boolean;
+  isSpouse: boolean;
+}
+
+/** A married couple represented in the layout */
+export interface SpousePair {
+  person1Id: number;
+  person2Id: number;
+}
+
+/** Result of the layout algorithm */
+export interface FamilyTreeLayout {
+  positions: CardPosition[];
+  totalWidth: number;
+  totalHeight: number;
+  centralX: number;
+  centralY: number;
+  spousePairs: SpousePair[];
+}
+
+/** Extended person with relationship IDs (for form submission) */
+export interface PersonWithRelations extends Person {
+  parent1Id?: number;
+  parent2Id?: number;
 }

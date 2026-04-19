@@ -10,9 +10,9 @@ public class MappingProfile : Profile
     {
         // Person mappings
         CreateMap<Person, PersonDto>()
-            .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender.ToString()))
-            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
-            .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.Age));
+            .ForMember(dest => dest.Gender, opt => opt.MapFrom(src =>
+                src.Gender == Gender.Male ? "M" :
+                src.Gender == Gender.Female ? "F" : "O"));
 
         CreateMap<CreatePersonDto, Person>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
@@ -20,9 +20,9 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.RelationshipsAsPerson1, opt => opt.Ignore())
             .ForMember(dest => dest.RelationshipsAsPerson2, opt => opt.Ignore())
-            .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => 
-                src.Gender == "Male" ? Gender.Male : 
-                src.Gender == "Female" ? Gender.Female : Gender.Other));
+            .ForMember(dest => dest.Gender, opt => opt.MapFrom(src =>
+                (src.Gender == "M" || src.Gender == "Male") ? Gender.Male :
+                (src.Gender == "F" || src.Gender == "Female") ? Gender.Female : Gender.Other));
 
         CreateMap<UpdatePersonDto, Person>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
@@ -30,9 +30,9 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.RelationshipsAsPerson1, opt => opt.Ignore())
             .ForMember(dest => dest.RelationshipsAsPerson2, opt => opt.Ignore())
-            .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => 
-                src.Gender == "Male" ? Gender.Male : 
-                src.Gender == "Female" ? Gender.Female : Gender.Other));
+            .ForMember(dest => dest.Gender, opt => opt.MapFrom(src =>
+                (src.Gender == "M" || src.Gender == "Male") ? Gender.Male :
+                (src.Gender == "F" || src.Gender == "Female") ? Gender.Female : Gender.Other));
 
         // Relationship mappings
         CreateMap<Relationship, RelationshipDto>()

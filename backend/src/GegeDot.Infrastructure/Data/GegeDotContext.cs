@@ -59,8 +59,11 @@ public class GegeDotContext : DbContext
                   .OnDelete(DeleteBehavior.Cascade);
 
             // Constraints
-            entity.HasCheckConstraint("CHK_DifferentPersons", "Person1Id != Person2Id");
-            entity.HasCheckConstraint("CHK_ValidDateRange", "EndDate IS NULL OR StartDate IS NULL OR EndDate >= StartDate");
+            entity.ToTable(t =>
+            {
+                t.HasCheckConstraint("CHK_DifferentPersons", "Person1Id != Person2Id");
+                t.HasCheckConstraint("CHK_ValidDateRange", "EndDate IS NULL OR StartDate IS NULL OR EndDate >= StartDate");
+            });
 
             // Indexes
             entity.HasIndex(e => e.Person1Id).HasDatabaseName("IX_Relationships_Person1");

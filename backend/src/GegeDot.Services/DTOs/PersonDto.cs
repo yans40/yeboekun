@@ -53,11 +53,11 @@ public class CreatePersonDto
     public string? PhotoUrl { get; set; }
     public string? Biography { get; set; }
     
-    [RegularExpression("^(M|F|Male|Female|Other)$", ErrorMessage = "Le genre doit être M, F, Male, Female ou Other")]
+    [RegularExpression("^(M|F|O|Male|Female|Other)$", ErrorMessage = "Le genre doit être M, F, O, Male, Female ou Other")]
     public string Gender { get; set; } = "M";
-    
+
     public bool IsAlive { get; set; } = true;
-    
+
     public int? Parent1Id { get; set; }
     public int? Parent2Id { get; set; }
 }
@@ -112,9 +112,9 @@ public class UpdatePersonDto
     public string? PhotoUrl { get; set; }
     public string? Biography { get; set; }
     
-    [RegularExpression("^(M|F|Male|Female|Other)$", ErrorMessage = "Le genre doit être M, F, Male, Female ou Other")]
+    [RegularExpression("^(M|F|O|Male|Female|Other)$", ErrorMessage = "Le genre doit être M, F, O, Male, Female ou Other")]
     public string Gender { get; set; } = "M";
-    
+
     public bool IsAlive { get; set; } = true;
 }
 
