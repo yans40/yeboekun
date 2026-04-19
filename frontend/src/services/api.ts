@@ -94,6 +94,14 @@ class ApiService {
     return response.data;
   }
 
+  async addParentChildRelationship(parentId: number, childId: number): Promise<void> {
+    await this.api.post(`/persons/${parentId}/children/${childId}`);
+  }
+
+  async deleteParentChildRelationship(parentId: number, childId: number): Promise<void> {
+    await this.api.delete(`/persons/${parentId}/children/${childId}`);
+  }
+
   // Family tree API
   async getFamilyData(id: number): Promise<FamilyData> {
     const response = await this.api.get<FamilyData>(`/persons/${id}/family`);

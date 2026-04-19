@@ -590,6 +590,32 @@ public class PersonsController : ControllerBase
     }
 
     /// <summary>
+    /// Supprime une relation parent-enfant
+    /// </summary>
+    [HttpDelete("{parentId}/children/{childId}")]
+    public async Task<IActionResult> DeleteParentChildRelationship(int parentId, int childId)
+    {
+        try
+        {
+            var relationships = await _unitOfWork.Relationships.GetByPersonIdsAsync(parentId, childId);
+            var parentRel = relationships.FirstOrDefault(r =>
+                r.Person1Id == parentId && r.Person2Id == childId &&
+                r.RelationshipType == RelationshipType.Parent);
+
+            if (parentRel == null)
+                return NotFound("Relation parent-enfant introuvable");
+
+            await _unitOfWork.Relationships.DeleteAsync(parentRel.Id);
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur lors de la suppression de la relation parent-enfant");
+            return StatusCode(500, "Erreur interne du serveur");
+        }
+    }
+
+    /// <summary>
     /// Supprime une personne
     /// </summary>
     [HttpDelete("{id}")]
