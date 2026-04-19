@@ -426,16 +426,21 @@ const PersonForm: React.FC<PersonFormProps> = ({
                     {currentParents.length === 0 && (
                       <Typography variant="body2" color="text.disabled">Aucun parent enregistré</Typography>
                     )}
-                    {currentParents.map(p => (
-                      <Chip
-                        key={p.id}
-                        label={p.fullName}
-                        onDelete={() => handleRemoveParent(p.id)}
-                        size="small"
-                        color="primary"
-                        variant="outlined"
-                      />
-                    ))}
+                    {[...currentParents]
+                      .sort((a, b) => {
+                        const order = (g: string | null) => g === 'M' ? 0 : g === 'F' ? 1 : 2;
+                        return order(a.gender) - order(b.gender);
+                      })
+                      .map(p => (
+                        <Chip
+                          key={p.id}
+                          label={`${p.gender === 'F' ? 'Mère' : 'Père'} : ${p.fullName}`}
+                          onDelete={() => handleRemoveParent(p.id)}
+                          size="small"
+                          color="primary"
+                          variant="outlined"
+                        />
+                      ))}
                   </Box>
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                     <FormControl size="small" sx={{ flex: 1 }}>
