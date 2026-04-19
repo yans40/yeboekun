@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { Person } from '../types';
 
 interface AppSidebarProps {
@@ -22,6 +23,22 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   ancestorCount,
   generationDepth,
 }) => {
+  const [search, setSearch] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Ferme le dropdown si on clique en dehors
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const sidebarStyle: React.CSSProperties = {
     width: collapsed ? 72 : 240,
     minWidth: collapsed ? 72 : 240,
@@ -31,7 +48,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     display: 'flex',
     flexDirection: 'column',
     transition: 'width 200ms ease, min-width 200ms ease',
-    overflow: 'hidden',
     flexShrink: 0,
     zIndex: 100,
   };
@@ -91,17 +107,16 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     marginBottom: 6,
   };
 
-  const selectStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '8px 10px',
-    border: '1px solid #E5E7EB',
-    borderRadius: 8,
-    fontSize: 13,
-    color: '#1F2937',
-    backgroundColor: '#F9FAFB',
-    outline: 'none',
-    cursor: 'pointer',
-    appearance: 'none',
+  const filteredPersons = search.trim()
+    ? persons.filter(p => p.fullName.toLowerCase().includes(search.toLowerCase()))
+    : persons;
+
+  const selectedPerson = persons.find(p => p.id === selectedPersonId);
+
+  const handleSearchSelect = (person: Person) => {
+    onPersonSelect(person.id);
+    setSearch('');
+    setDropdownOpen(false);
   };
 
   const addBtnStyle: React.CSSProperties = {
@@ -155,19 +170,110 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         {!collapsed && (
           <>
             <div style={sectionLabelStyle}>Choisir une personne</div>
-            <select
-              style={selectStyle}
-              value={selectedPersonId ?? ''}
-              onChange={e => {
-                const val = parseInt(e.target.value);
-                if (!isNaN(val)) onPersonSelect(val);
-              }}
-            >
-              <option value="">— Sélectionner —</option>
-              {persons.map(p => (
-                <option key={p.id} value={p.id}>{p.fullName}</option>
-              ))}
-            </select>
+
+            {/* Personne sélectionnée */}
+            {selectedPerson && (
+              <div style={{
+                fontSize: 13,
+                color: '#1F2937',
+                backgroundColor: '#EEF2FF',
+                borderRadius: 8,
+                padding: '6px 10px',
+                marginBottom: 8,
+                fontWeight: 500,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+                <span>{selectedPerson.fullName}</span>
+                <span
+                  style={{ cursor: 'pointer', color: '#9CA3AF', fontSize: 16, lineHeight: 1 }}
+                  onClick={() => onPersonSelect(selectedPerson.id)}
+                  title="Désélectionner"
+                >
+                  ×
+                </span>
+              </div>
+            )}
+
+            {/* Autocomplete */}
+            <div ref={searchRef} style={{ position: 'relative' }}>
+              <input
+                ref={inputRef}
+                type="text"
+                placeholder="Rechercher..."
+                value={search}
+                onChange={e => { setSearch(e.target.value); setDropdownOpen(true); }}
+                onFocus={() => setDropdownOpen(true)}
+                style={{
+                  width: '100%',
+                  padding: '7px 10px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: 8,
+                  fontSize: 13,
+                  color: '#1F2937',
+                  backgroundColor: '#ffffff',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+              {dropdownOpen && filteredPersons.length > 0 && ReactDOM.createPortal(
+                <div style={{
+                  position: 'fixed',
+                  top: inputRef.current ? inputRef.current.getBoundingClientRect().bottom : 0,
+                  left: inputRef.current ? inputRef.current.getBoundingClientRect().left : 0,
+                  width: inputRef.current ? inputRef.current.getBoundingClientRect().width : 200,
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #E5E7EB',
+                  borderTop: 'none',
+                  borderRadius: '0 0 8px 8px',
+                  maxHeight: 220,
+                  overflowY: 'auto',
+                  zIndex: 9999,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+                }}>
+                  {filteredPersons.map(p => (
+                    <div
+                      key={p.id}
+                      onMouseDown={() => handleSearchSelect(p)}
+                      style={{
+                        padding: '8px 10px',
+                        fontSize: 13,
+                        color: p.id === selectedPersonId ? '#3B82F6' : '#1F2937',
+                        backgroundColor: p.id === selectedPersonId ? '#EEF2FF' : 'transparent',
+                        cursor: 'pointer',
+                        fontWeight: p.id === selectedPersonId ? 600 : 400,
+                        borderBottom: '1px solid #F3F4F6',
+                      }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.backgroundColor = '#F9FAFB'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.backgroundColor = p.id === selectedPersonId ? '#EEF2FF' : 'transparent'; }}
+                    >
+                      {p.fullName}
+                    </div>
+                  ))}
+                </div>,
+                document.body
+              )}
+              {dropdownOpen && search.trim() && filteredPersons.length === 0 && ReactDOM.createPortal(
+                <div style={{
+                  position: 'fixed',
+                  top: inputRef.current ? inputRef.current.getBoundingClientRect().bottom : 0,
+                  left: inputRef.current ? inputRef.current.getBoundingClientRect().left : 0,
+                  width: inputRef.current ? inputRef.current.getBoundingClientRect().width : 200,
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #E5E7EB',
+                  borderTop: 'none',
+                  borderRadius: '0 0 8px 8px',
+                  padding: '8px 10px',
+                  fontSize: 13,
+                  color: '#9CA3AF',
+                  zIndex: 9999,
+                }}>
+                  Aucun résultat
+                </div>,
+                document.body
+              )}
+            </div>
           </>
         )}
         {collapsed && (

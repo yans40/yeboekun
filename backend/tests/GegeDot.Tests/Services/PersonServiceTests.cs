@@ -2,6 +2,7 @@ using FluentAssertions;
 using GegeDot.Core.Entities;
 using GegeDot.Core.Interfaces;
 using GegeDot.Services.DTOs;
+using GegeDot.Services.Interfaces;
 using GegeDot.Services.Services;
 using Moq;
 using Xunit;
@@ -42,7 +43,13 @@ public class PersonServiceTests
                      Gender = Enum.Parse<Gender>(dto.Gender)
                  });
 
-        _personService = new PersonService(_mockUnitOfWork.Object, mockMapper.Object);
+        var mockNormalization = new Mock<IDataNormalizationService>();
+        mockNormalization.Setup(n => n.NormalizeName(It.IsAny<string?>())).Returns((string? s) => s ?? string.Empty);
+        mockNormalization.Setup(n => n.NormalizePlace(It.IsAny<string?>())).Returns((string? s) => s ?? string.Empty);
+        mockNormalization.Setup(n => n.NormalizeProfession(It.IsAny<string?>())).Returns((string? s) => s ?? string.Empty);
+        mockNormalization.Setup(n => n.NormalizeDate(It.IsAny<string?>())).Returns((string? s) => null);
+
+        _personService = new PersonService(_mockUnitOfWork.Object, mockMapper.Object, mockNormalization.Object);
     }
 
     [Fact]

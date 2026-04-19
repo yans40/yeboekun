@@ -82,13 +82,26 @@ function App() {
   };
 
   // ── Form submit ─────────────────────────────────────────────────────────────
-  const handleFormSubmit = async (data: CreatePersonDto | UpdatePersonDto) => {
+  const handleFormSubmit = async (data: CreatePersonDto | UpdatePersonDto, parentIds?: number[]) => {
     try {
       if (editingPerson) {
         await apiService.updatePerson(editingPerson.id, data as UpdatePersonDto);
         showSnackbar('Personne mise à jour', 'success');
       } else {
-        await apiService.createPerson(data as CreatePersonDto);
+        const created = await apiService.createPerson(data as CreatePersonDto);
+        // Créer les relations parent → enfant
+        if (parentIds && parentIds.length > 0) {
+          await Promise.all(
+            parentIds.map(parentId =>
+              apiService.createRelationship({
+                person1Id: parentId,
+                person2Id: created.id,
+                relationshipType: 1, // Parent
+                isActive: true,
+              })
+            )
+          );
+        }
         showSnackbar('Personne créée', 'success');
       }
       await loadPersons();
@@ -105,6 +118,18 @@ function App() {
   const handleFormClose = () => {
     setFormOpen(false);
     setEditingPerson(null);
+  };
+
+  const handlePersonDelete = async () => {
+    if (!editingPerson) return;
+    await apiService.deletePerson(editingPerson.id);
+    showSnackbar(`${editingPerson.fullName} supprimé(e)`, 'success');
+    await loadPersons();
+    if (selectedPersonId === editingPerson.id) {
+      setSelectedPersonId(null);
+    } else if (selectedPersonId !== null) {
+      loadFamilyTree(selectedPersonId);
+    }
   };
 
   // ── Compute sidebar stats from layout ───────────────────────────────────────
@@ -151,7 +176,9 @@ function App() {
         open={formOpen}
         onClose={handleFormClose}
         onSubmit={handleFormSubmit}
+        onDelete={editingPerson ? handlePersonDelete : undefined}
         person={editingPerson}
+        persons={!editingPerson ? persons : undefined}
         title={editingPerson ? 'Modifier la personne' : 'Ajouter une personne'}
       />
 

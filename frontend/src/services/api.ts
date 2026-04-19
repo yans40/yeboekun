@@ -76,7 +76,7 @@ class ApiService {
   }
 
   async updatePerson(id: number, person: UpdatePersonDto): Promise<void> {
-    await this.api.put(`/persons/${id}`, person);
+    await this.api.put(`/persons/${id}?force=true`, person);
   }
 
   async deletePerson(id: number): Promise<void> {

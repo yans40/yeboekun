@@ -113,11 +113,11 @@ const PersonCard: React.FC<PersonCardProps> = ({
             {person.fullName}
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            {getGenderIcon(person.gender)}
+            {getGenderIcon(person.gender ?? 'O')}
             <Chip
               label={person.gender === 'M' ? 'Homme' : person.gender === 'F' ? 'Femme' : 'Autre'}
               size="small"
-              color={getGenderColor(person.gender) as any}
+              color={getGenderColor(person.gender ?? 'O') as any}
               variant="outlined"
             />
           </Box>
