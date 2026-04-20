@@ -50,6 +50,7 @@ Le bouton **Mode édition** en bas de la sidebar protège contre les modificatio
 ```bash
 # frontend/.env
 VITE_EDIT_PASSWORD=ton_mot_de_passe
+# Note : ancienne variable VITE_ADMIN_PASSWORD dépréciée — mettre à jour les déploiements existants
 ```
 
 ## Démarrage rapide
