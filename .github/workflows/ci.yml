@@ -1,131 +1,74 @@
-name: CI/CD Pipeline
+name: CI / Tests
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, dev]
   pull_request:
-    branches: [ main ]
+    branches: [main, dev]
 
 jobs:
-  test:
+  backend-tests:
+    name: Backend (.NET 9)
     runs-on: ubuntu-latest
-    
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: gegeDot
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-    
-    - name: Restore .NET dependencies
-      run: dotnet restore backend/src/GegeDot.API/GegeDot.API.csproj
-    
-    - name: Build .NET application
-      run: dotnet build backend/src/GegeDot.API/GegeDot.API.csproj --no-restore
-    
-    - name: Run .NET tests
-      run: dotnet test backend/src/GegeDot.API/GegeDot.API.csproj --no-build --verbosity normal
-    
-    - name: Install frontend dependencies
-      run: |
-        cd frontend
-        npm install
-    
-    - name: Run frontend tests
-      run: |
-        cd frontend
-        npm test -- --coverage --watchAll=false
-    
-    - name: Start backend API
-      run: |
-        cd backend/src/GegeDot.API
-        dotnet run --urls=http://localhost:5001 &
-        sleep 10
-    
-    - name: Start frontend server
-      run: |
-        cd frontend
-        python3 -m http.server 3004 &
-        sleep 5
-    
-    - name: Run integration tests
-      run: |
-        # Test API endpoints
-        curl -f http://localhost:5001/api/persons || exit 1
-        echo "API test passed"
-        
-        # Test frontend
-        curl -f http://localhost:3004/test-suite.html || exit 1
-        echo "Frontend test passed"
-    
-    - name: Performance test
-      run: |
-        # Test API response time
-        start_time=$(date +%s%N)
-        curl -s http://localhost:5001/api/persons > /dev/null
-        end_time=$(date +%s%N)
-        duration=$(( (end_time - start_time) / 1000000 ))
-        echo "API response time: ${duration}ms"
-        
-        if [ $duration -gt 2000 ]; then
-          echo "Performance test failed: API too slow"
-          exit 1
-        fi
-        echo "Performance test passed"
+      - uses: actions/checkout@v4
 
-  security:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Run security scan
-      uses: securecodewarrior/github-action-add-sarif@v1
-      with:
-        sarif-file: 'security-scan-results.sarif'
-    
-    - name: Check for vulnerabilities
-      run: |
-        # Check for known vulnerabilities in dependencies
-        echo "Security scan completed"
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
 
-  deploy:
-    needs: [test, security]
+      - name: Restore solution
+        run: dotnet restore backend/GegeDot.sln
+
+      - name: Build solution
+        run: dotnet build backend/GegeDot.sln --configuration Release --no-restore
+
+      - name: Run tests with coverage
+        run: |
+          dotnet test backend/tests/GegeDot.Tests/GegeDot.Tests.csproj \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            --logger "trx;LogFileName=test-results.trx" \
+            --collect:"XPlat Code Coverage"
+
+      - name: Upload backend test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: |
+            backend/tests/GegeDot.Tests/TestResults/**/*.trx
+            backend/tests/GegeDot.Tests/TestResults/**/coverage.cobertura.xml
+
+  frontend-tests:
+    name: Frontend (Jest)
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    
+    defaults:
+      run:
+        working-directory: frontend
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Deploy to staging
-      run: |
-        echo "Deploying to staging environment..."
-        # Add deployment commands here
-    
-    - name: Run smoke tests
-      run: |
-        echo "Running smoke tests on staging..."
-        # Add smoke test commands here
-    
-    - name: Deploy to production
-      if: success()
-      run: |
-        echo "Deploying to production environment..."
-        # Add production deployment commands here
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests with coverage
+        run: npm test -- --coverage --watchAll=false
+
+      - name: Upload frontend coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/

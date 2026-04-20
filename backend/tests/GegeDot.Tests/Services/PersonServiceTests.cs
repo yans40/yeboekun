@@ -1,8 +1,10 @@
+using AutoMapper;
 using FluentAssertions;
 using GegeDot.Core.Entities;
 using GegeDot.Core.Interfaces;
 using GegeDot.Services.DTOs;
 using GegeDot.Services.Interfaces;
+using GegeDot.Services.Mappings;
 using GegeDot.Services.Services;
 using Moq;
 using Xunit;
@@ -13,35 +15,19 @@ public class PersonServiceTests
 {
     private readonly Mock<IUnitOfWork> _mockUnitOfWork;
     private readonly Mock<IPersonRepository> _mockPersonRepository;
+    private readonly Mock<IRelationshipRepository> _mockRelationshipRepository;
     private readonly PersonService _personService;
 
     public PersonServiceTests()
     {
         _mockUnitOfWork = new Mock<IUnitOfWork>();
         _mockPersonRepository = new Mock<IPersonRepository>();
-        
+        _mockRelationshipRepository = new Mock<IRelationshipRepository>();
+
         _mockUnitOfWork.Setup(u => u.Persons).Returns(_mockPersonRepository.Object);
-        
-        // Mock AutoMapper (simplifié pour les tests)
-        var mockMapper = new Mock<AutoMapper.IMapper>();
-        mockMapper.Setup(m => m.Map<PersonDto>(It.IsAny<Person>()))
-                 .Returns((Person p) => new PersonDto
-                 {
-                     Id = p.Id,
-                     FirstName = p.FirstName,
-                     LastName = p.LastName,
-                     Gender = p.Gender.ToString(),
-                     FullName = p.FullName,
-                     Age = p.Age
-                 });
-        
-        mockMapper.Setup(m => m.Map<Person>(It.IsAny<CreatePersonDto>()))
-                 .Returns((CreatePersonDto dto) => new Person
-                 {
-                     FirstName = dto.FirstName,
-                     LastName = dto.LastName,
-                     Gender = Enum.Parse<Gender>(dto.Gender)
-                 });
+        _mockUnitOfWork.Setup(u => u.Relationships).Returns(_mockRelationshipRepository.Object);
+
+        var mapper = new MapperConfiguration(c => c.AddProfile<MappingProfile>()).CreateMapper();
 
         var mockNormalization = new Mock<IDataNormalizationService>();
         mockNormalization.Setup(n => n.NormalizeName(It.IsAny<string?>())).Returns((string? s) => s ?? string.Empty);
@@ -49,41 +35,45 @@ public class PersonServiceTests
         mockNormalization.Setup(n => n.NormalizeProfession(It.IsAny<string?>())).Returns((string? s) => s ?? string.Empty);
         mockNormalization.Setup(n => n.NormalizeDate(It.IsAny<string?>())).Returns((string? s) => null);
 
-        _personService = new PersonService(_mockUnitOfWork.Object, mockMapper.Object, mockNormalization.Object);
+        _personService = new PersonService(_mockUnitOfWork.Object, mapper, mockNormalization.Object);
     }
 
     [Fact]
     public async Task GetAllPersonsAsync_ShouldReturnAllPersons()
     {
-        // Arrange
         var persons = new List<Person>
         {
-            new Person { Id = 1, FirstName = "Jean", LastName = "Dupont", Gender = Gender.Male },
-            new Person { Id = 2, FirstName = "Marie", LastName = "Martin", Gender = Gender.Female }
+            new() { Id = 1, FirstName = "Jean", LastName = "Dupont", Gender = Gender.Male },
+            new() { Id = 2, FirstName = "Marie", LastName = "Martin", Gender = Gender.Female }
         };
 
         _mockPersonRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(persons);
 
-        // Act
+        var result = (await _personService.GetAllPersonsAsync()).ToList();
+
+        result.Should().HaveCount(2);
+        result[0].FirstName.Should().Be("Jean");
+        result[1].FirstName.Should().Be("Marie");
+    }
+
+    [Fact]
+    public async Task GetAllPersonsAsync_WhenEmpty_ShouldReturnEmpty()
+    {
+        _mockPersonRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Person>());
+
         var result = await _personService.GetAllPersonsAsync();
 
-        // Assert
-        result.Should().HaveCount(2);
-        result.First().FirstName.Should().Be("Jean");
-        result.Last().FirstName.Should().Be("Marie");
+        result.Should().BeEmpty();
     }
 
     [Fact]
     public async Task GetPersonByIdAsync_WithValidId_ShouldReturnPerson()
     {
-        // Arrange
         var person = new Person { Id = 1, FirstName = "Jean", LastName = "Dupont", Gender = Gender.Male };
         _mockPersonRepository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(person);
 
-        // Act
         var result = await _personService.GetPersonByIdAsync(1);
 
-        // Assert
         result.Should().NotBeNull();
         result!.FirstName.Should().Be("Jean");
         result.LastName.Should().Be("Dupont");
@@ -92,20 +82,16 @@ public class PersonServiceTests
     [Fact]
     public async Task GetPersonByIdAsync_WithInvalidId_ShouldReturnNull()
     {
-        // Arrange
         _mockPersonRepository.Setup(r => r.GetByIdAsync(999)).ReturnsAsync((Person?)null);
 
-        // Act
         var result = await _personService.GetPersonByIdAsync(999);
 
-        // Assert
         result.Should().BeNull();
     }
 
     [Fact]
     public async Task CreatePersonAsync_WithValidData_ShouldCreatePerson()
     {
-        // Arrange
         var createDto = new CreatePersonDto
         {
             FirstName = "Jean",
@@ -123,20 +109,101 @@ public class PersonServiceTests
 
         _mockPersonRepository.Setup(r => r.AddAsync(It.IsAny<Person>())).ReturnsAsync(createdPerson);
 
-        // Act
         var result = await _personService.CreatePersonAsync(createDto);
 
-        // Assert
         result.Should().NotBeNull();
         result.FirstName.Should().Be("Jean");
-        result.LastName.Should().Be("Dupont");
         _mockPersonRepository.Verify(r => r.AddAsync(It.IsAny<Person>()), Times.Once);
+        _mockRelationshipRepository.Verify(
+            r => r.AddAsync(It.IsAny<Relationship>()),
+            Times.Never,
+            "aucune relation parent ne doit être créée sans Parent1Id/Parent2Id");
+    }
+
+    [Fact]
+    public async Task CreatePersonAsync_WithParents_ShouldCreateParentRelationships()
+    {
+        var createDto = new CreatePersonDto
+        {
+            FirstName = "Enfant",
+            LastName = "Dupont",
+            Gender = "M",
+            Parent1Id = 10,
+            Parent2Id = 11
+        };
+
+        var createdPerson = new Person { Id = 1, FirstName = "Enfant", LastName = "Dupont", Gender = Gender.Male };
+
+        _mockPersonRepository.Setup(r => r.AddAsync(It.IsAny<Person>())).ReturnsAsync(createdPerson);
+        _mockPersonRepository.Setup(r => r.ExistsAsync(10)).ReturnsAsync(true);
+        _mockPersonRepository.Setup(r => r.ExistsAsync(11)).ReturnsAsync(true);
+        _mockRelationshipRepository
+            .Setup(r => r.RelationshipExistsAsync(It.IsAny<int>(), It.IsAny<int>(), RelationshipType.Parent))
+            .ReturnsAsync(false);
+
+        await _personService.CreatePersonAsync(createDto);
+
+        _mockRelationshipRepository.Verify(
+            r => r.AddAsync(It.Is<Relationship>(rel =>
+                rel.Person1Id == 10 && rel.Person2Id == 1 && rel.RelationshipType == RelationshipType.Parent)),
+            Times.Once);
+        _mockRelationshipRepository.Verify(
+            r => r.AddAsync(It.Is<Relationship>(rel =>
+                rel.Person1Id == 11 && rel.Person2Id == 1 && rel.RelationshipType == RelationshipType.Parent)),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CreatePersonAsync_WithMissingParent_ShouldThrow()
+    {
+        var createDto = new CreatePersonDto
+        {
+            FirstName = "Enfant",
+            LastName = "Dupont",
+            Gender = "M",
+            Parent1Id = 42
+        };
+
+        var createdPerson = new Person { Id = 1, FirstName = "Enfant", LastName = "Dupont", Gender = Gender.Male };
+
+        _mockPersonRepository.Setup(r => r.AddAsync(It.IsAny<Person>())).ReturnsAsync(createdPerson);
+        _mockPersonRepository.Setup(r => r.ExistsAsync(42)).ReturnsAsync(false);
+
+        var act = () => _personService.CreatePersonAsync(createDto);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*42*");
+    }
+
+    [Fact]
+    public async Task CreatePersonAsync_WhenRelationshipAlreadyExists_ShouldNotDuplicateIt()
+    {
+        var createDto = new CreatePersonDto
+        {
+            FirstName = "Enfant",
+            LastName = "Dupont",
+            Gender = "M",
+            Parent1Id = 10
+        };
+
+        var createdPerson = new Person { Id = 1, FirstName = "Enfant", LastName = "Dupont", Gender = Gender.Male };
+
+        _mockPersonRepository.Setup(r => r.AddAsync(It.IsAny<Person>())).ReturnsAsync(createdPerson);
+        _mockPersonRepository.Setup(r => r.ExistsAsync(10)).ReturnsAsync(true);
+        _mockRelationshipRepository
+            .Setup(r => r.RelationshipExistsAsync(10, 1, RelationshipType.Parent))
+            .ReturnsAsync(true);
+
+        await _personService.CreatePersonAsync(createDto);
+
+        _mockRelationshipRepository.Verify(
+            r => r.AddAsync(It.IsAny<Relationship>()),
+            Times.Never);
     }
 
     [Fact]
     public async Task UpdatePersonAsync_WithValidId_ShouldUpdatePerson()
     {
-        // Arrange
         var existingPerson = new Person { Id = 1, FirstName = "Jean", LastName = "Dupont", Gender = Gender.Male };
         var updateDto = new UpdatePersonDto
         {
@@ -148,44 +215,125 @@ public class PersonServiceTests
         _mockPersonRepository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(existingPerson);
         _mockPersonRepository.Setup(r => r.UpdateAsync(It.IsAny<Person>())).ReturnsAsync(existingPerson);
 
-        // Act
         var result = await _personService.UpdatePersonAsync(1, updateDto);
 
-        // Assert
         result.Should().NotBeNull();
         _mockPersonRepository.Verify(r => r.UpdateAsync(It.IsAny<Person>()), Times.Once);
     }
 
     [Fact]
+    public async Task UpdatePersonAsync_WithInvalidId_ShouldThrow()
+    {
+        _mockPersonRepository.Setup(r => r.GetByIdAsync(999)).ReturnsAsync((Person?)null);
+        var updateDto = new UpdatePersonDto { FirstName = "X", LastName = "Y", Gender = "M" };
+
+        var act = () => _personService.UpdatePersonAsync(999, updateDto);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*999*");
+    }
+
+    [Fact]
     public async Task DeletePersonAsync_WithValidId_ShouldDeletePerson()
     {
-        // Arrange
         _mockPersonRepository.Setup(r => r.DeleteAsync(1)).ReturnsAsync(true);
 
-        // Act
         var result = await _personService.DeletePersonAsync(1);
 
-        // Assert
         result.Should().BeTrue();
         _mockPersonRepository.Verify(r => r.DeleteAsync(1), Times.Once);
     }
 
     [Fact]
+    public async Task DeletePersonAsync_WithUnknownId_ShouldReturnFalse()
+    {
+        _mockPersonRepository.Setup(r => r.DeleteAsync(999)).ReturnsAsync(false);
+
+        var result = await _personService.DeletePersonAsync(999);
+
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task PersonExistsAsync_ShouldProxyToRepository()
+    {
+        _mockPersonRepository.Setup(r => r.ExistsAsync(7)).ReturnsAsync(true);
+
+        (await _personService.PersonExistsAsync(7)).Should().BeTrue();
+    }
+
+    [Fact]
     public async Task SearchPersonsAsync_WithSearchTerm_ShouldReturnMatchingPersons()
     {
-        // Arrange
         var persons = new List<Person>
         {
-            new Person { Id = 1, FirstName = "Jean", LastName = "Dupont", Gender = Gender.Male }
+            new() { Id = 1, FirstName = "Jean", LastName = "Dupont", Gender = Gender.Male }
         };
 
         _mockPersonRepository.Setup(r => r.SearchByNameAsync("Jean")).ReturnsAsync(persons);
 
-        // Act
-        var result = await _personService.SearchPersonsAsync("Jean");
+        var result = (await _personService.SearchPersonsAsync("Jean")).ToList();
 
-        // Assert
         result.Should().HaveCount(1);
-        result.First().FirstName.Should().Be("Jean");
+        result[0].FirstName.Should().Be("Jean");
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task SearchPersonsAsync_WithEmptyTerm_ShouldReturnAllPersons(string? term)
+    {
+        var persons = new List<Person>
+        {
+            new() { Id = 1, FirstName = "Jean", LastName = "Dupont", Gender = Gender.Male },
+            new() { Id = 2, FirstName = "Marie", LastName = "Martin", Gender = Gender.Female }
+        };
+
+        _mockPersonRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(persons);
+
+        var result = await _personService.SearchPersonsAsync(term!);
+
+        result.Should().HaveCount(2);
+        _mockPersonRepository.Verify(r => r.SearchByNameAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetChildrenAsync_ShouldMapResultsFromRepository()
+    {
+        var children = new List<Person> { new() { Id = 3, FirstName = "Lea", LastName = "Dupont" } };
+        _mockPersonRepository.Setup(r => r.GetChildrenAsync(1)).ReturnsAsync(children);
+
+        var result = (await _personService.GetChildrenAsync(1)).ToList();
+
+        result.Should().HaveCount(1);
+        result[0].FirstName.Should().Be("Lea");
+    }
+
+    [Fact]
+    public async Task GetParentsAsync_ShouldMapResultsFromRepository()
+    {
+        var parents = new List<Person>
+        {
+            new() { Id = 10, FirstName = "Pere", LastName = "Dupont" },
+            new() { Id = 11, FirstName = "Mere", LastName = "Dupont" }
+        };
+        _mockPersonRepository.Setup(r => r.GetParentsAsync(1)).ReturnsAsync(parents);
+
+        var result = (await _personService.GetParentsAsync(1)).ToList();
+
+        result.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task GetSiblingsAsync_ShouldMapResultsFromRepository()
+    {
+        var siblings = new List<Person> { new() { Id = 2, FirstName = "Sibling", LastName = "Dupont" } };
+        _mockPersonRepository.Setup(r => r.GetSiblingsAsync(1)).ReturnsAsync(siblings);
+
+        var result = (await _personService.GetSiblingsAsync(1)).ToList();
+
+        result.Should().HaveCount(1);
+        result[0].FirstName.Should().Be("Sibling");
     }
 }

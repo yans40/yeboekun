@@ -1,24 +1,133 @@
-import axios from 'axios';
-// Mock axios avant d'importer le service
-jest.mock('axios');
-// Mock axios.create pour retourner un objet avec interceptors
-const mockInterceptors = {
-  request: { use: jest.fn() },
-  response: { use: jest.fn() }
+jest.mock('axios', () => {
+  const mockGet = jest.fn();
+  const mockPost = jest.fn();
+  const mockPut = jest.fn();
+  const mockDelete = jest.fn();
+  const mockInstance = {
+    get: mockGet,
+    post: mockPost,
+    put: mockPut,
+    delete: mockDelete,
+    interceptors: {
+      request: { use: jest.fn() },
+      response: { use: jest.fn() },
+    },
+  };
+  return {
+    __esModule: true,
+    default: {
+      create: jest.fn(() => mockInstance),
+    },
+    __mocks: { mockGet, mockPost, mockPut, mockDelete, mockInstance },
+  };
+});
+
+import apiService, { fetchPersons } from '../services/api';
+
+const axiosModule = jest.requireMock('axios') as {
+  __mocks: {
+    mockGet: jest.Mock;
+    mockPost: jest.Mock;
+    mockPut: jest.Mock;
+    mockDelete: jest.Mock;
+  };
 };
-const mockAxiosInstance = {
-  get: jest.fn(),
-  interceptors: mockInterceptors
-} as any;
-(axios.create as jest.Mock) = jest.fn(() => mockAxiosInstance);
 
-import { fetchPersons } from '../services/api';
+const { mockGet, mockPost, mockPut, mockDelete } = axiosModule.__mocks;
 
-describe('API Service', () => {
-  it('doit retourner une liste de personnes (mock)', async () => {
-    mockAxiosInstance.get.mockResolvedValue({ data: [{ id: 1, firstName: 'Jean', lastName: 'Dupont', gender: 'M', isAlive: true, fullName: 'Jean Dupont', createdAt: '', updatedAt: '' }] });
-    const data = await fetchPersons();
-    expect(Array.isArray(data)).toBe(true);
-    expect(data[0].firstName).toBe('Jean');
+describe('ApiService', () => {
+  beforeEach(() => {
+    mockGet.mockReset();
+    mockPost.mockReset();
+    mockPut.mockReset();
+    mockDelete.mockReset();
+  });
+
+  describe('persons', () => {
+    it('getPersons returns the list', async () => {
+      mockGet.mockResolvedValue({
+        data: [
+          { id: 1, firstName: 'Jean', lastName: 'Dupont', gender: 'M', isAlive: true, fullName: 'Jean Dupont', createdAt: '', updatedAt: '' },
+        ],
+      });
+
+      const result = await apiService.getPersons();
+
+      expect(mockGet).toHaveBeenCalledWith('/persons');
+      expect(result).toHaveLength(1);
+      expect(result[0].firstName).toBe('Jean');
+    });
+
+    it('fetchPersons alias works', async () => {
+      mockGet.mockResolvedValue({ data: [] });
+
+      const result = await fetchPersons();
+
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    it('getPersonById hits /persons/:id', async () => {
+      mockGet.mockResolvedValue({ data: { id: 7 } });
+
+      await apiService.getPersonById(7);
+
+      expect(mockGet).toHaveBeenCalledWith('/persons/7');
+    });
+
+    it('searchPersons url-encodes the query', async () => {
+      mockGet.mockResolvedValue({ data: [] });
+
+      await apiService.searchPersons('jean dupont');
+
+      expect(mockGet).toHaveBeenCalledWith('/persons/search?q=jean%20dupont');
+    });
+
+    it('createPerson posts the payload', async () => {
+      const dto = { firstName: 'A', lastName: 'B', gender: 'M' as const, isAlive: true };
+      mockPost.mockResolvedValue({
+        data: { id: 1, ...dto, fullName: 'A B', createdAt: '', updatedAt: '' },
+      });
+
+      await apiService.createPerson(dto);
+
+      expect(mockPost).toHaveBeenCalledWith('/persons', dto);
+    });
+
+    it('updatePerson appends ?force=true to bypass duplicate check', async () => {
+      const dto = { firstName: 'A', lastName: 'B', gender: 'M' as const, isAlive: true };
+      mockPut.mockResolvedValue({ data: null });
+
+      await apiService.updatePerson(42, dto);
+
+      expect(mockPut).toHaveBeenCalledWith('/persons/42?force=true', dto);
+    });
+
+    it('deletePerson hits the correct url', async () => {
+      mockDelete.mockResolvedValue({ data: null });
+
+      await apiService.deletePerson(3);
+
+      expect(mockDelete).toHaveBeenCalledWith('/persons/3');
+    });
+  });
+
+  describe('family tree', () => {
+    it('getFamilyData hits /persons/:id/family', async () => {
+      mockGet.mockResolvedValue({
+        data: { person: { id: 1 }, parents: [], children: [], siblings: [], spouses: [] },
+      });
+
+      await apiService.getFamilyData(1);
+
+      expect(mockGet).toHaveBeenCalledWith('/persons/1/family');
+    });
+
+    it('getSpouses hits /persons/:id/spouses', async () => {
+      mockGet.mockResolvedValue({ data: [] });
+
+      await apiService.getSpouses(5);
+
+      expect(mockGet).toHaveBeenCalledWith('/persons/5/spouses');
+    });
   });
 });
