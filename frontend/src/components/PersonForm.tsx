@@ -17,6 +17,7 @@ import {
   Chip,
   Box,
   Divider,
+  Alert,
 } from '@mui/material';
 import { CreatePersonDto, UpdatePersonDto, Person } from '@/types';
 import { apiService } from '@/services/api';
@@ -66,6 +67,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [relationError, setRelationError] = useState<string | null>(null);
 
   useEffect(() => {
     if (person) {
@@ -98,6 +100,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
       });
     }
     setErrors({});
+    setRelationError(null);
     setConfirmDelete(false);
     setParent1Id('');
     setParent2Id('');
@@ -106,10 +109,15 @@ const PersonForm: React.FC<PersonFormProps> = ({
     setCurrentParents([]);
     setCurrentChildren([]);
 
-    if (person) {
-      apiService.getParents(person.id).then(setCurrentParents).catch(() => {});
-      apiService.getChildren(person.id).then(setCurrentChildren).catch(() => {});
-    }
+    if (!person) return;
+    let cancelled = false;
+    apiService.getParents(person.id)
+      .then(r => { if (!cancelled) setCurrentParents(r); })
+      .catch(() => {});
+    apiService.getChildren(person.id)
+      .then(r => { if (!cancelled) setCurrentChildren(r); })
+      .catch(() => {});
+    return () => { cancelled = true; };
   }, [person, open]);
 
   const validateForm = (): boolean => {
@@ -177,45 +185,49 @@ const PersonForm: React.FC<PersonFormProps> = ({
 
   const handleAddParent = async () => {
     if (!person || newParentId === '') return;
+    setRelationError(null);
     try {
       await apiService.addParentChildRelationship(newParentId as number, person.id);
-      const parents = await apiService.getParents(person.id);
-      setCurrentParents(parents);
+      const added = persons.find(p => p.id === newParentId);
+      if (added) setCurrentParents(prev => [...prev, added]);
       setNewParentId('');
-    } catch (error) {
-      console.error('Erreur ajout parent:', error);
+    } catch {
+      setRelationError('Impossible d\'ajouter ce parent. La relation existe peut-être déjà.');
     }
   };
 
   const handleRemoveParent = async (parentId: number) => {
     if (!person) return;
+    setRelationError(null);
     try {
       await apiService.deleteParentChildRelationship(parentId, person.id);
       setCurrentParents(prev => prev.filter(p => p.id !== parentId));
-    } catch (error) {
-      console.error('Erreur suppression parent:', error);
+    } catch {
+      setRelationError('Impossible de supprimer ce parent.');
     }
   };
 
   const handleAddChild = async () => {
     if (!person || newChildId === '') return;
+    setRelationError(null);
     try {
       await apiService.addParentChildRelationship(person.id, newChildId as number);
-      const children = await apiService.getChildren(person.id);
-      setCurrentChildren(children);
+      const added = persons.find(p => p.id === newChildId);
+      if (added) setCurrentChildren(prev => [...prev, added]);
       setNewChildId('');
-    } catch (error) {
-      console.error('Erreur ajout enfant:', error);
+    } catch {
+      setRelationError('Impossible d\'ajouter cet enfant. La relation existe peut-être déjà.');
     }
   };
 
   const handleRemoveChild = async (childId: number) => {
     if (!person) return;
+    setRelationError(null);
     try {
       await apiService.deleteParentChildRelationship(person.id, childId);
       setCurrentChildren(prev => prev.filter(c => c.id !== childId));
-    } catch (error) {
-      console.error('Erreur suppression enfant:', error);
+    } catch {
+      setRelationError('Impossible de supprimer cet enfant.');
     }
   };
 
@@ -417,10 +429,20 @@ const PersonForm: React.FC<PersonFormProps> = ({
             {/* Relations familiales — mode édition */}
             {person && persons.length > 0 && (
               <>
+                {relationError && (
+                  <Grid item xs={12}>
+                    <Alert severity="error" onClose={() => setRelationError(null)} sx={{ mb: 1 }}>
+                      {relationError}
+                    </Alert>
+                  </Grid>
+                )}
                 <Grid item xs={12}>
                   <Divider sx={{ my: 1 }} />
-                  <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary' }}>
+                  <Typography variant="subtitle2" sx={{ mb: 0.5, color: 'text.secondary' }}>
                     Parents
+                  </Typography>
+                  <Typography variant="caption" color="text.disabled" sx={{ display: 'block', mb: 1 }}>
+                    Les ajouts et suppressions sont enregistrés immédiatement.
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
                     {currentParents.length === 0 && (
@@ -431,16 +453,19 @@ const PersonForm: React.FC<PersonFormProps> = ({
                         const order = (g: string | null) => g === 'M' ? 0 : g === 'F' ? 1 : 2;
                         return order(a.gender) - order(b.gender);
                       })
-                      .map(p => (
-                        <Chip
-                          key={p.id}
-                          label={`${p.gender === 'F' ? 'Mère' : 'Père'} : ${p.fullName}`}
-                          onDelete={() => handleRemoveParent(p.id)}
-                          size="small"
-                          color="primary"
-                          variant="outlined"
-                        />
-                      ))}
+                      .map(p => {
+                        const parentLabel = p.gender === 'M' ? 'Père' : p.gender === 'F' ? 'Mère' : 'Parent';
+                        return (
+                          <Chip
+                            key={p.id}
+                            label={`${parentLabel} : ${p.fullName}`}
+                            onDelete={() => handleRemoveParent(p.id)}
+                            size="small"
+                            color="primary"
+                            variant="outlined"
+                          />
+                        );
+                      })}
                   </Box>
                   <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                     <FormControl size="small" sx={{ flex: 1 }}>
