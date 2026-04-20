@@ -10,7 +10,9 @@ import ErrorBoundary from './components/ErrorBoundary';
 import AppSidebar from './components/AppSidebar';
 import FanCanvas from './components/FanCanvas';
 import PersonForm from './components/PersonForm';
+import AdminLoginModal from './components/AdminLoginModal';
 import { useFamilyTree } from './hooks/useFamilyTree';
+import { useAdmin } from './hooks/useAdmin';
 import { Person, CreatePersonDto, UpdatePersonDto } from './types';
 import apiService from './services/api';
 
@@ -38,6 +40,8 @@ function App() {
   });
 
   const { familyData, layout, loading, loadFamilyTree, clearTree } = useFamilyTree();
+  const { isAdmin, login, logout } = useAdmin();
+  const [adminModalOpen, setAdminModalOpen] = useState(false);
 
   // ── Load all persons on mount ───────────────────────────────────────────────
   useEffect(() => {
@@ -156,6 +160,9 @@ function App() {
             onToggleCollapse={() => setSidebarCollapsed(c => !c)}
             ancestorCount={ancestorCount}
             generationDepth={generationDepth}
+            isAdmin={isAdmin}
+            onAdminLogin={() => setAdminModalOpen(true)}
+            onAdminLogout={logout}
           />
 
           {/* Main canvas area */}
@@ -165,11 +172,18 @@ function App() {
               layout={layout}
               loading={loading}
               onPersonSelect={handlePersonSelect}
-              onPersonEdit={handlePersonEdit}
+              onPersonEdit={isAdmin ? handlePersonEdit : undefined}
             />
           </main>
         </div>
       </ErrorBoundary>
+
+      {/* Admin login modal */}
+      <AdminLoginModal
+        open={adminModalOpen}
+        onClose={() => setAdminModalOpen(false)}
+        onLogin={login}
+      />
 
       {/* Person form modal */}
       <PersonForm

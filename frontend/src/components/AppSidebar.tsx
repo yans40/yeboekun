@@ -11,6 +11,9 @@ interface AppSidebarProps {
   onToggleCollapse: () => void;
   ancestorCount?: number;
   generationDepth?: number;
+  isAdmin?: boolean;
+  onAdminLogin?: () => void;
+  onAdminLogout?: () => void;
 }
 
 export const AppSidebar: React.FC<AppSidebarProps> = ({
@@ -22,6 +25,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   onToggleCollapse,
   ancestorCount,
   generationDepth,
+  isAdmin = false,
+  onAdminLogin,
+  onAdminLogout,
 }) => {
   const [search, setSearch] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -301,11 +307,36 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         </div>
       )}
 
-      {/* Add person button */}
-      <div style={{ padding: '12px 0 16px', flexShrink: 0 }}>
-        <button style={addBtnStyle} onClick={onAddPerson}>
-          <span>+</span>
-          {!collapsed && <span>Ajouter</span>}
+      {/* Add person button (admin only) */}
+      {isAdmin && (
+        <div style={{ padding: '12px 0 0', flexShrink: 0 }}>
+          <button style={addBtnStyle} onClick={onAddPerson}>
+            <span>+</span>
+            {!collapsed && <span>Ajouter</span>}
+          </button>
+        </div>
+      )}
+
+      {/* Admin toggle button */}
+      <div style={{ padding: isAdmin ? '8px 0 16px' : '12px 0 16px', flexShrink: 0, display: 'flex', justifyContent: collapsed ? 'center' : 'flex-start', paddingLeft: collapsed ? 0 : 16 }}>
+        <button
+          onClick={isAdmin ? onAdminLogout : onAdminLogin}
+          title={isAdmin ? 'Quitter le mode admin' : 'Mode admin'}
+          style={{
+            background: 'none',
+            border: '1px solid #E5E7EB',
+            borderRadius: 8,
+            cursor: 'pointer',
+            fontSize: 13,
+            color: isAdmin ? '#DC2626' : '#9CA3AF',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '5px 10px',
+          }}
+        >
+          <span>{isAdmin ? '🔓' : '🔒'}</span>
+          {!collapsed && <span>{isAdmin ? 'Quitter admin' : 'Admin'}</span>}
         </button>
       </div>
     </div>
