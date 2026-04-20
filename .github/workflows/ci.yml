@@ -32,7 +32,11 @@ jobs:
             --no-build \
             --verbosity normal \
             --logger "trx;LogFileName=test-results.trx" \
-            --collect:"XPlat Code Coverage"
+            --collect:"XPlat Code Coverage" \
+            --settings backend/tests/GegeDot.Tests/coverlet.runsettings
+
+      - name: Enforce backend coverage thresholds
+        run: python3 scripts/check-coverage.py "backend/tests/GegeDot.Tests/TestResults/**/coverage.cobertura.xml" --line 80 --branch 70
 
       - name: Upload backend test results
         if: always()
