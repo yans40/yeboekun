@@ -14,8 +14,13 @@ import {
   FormControlLabel,
   Switch,
   Typography,
+  Chip,
+  Box,
+  Divider,
+  Alert,
 } from '@mui/material';
 import { CreatePersonDto, UpdatePersonDto, Person } from '@/types';
+import { apiService } from '@/services/api';
 
 interface PersonFormProps {
   open: boolean;
@@ -39,6 +44,13 @@ const PersonForm: React.FC<PersonFormProps> = ({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [parent1Id, setParent1Id] = useState<number | ''>('');
   const [parent2Id, setParent2Id] = useState<number | ''>('');
+
+  // État mode édition — relations existantes
+  const [currentParents, setCurrentParents] = useState<Person[]>([]);
+  const [currentChildren, setCurrentChildren] = useState<Person[]>([]);
+  const [newParentId, setNewParentId] = useState<number | ''>('');
+  const [newChildId, setNewChildId] = useState<number | ''>('');
+
   const [formData, setFormData] = useState<CreatePersonDto>({
     firstName: '',
     lastName: '',
@@ -55,6 +67,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [relationError, setRelationError] = useState<string | null>(null);
 
   useEffect(() => {
     if (person) {
@@ -87,9 +100,24 @@ const PersonForm: React.FC<PersonFormProps> = ({
       });
     }
     setErrors({});
+    setRelationError(null);
     setConfirmDelete(false);
     setParent1Id('');
     setParent2Id('');
+    setNewParentId('');
+    setNewChildId('');
+    setCurrentParents([]);
+    setCurrentChildren([]);
+
+    if (!person) return;
+    let cancelled = false;
+    apiService.getParents(person.id)
+      .then(r => { if (!cancelled) setCurrentParents(r); })
+      .catch(() => {});
+    apiService.getChildren(person.id)
+      .then(r => { if (!cancelled) setCurrentChildren(r); })
+      .catch(() => {});
+    return () => { cancelled = true; };
   }, [person, open]);
 
   const validateForm = (): boolean => {
@@ -152,6 +180,54 @@ const PersonForm: React.FC<PersonFormProps> = ({
       console.error('Erreur lors de la soumission:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddParent = async () => {
+    if (!person || newParentId === '') return;
+    setRelationError(null);
+    try {
+      await apiService.addParentChildRelationship(newParentId as number, person.id);
+      const added = persons.find(p => p.id === newParentId);
+      if (added) setCurrentParents(prev => [...prev, added]);
+      setNewParentId('');
+    } catch {
+      setRelationError('Impossible d\'ajouter ce parent. La relation existe peut-être déjà.');
+    }
+  };
+
+  const handleRemoveParent = async (parentId: number) => {
+    if (!person) return;
+    setRelationError(null);
+    try {
+      await apiService.deleteParentChildRelationship(parentId, person.id);
+      setCurrentParents(prev => prev.filter(p => p.id !== parentId));
+    } catch {
+      setRelationError('Impossible de supprimer ce parent.');
+    }
+  };
+
+  const handleAddChild = async () => {
+    if (!person || newChildId === '') return;
+    setRelationError(null);
+    try {
+      await apiService.addParentChildRelationship(person.id, newChildId as number);
+      const added = persons.find(p => p.id === newChildId);
+      if (added) setCurrentChildren(prev => [...prev, added]);
+      setNewChildId('');
+    } catch {
+      setRelationError('Impossible d\'ajouter cet enfant. La relation existe peut-être déjà.');
+    }
+  };
+
+  const handleRemoveChild = async (childId: number) => {
+    if (!person) return;
+    setRelationError(null);
+    try {
+      await apiService.deleteParentChildRelationship(person.id, childId);
+      setCurrentChildren(prev => prev.filter(c => c.id !== childId));
+    } catch {
+      setRelationError('Impossible de supprimer cet enfant.');
     }
   };
 
@@ -349,6 +425,108 @@ const PersonForm: React.FC<PersonFormProps> = ({
                 label="Personne vivante"
               />
             </Grid>
+
+            {/* Relations familiales — mode édition */}
+            {person && persons.length > 0 && (
+              <>
+                {relationError && (
+                  <Grid item xs={12}>
+                    <Alert severity="error" onClose={() => setRelationError(null)} sx={{ mb: 1 }}>
+                      {relationError}
+                    </Alert>
+                  </Grid>
+                )}
+                <Grid item xs={12}>
+                  <Divider sx={{ my: 1 }} />
+                  <Typography variant="subtitle2" sx={{ mb: 0.5, color: 'text.secondary' }}>
+                    Parents
+                  </Typography>
+                  <Typography variant="caption" color="text.disabled" sx={{ display: 'block', mb: 1 }}>
+                    Les ajouts et suppressions sont enregistrés immédiatement.
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+                    {currentParents.length === 0 && (
+                      <Typography variant="body2" color="text.disabled">Aucun parent enregistré</Typography>
+                    )}
+                    {[...currentParents]
+                      .sort((a, b) => {
+                        const order = (g: string | null) => g === 'M' ? 0 : g === 'F' ? 1 : 2;
+                        return order(a.gender) - order(b.gender);
+                      })
+                      .map(p => {
+                        const parentLabel = p.gender === 'M' ? 'Père' : p.gender === 'F' ? 'Mère' : 'Parent';
+                        return (
+                          <Chip
+                            key={p.id}
+                            label={`${parentLabel} : ${p.fullName}`}
+                            onDelete={() => handleRemoveParent(p.id)}
+                            size="small"
+                            color="primary"
+                            variant="outlined"
+                          />
+                        );
+                      })}
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <FormControl size="small" sx={{ flex: 1 }}>
+                      <InputLabel>Ajouter un parent</InputLabel>
+                      <Select
+                        value={newParentId}
+                        onChange={(e) => setNewParentId(e.target.value as number | '')}
+                        label="Ajouter un parent"
+                      >
+                        <MenuItem value=""><em>Choisir...</em></MenuItem>
+                        {persons
+                          .filter(p => p.id !== person.id && !currentParents.some(cp => cp.id === p.id))
+                          .map(p => <MenuItem key={p.id} value={p.id}>{p.fullName}</MenuItem>)}
+                      </Select>
+                    </FormControl>
+                    <Button variant="outlined" size="small" onClick={handleAddParent} disabled={newParentId === ''}>
+                      Ajouter
+                    </Button>
+                  </Box>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary' }}>
+                    Enfants
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+                    {currentChildren.length === 0 && (
+                      <Typography variant="body2" color="text.disabled">Aucun enfant enregistré</Typography>
+                    )}
+                    {currentChildren.map(c => (
+                      <Chip
+                        key={c.id}
+                        label={c.fullName}
+                        onDelete={() => handleRemoveChild(c.id)}
+                        size="small"
+                        color="secondary"
+                        variant="outlined"
+                      />
+                    ))}
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <FormControl size="small" sx={{ flex: 1 }}>
+                      <InputLabel>Ajouter un enfant</InputLabel>
+                      <Select
+                        value={newChildId}
+                        onChange={(e) => setNewChildId(e.target.value as number | '')}
+                        label="Ajouter un enfant"
+                      >
+                        <MenuItem value=""><em>Choisir...</em></MenuItem>
+                        {persons
+                          .filter(p => p.id !== person.id && !currentChildren.some(cc => cc.id === p.id))
+                          .map(p => <MenuItem key={p.id} value={p.id}>{p.fullName}</MenuItem>)}
+                      </Select>
+                    </FormControl>
+                    <Button variant="outlined" size="small" onClick={handleAddChild} disabled={newChildId === ''}>
+                      Ajouter
+                    </Button>
+                  </Box>
+                </Grid>
+              </>
+            )}
           </Grid>
         </DialogContent>
 

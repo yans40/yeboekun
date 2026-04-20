@@ -178,7 +178,7 @@ function App() {
         onSubmit={handleFormSubmit}
         onDelete={editingPerson ? handlePersonDelete : undefined}
         person={editingPerson}
-        persons={!editingPerson ? persons : undefined}
+        persons={persons}
         title={editingPerson ? 'Modifier la personne' : 'Ajouter une personne'}
       />
 
