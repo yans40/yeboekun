@@ -99,6 +99,52 @@ POST   /api/persons/check-duplicates  Détecter les doublons
 - [ ] Déploiement cloud (Render / Railway)
 - [ ] Authentification utilisateur
 
+## Tests
+
+### Backend (.NET 9)
+
+```bash
+dotnet test backend/tests/GegeDot.Tests/GegeDot.Tests.csproj
+```
+
+Stack : **xUnit** + **Moq** + **FluentAssertions** + **EF Core InMemory**.
+
+Couverture :
+
+| Suite | Fichier | Domaine |
+|-------|---------|---------|
+| `PersonServiceTests` | `Services/PersonServiceTests.cs` | CRUD personnes, relations parent-enfant, recherche |
+| `DataNormalizationServiceTests` | `Services/DataNormalizationServiceTests.cs` | Capitalisation, abréviations, parsing dates |
+| `DuplicateDetectionServiceTests` | `Services/DuplicateDetectionServiceTests.cs` | Levenshtein, scoring, cas spéciaux |
+| `PersonRepositoryTests` | `Repositories/PersonRepositoryTests.cs` | EF Core InMemory — ajout, tri, recherche, relations |
+| `PersonsControllerTests` | `Controllers/PersonsControllerTests.cs` | Statuts HTTP, validation, détection doublons |
+
+### Frontend (React / TypeScript)
+
+```bash
+cd frontend
+npm install
+npm test              # tous les tests
+npm run test:watch    # mode watch
+npm run test:coverage # avec couverture (dossier coverage/)
+```
+
+Stack : **Jest** + **Babel** + **React Testing Library** + **jest-dom**.
+
+Couverture :
+
+| Suite | Fichier | Domaine |
+|-------|---------|---------|
+| `PersonCard.test.tsx` | rendu carte personne | |
+| `PersonForm.test.tsx` | dialog + champs obligatoires | |
+| `api.test.ts` | service HTTP (persons, family, recherche, update, delete) | |
+| `familyTreeLayout.test.ts` | algo de layout (positions, espacement, tri par date) | |
+| `useFamilyTree.test.tsx` | hook de chargement (success, erreur, normalisation spouse) | |
+
+### CI
+
+Le workflow `.github/workflows/ci.yml` lance les deux suites sur `push` et `pull_request` vers `main` ou `dev`, avec couverture en artefacts.
+
 ## Documentation
 
 - [DOCUMENTATION.md](DOCUMENTATION.md) — guide pédagogique (architecture, cas pratiques, décisions techniques)
