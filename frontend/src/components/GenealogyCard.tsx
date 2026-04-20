@@ -26,7 +26,7 @@ interface GenealogyCardProps {
   isSibling?: boolean;
   isSpouse?: boolean;
   onPersonClick: (personId: number) => void;
-  onPersonEdit: (personId: number) => void;
+  onPersonEdit?: (personId: number) => void;
 }
 
 export const GenealogyCard: React.FC<GenealogyCardProps> = ({
@@ -153,16 +153,18 @@ export const GenealogyCard: React.FC<GenealogyCardProps> = ({
       onMouseLeave={() => { setHovered(false); setEditHovered(false); }}
       onClick={() => onPersonClick(person.id)}
     >
-      {/* Edit button */}
-      <button
-        style={editBtnStyle}
-        onMouseEnter={e => { e.stopPropagation(); setEditHovered(true); }}
-        onMouseLeave={e => { e.stopPropagation(); setEditHovered(false); }}
-        onClick={e => { e.stopPropagation(); onPersonEdit(person.id); }}
-        title="Modifier"
-      >
-        ✏
-      </button>
+      {/* Edit button (admin only) */}
+      {onPersonEdit && (
+        <button
+          style={editBtnStyle}
+          onMouseEnter={e => { e.stopPropagation(); setEditHovered(true); }}
+          onMouseLeave={e => { e.stopPropagation(); setEditHovered(false); }}
+          onClick={e => { e.stopPropagation(); onPersonEdit(person.id); }}
+          title="Modifier"
+        >
+          ✏
+        </button>
+      )}
 
       {/* Avatar */}
       <div style={avatarStyle}>

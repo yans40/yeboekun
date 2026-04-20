@@ -11,6 +11,9 @@ interface AppSidebarProps {
   onToggleCollapse: () => void;
   ancestorCount?: number;
   generationDepth?: number;
+  canEdit?: boolean;
+  onEnterEditMode?: () => void;
+  onExitEditMode?: () => void;
 }
 
 export const AppSidebar: React.FC<AppSidebarProps> = ({
@@ -22,6 +25,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   onToggleCollapse,
   ancestorCount,
   generationDepth,
+  canEdit = false,
+  onEnterEditMode,
+  onExitEditMode,
 }) => {
   const [search, setSearch] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -136,6 +142,19 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     margin: collapsed ? '0 auto' : '0 16px',
     transition: 'background 150ms',
     flexShrink: 0,
+  };
+
+  const editModeBtnStyle: React.CSSProperties = {
+    background: 'none',
+    border: '1px solid #E5E7EB',
+    borderRadius: 8,
+    cursor: 'pointer',
+    fontSize: 13,
+    color: canEdit ? '#DC2626' : '#9CA3AF',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '5px 10px',
   };
 
   return (
@@ -301,11 +320,25 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         </div>
       )}
 
-      {/* Add person button */}
-      <div style={{ padding: '12px 0 16px', flexShrink: 0 }}>
-        <button style={addBtnStyle} onClick={onAddPerson}>
-          <span>+</span>
-          {!collapsed && <span>Ajouter</span>}
+      {/* Add person button (admin only) */}
+      {canEdit && (
+        <div style={{ padding: '12px 0 0', flexShrink: 0 }}>
+          <button style={addBtnStyle} onClick={onAddPerson}>
+            <span>+</span>
+            {!collapsed && <span>Ajouter</span>}
+          </button>
+        </div>
+      )}
+
+      {/* Edit mode toggle button */}
+      <div style={{ padding: canEdit ? '8px 0 16px' : '12px 0 16px', flexShrink: 0, display: 'flex', justifyContent: collapsed ? 'center' : 'flex-start', paddingLeft: collapsed ? 0 : 16 }}>
+        <button
+          onClick={() => (canEdit ? onExitEditMode?.() : onEnterEditMode?.())}
+          title={canEdit ? 'Quitter le mode édition' : 'Mode édition'}
+          style={editModeBtnStyle}
+        >
+          <span>{canEdit ? '🔓' : '🔒'}</span>
+          {!collapsed && <span>{canEdit ? 'Quitter édition' : 'Mode édition'}</span>}
         </button>
       </div>
     </div>

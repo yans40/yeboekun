@@ -8,7 +8,7 @@ interface FanCanvasProps {
   layout: FamilyTreeLayout | null;
   loading: boolean;
   onPersonSelect: (personId: number) => void;
-  onPersonEdit: (personId: number) => void;
+  onPersonEdit?: (personId: number) => void;
 }
 
 const ZOOM_MIN = 0.3;

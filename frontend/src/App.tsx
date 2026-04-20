@@ -10,7 +10,9 @@ import ErrorBoundary from './components/ErrorBoundary';
 import AppSidebar from './components/AppSidebar';
 import FanCanvas from './components/FanCanvas';
 import PersonForm from './components/PersonForm';
+import EditModeModal from './components/EditModeModal';
 import { useFamilyTree } from './hooks/useFamilyTree';
+import { useEditMode } from './hooks/useEditMode';
 import { Person, CreatePersonDto, UpdatePersonDto } from './types';
 import apiService from './services/api';
 
@@ -38,6 +40,8 @@ function App() {
   });
 
   const { familyData, layout, loading, loadFamilyTree, clearTree } = useFamilyTree();
+  const { canEdit, enterEditMode, exitEditMode } = useEditMode();
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   // ── Load all persons on mount ───────────────────────────────────────────────
   useEffect(() => {
@@ -156,6 +160,9 @@ function App() {
             onToggleCollapse={() => setSidebarCollapsed(c => !c)}
             ancestorCount={ancestorCount}
             generationDepth={generationDepth}
+            canEdit={canEdit}
+            onEnterEditMode={() => setEditModalOpen(true)}
+            onExitEditMode={exitEditMode}
           />
 
           {/* Main canvas area */}
@@ -165,11 +172,18 @@ function App() {
               layout={layout}
               loading={loading}
               onPersonSelect={handlePersonSelect}
-              onPersonEdit={handlePersonEdit}
+              onPersonEdit={canEdit ? handlePersonEdit : undefined}
             />
           </main>
         </div>
       </ErrorBoundary>
+
+      {/* Edit mode modal */}
+      <EditModeModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        onLogin={enterEditMode}
+      />
 
       {/* Person form modal */}
       <PersonForm
