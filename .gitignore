@@ -143,6 +143,7 @@ out/
 
 # Test outputs
 test-results/
+TestResults/
 playwright-report/
 playwright/.cache/
 
