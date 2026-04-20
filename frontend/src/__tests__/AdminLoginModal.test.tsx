@@ -60,13 +60,12 @@ describe('AdminLoginModal', () => {
     expect(onLogin).not.toHaveBeenCalled();
   });
 
-  it('submits on Enter key', () => {
+  it('submits via form (Enter ou bouton)', () => {
     onLogin.mockReturnValue(true);
     renderModal();
 
-    const input = screen.getByLabelText(/mot de passe/i);
-    fireEvent.change(input, { target: { value: 'secret' } });
-    fireEvent.keyDown(input, { key: 'Enter' });
+    fireEvent.change(screen.getByLabelText(/mot de passe/i), { target: { value: 'secret' } });
+    fireEvent.submit(screen.getByRole('button', { name: /connexion/i }).closest('form')!);
 
     expect(onLogin).toHaveBeenCalledWith('secret');
   });

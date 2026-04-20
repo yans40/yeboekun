@@ -144,6 +144,19 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     flexShrink: 0,
   };
 
+  const editModeBtnStyle: React.CSSProperties = {
+    background: 'none',
+    border: '1px solid #E5E7EB',
+    borderRadius: 8,
+    cursor: 'pointer',
+    fontSize: 13,
+    color: isAdmin ? '#DC2626' : '#9CA3AF',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '5px 10px',
+  };
+
   return (
     <div style={sidebarStyle}>
       {/* Logo */}
@@ -317,26 +330,15 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         </div>
       )}
 
-      {/* Admin toggle button */}
+      {/* Edit mode toggle button */}
       <div style={{ padding: isAdmin ? '8px 0 16px' : '12px 0 16px', flexShrink: 0, display: 'flex', justifyContent: collapsed ? 'center' : 'flex-start', paddingLeft: collapsed ? 0 : 16 }}>
         <button
-          onClick={isAdmin ? onAdminLogout : onAdminLogin}
-          title={isAdmin ? 'Quitter le mode admin' : 'Mode admin'}
-          style={{
-            background: 'none',
-            border: '1px solid #E5E7EB',
-            borderRadius: 8,
-            cursor: 'pointer',
-            fontSize: 13,
-            color: isAdmin ? '#DC2626' : '#9CA3AF',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '5px 10px',
-          }}
+          onClick={() => (isAdmin ? onAdminLogout?.() : onAdminLogin?.())}
+          title={isAdmin ? 'Quitter le mode édition' : 'Mode édition'}
+          style={editModeBtnStyle}
         >
           <span>{isAdmin ? '🔓' : '🔒'}</span>
-          {!collapsed && <span>{isAdmin ? 'Quitter admin' : 'Admin'}</span>}
+          {!collapsed && <span>{isAdmin ? 'Quitter édition' : 'Mode édition'}</span>}
         </button>
       </div>
     </div>

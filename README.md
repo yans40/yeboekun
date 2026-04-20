@@ -172,6 +172,17 @@ python3 scripts/check-coverage.py \
 | Functions | ≥ 70 % | ~81 % |
 | Branches | ≥ 60 % | ~66 % |
 
+### Mode édition
+
+Le bouton **Mode édition** en bas de la sidebar protège contre les modifications accidentelles par un visiteur. Il demande un mot de passe configuré via `VITE_ADMIN_PASSWORD` dans `frontend/.env`.
+
+> ⚠️ `VITE_ADMIN_PASSWORD` est **inliné dans le bundle JS** par Vite (comportement documenté de toute variable `VITE_`). Toute personne motivée peut retrouver la valeur dans les DevTools ou appeler les endpoints API directement — le gate ne protège rien côté serveur. Si tu héberges des données sensibles, il faudra une vraie auth backend (`[Authorize]` sur les endpoints d'écriture).
+
+```bash
+# frontend/.env
+VITE_ADMIN_PASSWORD=ton_mot_de_passe
+```
+
 ### CI
 
 Le workflow `.github/workflows/ci.yml` lance les deux suites sur `push` et `pull_request` vers `main` ou `dev`, avec couverture en artefacts et **blocage** si les seuils ci-dessus ne sont pas atteints.
