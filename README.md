@@ -141,9 +141,40 @@ Couverture :
 | `familyTreeLayout.test.ts` | algo de layout (positions, espacement, tri par date) | |
 | `useFamilyTree.test.tsx` | hook de chargement (success, erreur, normalisation spouse) | |
 
+### Seuils de couverture
+
+La CI échoue si les seuils suivants ne sont pas respectés :
+
+**Backend** — mesuré avec [coverlet](https://github.com/coverlet-coverage/coverlet) (exclusions : `Program.cs`, DTOs, migrations) :
+
+| Métrique | Seuil | Actuel |
+|---|---|---|
+| Lignes | ≥ 80 % | ~93 % |
+| Branches | ≥ 70 % | ~79 % |
+
+Vérification locale :
+
+```bash
+dotnet test backend/tests/GegeDot.Tests/GegeDot.Tests.csproj \
+  --collect:"XPlat Code Coverage" \
+  --settings backend/tests/GegeDot.Tests/coverlet.runsettings
+python3 scripts/check-coverage.py \
+  "backend/tests/GegeDot.Tests/TestResults/**/coverage.cobertura.xml" \
+  --line 80 --branch 70
+```
+
+**Frontend** — gate sur les couches métier (`services/`, `hooks/`, `utils/`) ; les composants React seront ajoutés au fur et à mesure que leur couverture RTL augmente :
+
+| Métrique | Seuil | Actuel |
+|---|---|---|
+| Lignes | ≥ 80 % | ~84 % |
+| Statements | ≥ 80 % | ~83 % |
+| Functions | ≥ 70 % | ~81 % |
+| Branches | ≥ 60 % | ~66 % |
+
 ### CI
 
-Le workflow `.github/workflows/ci.yml` lance les deux suites sur `push` et `pull_request` vers `main` ou `dev`, avec couverture en artefacts.
+Le workflow `.github/workflows/ci.yml` lance les deux suites sur `push` et `pull_request` vers `main` ou `dev`, avec couverture en artefacts et **blocage** si les seuils ci-dessus ne sont pas atteints.
 
 ## Documentation
 

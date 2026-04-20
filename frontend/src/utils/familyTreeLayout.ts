@@ -35,9 +35,13 @@ export function buildLayout(familyData: FamilyData): FamilyTreeLayout {
     ...siblings.map(s => ({ person: s, level: 0, isCentral: false })),
   ]);
 
-  // Level 1 — parents
+  // Level 1 — parents: père (M) à gauche, mère (F) à droite, autres à la fin
   if (parents.length > 0) {
-    generations.set(1, parents.map(p => ({ person: p, level: 1, isCentral: false })));
+    const sortedParents = [...parents].sort((a, b) => {
+      const order = (g: string | null) => (g === 'M' ? 0 : g === 'F' ? 1 : 2);
+      return order(a.gender) - order(b.gender);
+    });
+    generations.set(1, sortedParents.map(p => ({ person: p, level: 1, isCentral: false })));
   }
 
   // Level -1 — children

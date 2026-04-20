@@ -130,4 +130,76 @@ describe('ApiService', () => {
       expect(mockGet).toHaveBeenCalledWith('/persons/5/spouses');
     });
   });
+
+  describe('persons — lookups', () => {
+    it('getPersonWithRelationships hits /persons/:id/relationships', async () => {
+      mockGet.mockResolvedValue({ data: { id: 1 } });
+
+      await apiService.getPersonWithRelationships(1);
+
+      expect(mockGet).toHaveBeenCalledWith('/persons/1/relationships');
+    });
+
+    it('getChildren hits /persons/:id/children', async () => {
+      mockGet.mockResolvedValue({ data: [] });
+
+      await apiService.getChildren(7);
+
+      expect(mockGet).toHaveBeenCalledWith('/persons/7/children');
+    });
+
+    it('getParents hits /persons/:id/parents', async () => {
+      mockGet.mockResolvedValue({ data: [] });
+
+      await apiService.getParents(7);
+
+      expect(mockGet).toHaveBeenCalledWith('/persons/7/parents');
+    });
+
+    it('getSiblings hits /persons/:id/siblings', async () => {
+      mockGet.mockResolvedValue({ data: [] });
+
+      await apiService.getSiblings(7);
+
+      expect(mockGet).toHaveBeenCalledWith('/persons/7/siblings');
+    });
+  });
+
+  describe('relationships', () => {
+    it('getRelationships hits /relationships', async () => {
+      mockGet.mockResolvedValue({ data: [] });
+
+      await apiService.getRelationships();
+
+      expect(mockGet).toHaveBeenCalledWith('/relationships');
+    });
+
+    it('createRelationship posts to /relationships', async () => {
+      const dto = { person1Id: 1, person2Id: 2, relationshipType: 1, isActive: true };
+      mockPost.mockResolvedValue({ data: { id: 1, ...dto } });
+
+      await apiService.createRelationship(dto);
+
+      expect(mockPost).toHaveBeenCalledWith('/relationships', dto);
+    });
+  });
+
+  describe('trees', () => {
+    it('getTrees hits /trees', async () => {
+      mockGet.mockResolvedValue({ data: [] });
+
+      await apiService.getTrees();
+
+      expect(mockGet).toHaveBeenCalledWith('/trees');
+    });
+
+    it('createTree posts to /trees', async () => {
+      const dto = { name: 'Famille Dupont', isPublic: true };
+      mockPost.mockResolvedValue({ data: { id: 1, ...dto } });
+
+      await apiService.createTree(dto);
+
+      expect(mockPost).toHaveBeenCalledWith('/trees', dto);
+    });
+  });
 });

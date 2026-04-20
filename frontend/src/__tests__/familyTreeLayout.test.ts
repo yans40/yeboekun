@@ -153,4 +153,36 @@ describe('familyTreeLayout.buildLayout', () => {
     expect(layout.centralX).toBe(CANVAS_CENTER_X);
     expect(layout.centralY).toBeGreaterThanOrEqual(START_Y);
   });
+
+  it('enforces MIN_SPACING for overlapping parents (overlap correction)', () => {
+    const central = person(1);
+    const parents = Array.from({ length: 4 }, (_, i) => person(50 + i, `Parent${i}`));
+
+    const layout = buildLayout({
+      ...emptyFamily(central),
+      parents,
+    });
+
+    const parentXs = layout.positions
+      .filter(p => p.level === 1)
+      .map(p => p.x)
+      .sort((a, b) => a - b);
+
+    for (let i = 1; i < parentXs.length; i++) {
+      expect(parentXs[i] - parentXs[i - 1]).toBeGreaterThanOrEqual(MIN_SPACING - 0.01);
+    }
+  });
+
+  it('falls back to position 0 when siblings have no birthdate and no parent reference', () => {
+    const central = person(1);
+    const sib1 = person(2, 'Sib1');
+    const sib2 = person(3, 'Sib2');
+
+    const layout = buildLayout({
+      ...emptyFamily(central),
+      siblings: [sib1, sib2],
+    });
+
+    expect(layout.positions.filter(p => p.isSibling)).toHaveLength(2);
+  });
 });
