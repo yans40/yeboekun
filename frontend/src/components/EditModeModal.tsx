@@ -9,13 +9,13 @@ import {
   Alert,
 } from '@mui/material';
 
-interface AdminLoginModalProps {
+interface EditModeModalProps {
   open: boolean;
   onClose: () => void;
   onLogin: (password: string) => boolean;
 }
 
-const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ open, onClose, onLogin }) => {
+const EditModeModal: React.FC<EditModeModalProps> = ({ open, onClose, onLogin }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
 
@@ -65,4 +65,4 @@ const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ open, onClose, onLogi
   );
 };
 
-export default AdminLoginModal;
+export default EditModeModal;

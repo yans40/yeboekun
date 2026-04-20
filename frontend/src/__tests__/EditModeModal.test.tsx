@@ -1,14 +1,14 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import AdminLoginModal from '../components/AdminLoginModal';
+import EditModeModal from '../components/EditModeModal';
 
 const onClose = jest.fn();
 const onLogin = jest.fn();
 
 const renderModal = (open = true) =>
-  render(<AdminLoginModal open={open} onClose={onClose} onLogin={onLogin} />);
+  render(<EditModeModal open={open} onClose={onClose} onLogin={onLogin} />);
 
-describe('AdminLoginModal', () => {
+describe('EditModeModal', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -43,7 +43,7 @@ describe('AdminLoginModal', () => {
     expect(screen.getByText(/mot de passe incorrect/i)).toBeInTheDocument();
   });
 
-  it('calls onClose and closes modal on successful login', () => {
+  it('calls onClose on successful login', () => {
     onLogin.mockReturnValue(true);
     renderModal();
 
@@ -60,7 +60,7 @@ describe('AdminLoginModal', () => {
     expect(onLogin).not.toHaveBeenCalled();
   });
 
-  it('submits via form (Enter ou bouton)', () => {
+  it('submits the form when triggered', () => {
     onLogin.mockReturnValue(true);
     renderModal();
 

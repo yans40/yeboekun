@@ -10,9 +10,9 @@ import ErrorBoundary from './components/ErrorBoundary';
 import AppSidebar from './components/AppSidebar';
 import FanCanvas from './components/FanCanvas';
 import PersonForm from './components/PersonForm';
-import AdminLoginModal from './components/AdminLoginModal';
+import EditModeModal from './components/EditModeModal';
 import { useFamilyTree } from './hooks/useFamilyTree';
-import { useAdmin } from './hooks/useAdmin';
+import { useEditMode } from './hooks/useEditMode';
 import { Person, CreatePersonDto, UpdatePersonDto } from './types';
 import apiService from './services/api';
 
@@ -40,8 +40,8 @@ function App() {
   });
 
   const { familyData, layout, loading, loadFamilyTree, clearTree } = useFamilyTree();
-  const { isAdmin, login, logout } = useAdmin();
-  const [adminModalOpen, setAdminModalOpen] = useState(false);
+  const { canEdit, enterEditMode, exitEditMode } = useEditMode();
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   // ── Load all persons on mount ───────────────────────────────────────────────
   useEffect(() => {
@@ -160,9 +160,9 @@ function App() {
             onToggleCollapse={() => setSidebarCollapsed(c => !c)}
             ancestorCount={ancestorCount}
             generationDepth={generationDepth}
-            isAdmin={isAdmin}
-            onAdminLogin={() => setAdminModalOpen(true)}
-            onAdminLogout={logout}
+            canEdit={canEdit}
+            onEnterEditMode={() => setEditModalOpen(true)}
+            onExitEditMode={exitEditMode}
           />
 
           {/* Main canvas area */}
@@ -172,17 +172,17 @@ function App() {
               layout={layout}
               loading={loading}
               onPersonSelect={handlePersonSelect}
-              onPersonEdit={isAdmin ? handlePersonEdit : undefined}
+              onPersonEdit={canEdit ? handlePersonEdit : undefined}
             />
           </main>
         </div>
       </ErrorBoundary>
 
-      {/* Admin login modal */}
-      <AdminLoginModal
-        open={adminModalOpen}
-        onClose={() => setAdminModalOpen(false)}
-        onLogin={login}
+      {/* Edit mode modal */}
+      <EditModeModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        onLogin={enterEditMode}
       />
 
       {/* Person form modal */}
