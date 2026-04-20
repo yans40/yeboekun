@@ -32,7 +32,7 @@ public class DataNormalizationService : IDataNormalizationService
         var normalized = Regex.Replace(name.Trim(), @"\s+", " ");
 
         // Capitalisation : Première lettre de chaque mot en majuscule
-        var textInfo = CultureInfo.CurrentCulture.TextInfo;
+        var textInfo = CultureInfo.InvariantCulture.TextInfo;
         normalized = textInfo.ToTitleCase(normalized.ToLowerInvariant());
 
         return normalized;
@@ -56,7 +56,7 @@ public class DataNormalizationService : IDataNormalizationService
         }
 
         // Capitalisation : Première lettre de chaque mot en majuscule
-        var textInfo = CultureInfo.CurrentCulture.TextInfo;
+        var textInfo = CultureInfo.InvariantCulture.TextInfo;
         normalized = textInfo.ToTitleCase(normalized.ToLowerInvariant());
 
         return normalized;
@@ -132,7 +132,7 @@ public class DataNormalizationService : IDataNormalizationService
         normalized = Regex.Replace(normalized, @"\s+", " ");
 
         // Capitalisation : Première lettre de chaque mot en majuscule
-        var textInfo = CultureInfo.CurrentCulture.TextInfo;
+        var textInfo = CultureInfo.InvariantCulture.TextInfo;
         normalized = textInfo.ToTitleCase(normalized.ToLowerInvariant());
 
         return normalized;

@@ -132,6 +132,21 @@ describe('familyTreeLayout.buildLayout', () => {
     expect(positionOf(younger.id).x).toBeGreaterThan(positionOf(central.id).x);
   });
 
+  it('places father (M) to the left of mother (F) regardless of input order', () => {
+    const child = person(1);
+    const mother = { ...person(2, 'Mother'), gender: 'F' as const };
+    const father = { ...person(3, 'Father'), gender: 'M' as const };
+
+    const layout = buildLayout({
+      ...emptyFamily(child),
+      parents: [mother, father],
+    });
+
+    const fatherPos = layout.positions.find(p => p.personId === father.id)!;
+    const motherPos = layout.positions.find(p => p.personId === mother.id)!;
+    expect(fatherPos.x).toBeLessThan(motherPos.x);
+  });
+
   it('uses default canvas center when only the central person is present', () => {
     const layout = buildLayout(emptyFamily(person(1)));
 

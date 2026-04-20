@@ -1,8 +1,10 @@
+using AutoMapper;
 using FluentAssertions;
 using GegeDot.Core.Entities;
 using GegeDot.Core.Interfaces;
 using GegeDot.Services.DTOs;
 using GegeDot.Services.Interfaces;
+using GegeDot.Services.Mappings;
 using GegeDot.Services.Services;
 using Moq;
 using Xunit;
@@ -25,7 +27,7 @@ public class PersonServiceTests
         _mockUnitOfWork.Setup(u => u.Persons).Returns(_mockPersonRepository.Object);
         _mockUnitOfWork.Setup(u => u.Relationships).Returns(_mockRelationshipRepository.Object);
 
-        var mockMapper = BuildMapperMock();
+        var mapper = new MapperConfiguration(c => c.AddProfile<MappingProfile>()).CreateMapper();
 
         var mockNormalization = new Mock<IDataNormalizationService>();
         mockNormalization.Setup(n => n.NormalizeName(It.IsAny<string?>())).Returns((string? s) => s ?? string.Empty);
@@ -33,54 +35,8 @@ public class PersonServiceTests
         mockNormalization.Setup(n => n.NormalizeProfession(It.IsAny<string?>())).Returns((string? s) => s ?? string.Empty);
         mockNormalization.Setup(n => n.NormalizeDate(It.IsAny<string?>())).Returns((string? s) => null);
 
-        _personService = new PersonService(_mockUnitOfWork.Object, mockMapper.Object, mockNormalization.Object);
+        _personService = new PersonService(_mockUnitOfWork.Object, mapper, mockNormalization.Object);
     }
-
-    private static Mock<AutoMapper.IMapper> BuildMapperMock()
-    {
-        static PersonDto ToDto(Person p) => new()
-        {
-            Id = p.Id,
-            FirstName = p.FirstName,
-            LastName = p.LastName,
-            Gender = p.Gender.ToString(),
-            FullName = p.FullName,
-            Age = p.Age
-        };
-
-        var mockMapper = new Mock<AutoMapper.IMapper>();
-        mockMapper.Setup(m => m.Map<PersonDto>(It.IsAny<Person>()))
-                 .Returns((Person p) => ToDto(p));
-
-        mockMapper.Setup(m => m.Map<IEnumerable<PersonDto>>(It.IsAny<IEnumerable<Person>>()))
-                 .Returns((IEnumerable<Person> list) => list.Select(ToDto).ToList());
-
-        mockMapper.Setup(m => m.Map<Person>(It.IsAny<CreatePersonDto>()))
-                 .Returns((CreatePersonDto dto) => new Person
-                 {
-                     FirstName = dto.FirstName,
-                     LastName = dto.LastName,
-                     Gender = ParseGender(dto.Gender)
-                 });
-
-        mockMapper.Setup(m => m.Map(It.IsAny<UpdatePersonDto>(), It.IsAny<Person>()))
-                 .Returns((UpdatePersonDto dto, Person existing) =>
-                 {
-                     existing.FirstName = dto.FirstName;
-                     existing.LastName = dto.LastName;
-                     existing.Gender = ParseGender(dto.Gender);
-                     return existing;
-                 });
-
-        return mockMapper;
-    }
-
-    private static Gender ParseGender(string? value) => value switch
-    {
-        "F" or "Female" => Gender.Female,
-        "O" or "Other" => Gender.Other,
-        _ => Gender.Male
-    };
 
     [Fact]
     public async Task GetAllPersonsAsync_ShouldReturnAllPersons()
