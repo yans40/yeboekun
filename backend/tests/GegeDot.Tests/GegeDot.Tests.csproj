@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\GegeDot.API\GegeDot.API.csproj" />
     <ProjectReference Include="..\..\src\GegeDot.Core\GegeDot.Core.csproj" />
     <ProjectReference Include="..\..\src\GegeDot.Infrastructure\GegeDot.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\GegeDot.Services\GegeDot.Services.csproj" />
