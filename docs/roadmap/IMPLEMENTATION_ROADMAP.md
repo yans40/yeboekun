@@ -60,7 +60,6 @@ Chaque lot fait l'objet d'**une PR** unique, **une QA challenge** dédiée, **un
     - `/riviere`, `/contempler`, `/atelier`, `/tableau` → placeholders "Bientôt disponible".
     - `/admin` → contenu actuel `useAdmin` migré tel quel (restylage en Lot 1.5 si besoin).
 - **Shell hybride** : sidebar fine 72px (icônes, expansible au survol) + topbar minimaliste (breadcrumb, recherche ⌘K placeholder, avatar).
-- **Encodage genre** : bande latérale 2px sur les cartes personne (`color.ocean` M, `color.rust` F, `color.ink3` Other), doublé d'un libellé pour accessibilité.
 
 **Hors périmètre**
 - Refacto visuel des vues métier.
@@ -88,6 +87,7 @@ Chaque lot fait l'objet d'**une PR** unique, **une QA challenge** dédiée, **un
 - Composant `RiviereView` : colonnes horizontales par génération, scrolling latéral fluide.
 - Composant `PersonChip` (carte ultra-compacte) consommé par Rivière et plus tard l'arbre vertical.
 - `Photo` placeholder SVG sépia procédural.
+- **Encodage genre** : bande latérale 2px sur `GenealogyCard` (`color.ocean` M, `color.rust` F, `color.ink3` Other), doublé d'un libellé pour accessibilité (a11y). *(reporté du Lot 1 — source de vérité : QA_LOT_1_FOUNDATION.md fan-4)*
 - Route `/riviere` activée derrière feature flag `VUE_RIVIERE_ENABLED` (défaut OFF en prod, ON en staging).
 - Tests unitaires sur `PersonChip`, tests d'intégration sur `RiviereView` avec mock de `useFamilyTree`.
 
