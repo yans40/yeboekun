@@ -117,6 +117,56 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
 ---
 
+---
+
+## Comprendre les clés SSH
+
+### Le problème qu'elles résolvent
+Pour se connecter à un serveur distant, il faut prouver son identité. Le mot de passe est risqué — il peut être deviné ou intercepté. La clé SSH est une alternative bien plus sûre.
+
+### La paire de clés
+C'est deux fichiers liés mathématiquement :
+
+```
+~/.ssh/oracle_gegedot      ← clé PRIVÉE  (reste sur ton Mac, ne quitte jamais ta machine)
+~/.ssh/oracle_gegedot.pub  ← clé PUBLIQUE (déposée sur le serveur Oracle)
+```
+
+Analogie : la clé publique est un **cadenas** posé sur le serveur, la clé privée est la **clé** que toi seul possèdes.
+
+### Ce qui se passe à la connexion
+```
+ton Mac                          serveur Oracle
+   │                                  │
+   │── "je veux me connecter" ────────►│
+   │                                  │ génère un défi chiffré
+   │◄── "prouve qui tu es" ───────────│ avec ta clé publique
+   │                                  │
+   │ résout le défi                   │
+   │ avec ta clé privée               │
+   │── "voilà la réponse" ───────────►│
+   │                                  │ vérifie avec la clé publique
+   │◄── "accès autorisé" ────────────│
+```
+
+### Se connecter depuis une autre machine
+La clé privée étant absente, le serveur refusera l'accès. Deux options :
+
+**Option 1 — Copier la clé privée sur l'autre machine** (usage personnel uniquement)
+```bash
+scp ~/.ssh/oracle_gegedot utilisateur@autre-machine:~/.ssh/
+```
+
+**Option 2 — Autoriser une nouvelle machine** (bonne pratique)
+Générer une nouvelle paire sur l'autre machine, puis ajouter sa clé publique sur le serveur dans `~/.ssh/authorized_keys`. Le serveur accepte plusieurs clés — une par machine autorisée.
+
+### En pratique
+```bash
+ssh -i ~/.ssh/oracle_gegedot ubuntu@<IP-de-ta-VM>
+```
+
+---
+
 ## Statut
 
 - [ ] Compte Oracle Cloud créé
