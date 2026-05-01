@@ -1,43 +1,57 @@
-# 🔄 Pull Request - GegeDot
+## Lot concerné
+<!-- Lot 1 / Lot 2 / Hotfix / Chore -->
 
-## 📋 **Description**
-<!-- Décrivez brièvement les changements apportés -->
+## Résumé
+<!-- 2-3 phrases : qu'est-ce qui change, pourquoi ? -->
 
-## 🎯 **Type de Changement**
-- [ ] 🐛 Bug fix (changement qui corrige un problème)
-- [ ] ✨ Nouvelle fonctionnalité (changement qui ajoute une fonctionnalité)
-- [ ] 💥 Breaking change (changement qui casse la compatibilité)
-- [ ] 📚 Documentation (changement de documentation uniquement)
-- [ ] 🎨 Style (formatage, points-virgules manquants, etc.)
-- [ ] ♻️ Refactoring (changement de code qui ne corrige pas de bug ni n'ajoute de fonctionnalité)
-- [ ] ⚡ Performance (changement qui améliore les performances)
-- [ ] ✅ Test (ajout de tests manquants ou correction de tests existants)
+## Changements visibles utilisateur
+- [ ] Aucun (refacto / chore)
+- [ ] Mineur (style, copy)
+- [ ] Majeur (nouvelle vue, nouveau flow)
 
-## 🧪 **Tests**
-- [ ] J'ai testé mes changements localement
-- [ ] Les tests existants passent
-- [ ] J'ai ajouté de nouveaux tests si nécessaire
+## Périmètre technique
+<!-- Liste les composants / fichiers touchés -->
 
-## 📸 **Captures d'écran** (si applicable)
-<!-- Ajoutez des captures d'écran pour les changements UI -->
+## Hors périmètre (volontaire)
+<!-- Ce qui n'est PAS dans cette PR et qui sera fait dans un autre lot -->
 
-## 🔗 **Issues Liées**
-<!-- Ferme #issue_number -->
+## Captures / vidéos
+<!-- Avant / après si visuel impacté -->
 
-## ✅ **Checklist**
-- [ ] Mon code suit les conventions du projet
-- [ ] J'ai effectué une auto-review de mon code
-- [ ] J'ai commenté mon code, particulièrement dans les zones difficiles à comprendre
-- [ ] J'ai mis à jour la documentation si nécessaire
-- [ ] Mes changements ne génèrent pas de nouveaux warnings
-- [ ] J'ai ajouté des tests qui prouvent que mon fix est efficace ou que ma fonctionnalité fonctionne
-- [ ] Les tests unitaires nouveaux et existants passent localement avec mes changements
-- [ ] Tout changement dépendant a été mergé et publié
+## Tests
+- [ ] Tests unitaires ajoutés ou mis à jour
+- [ ] Tests d'intégration ajoutés ou mis à jour
+- [ ] Test manuel exécuté (décrire ci-dessous)
 
-## 🚀 **Déploiement**
-- [ ] Les changements sont prêts pour le déploiement
-- [ ] Les variables d'environnement ont été mises à jour si nécessaire
-- [ ] La base de données a été migrée si nécessaire
+## Non-régression
+- [ ] Arbre vertical (`/`) testé : OK
+- [ ] Admin (`/admin`) testé : OK
+- [ ] Autres vues activées testées : OK
+- [ ] Build production OK
+- [ ] Bundle size diff : <indiquer la valeur, doit être ≤ +15 %>
 
-## 📝 **Notes Additionnelles**
-<!-- Ajoutez toute note supplémentaire pour les reviewers -->
+## Backend impacté
+- [ ] Non
+- [ ] Oui (changements coordonnés avec Ada — lien vers PR backend ci-dessous)
+
+## Feature flag
+- [ ] Pas de flag (refacto / Lot 1)
+- [ ] Flag : `<NOM_DU_FLAG>` — défaut : OFF en prod / ON en staging
+
+## Checklist QA Challenger (Iris)
+À remplir par Iris avant de poser le label `qa-validated`.
+
+- [ ] Checklist du lot exécutée intégralement
+- [ ] Tentatives de cassage explicites menées (cas tordus listés ci-dessous)
+- [ ] Lighthouse perf ≥ baseline
+- [ ] A11y : navigation clavier OK, contrastes WCAG AA
+- [ ] i18n : 0 chaîne hardcodée ajoutée
+
+### Cas tordus testés
+<!-- Iris liste ici les edge cases qu'elle a explicitement tentés -->
+1. 
+2. 
+3. 
+
+## Risques connus / dette acceptée
+<!-- Si on accepte de la dette dans cette PR, l'expliciter avec un ticket de suivi -->
