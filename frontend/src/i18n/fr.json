@@ -1,0 +1,74 @@
+{
+  "nav": {
+    "arbre": "Arbre",
+    "tableau": "Tableau",
+    "contempler": "Contempler",
+    "riviere": "Rivière",
+    "atelier": "Atelier",
+    "label_ar": "AR",
+    "label_tb": "TB",
+    "label_ct": "CT",
+    "label_rv": "RV",
+    "label_at": "AT",
+    "logo": "G."
+  },
+  "topbar": {
+    "search_placeholder": "Rechercher… ⌘K",
+    "select_person": "Choisir une personne",
+    "no_person": "Aucune sélection",
+    "edit_mode": "Mode édition"
+  },
+  "placeholder": {
+    "coming_soon": "Bientôt disponible",
+    "description": "Cette vue est en cours de développement."
+  },
+  "admin": {
+    "title": "Administration",
+    "login": "Connexion",
+    "cancel": "Annuler"
+  },
+  "sidebar": {
+    "search_placeholder": "Rechercher...",
+    "deselect": "Désélectionner",
+    "fan_view": "Vue éventail",
+    "list_view": "Liste",
+    "select_person": "Choisir une personne",
+    "add": "Ajouter"
+  },
+  "tree": {
+    "select_prompt": "Sélectionnez une personne pour explorer l'arbre",
+    "loading": "Chargement…",
+    "zoom_in": "Zoom +",
+    "zoom_out": "Zoom −",
+    "recenter": "Recentrer"
+  },
+  "form": {
+    "gender": "Genre",
+    "gender_male": "Homme",
+    "gender_female": "Femme",
+    "gender_other": "Autre",
+    "father_optional": "Père (optionnel)",
+    "mother_optional": "Mère (optionnel)",
+    "none_male": "Aucun",
+    "none_female": "Aucune",
+    "no_parents": "Aucun parent enregistré",
+    "add_parent": "Ajouter un parent",
+    "no_children": "Aucun enfant enregistré",
+    "add_child": "Ajouter un enfant",
+    "choose": "Choisir...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "add_person": "Ajouter une personne"
+  },
+  "modal": {
+    "edit_mode_title": "Mode édition"
+  },
+  "common": {
+    "loading": "Chargement…",
+    "error": "Une erreur est survenue",
+    "close": "Fermer",
+    "confirm": "Confirmer",
+    "back": "Retour"
+  }
+}
