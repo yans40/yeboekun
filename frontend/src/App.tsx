@@ -97,12 +97,7 @@ function App() {
         if (parentIds && parentIds.length > 0) {
           await Promise.all(
             parentIds.map(parentId =>
-              apiService.createRelationship({
-                person1Id: parentId,
-                person2Id: created.id,
-                relationshipType: 1, // Parent
-                isActive: true,
-              })
+              apiService.addParentChildRelationship(parentId, created.id)
             )
           );
         }
