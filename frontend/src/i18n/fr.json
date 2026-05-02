@@ -17,7 +17,8 @@
     "search": "Rechercher",
     "select_person": "Choisir une personne",
     "no_person": "Aucune sélection",
-    "edit_mode": "Mode édition"
+    "edit_mode": "Mode édition",
+    "user_menu": "Menu utilisateur"
   },
   "placeholder": {
     "coming_soon": "Bientôt disponible",
@@ -26,7 +27,10 @@
   "admin": {
     "title": "Administration",
     "login": "Connexion",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "access_restricted": "Accès restreint — utilisez le menu avatar pour vous connecter.",
+    "edit_mode_active": "Mode édition actif",
+    "exit_edit_mode": "Quitter le mode édition"
   },
   "sidebar": {
     "search_placeholder": "Rechercher...",
@@ -71,5 +75,8 @@
     "close": "Fermer",
     "confirm": "Confirmer",
     "back": "Retour"
+  },
+  "app": {
+    "name": "gegedot"
   }
 }
