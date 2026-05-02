@@ -2,7 +2,7 @@
 -- À exécuter avant un déploiement en production pour repartir d'une base vide
 --
 -- Usage :
---   docker exec -i gegeDot-mysql mysql -u gegedot -ppassword gegeDot < scripts/reset_database.sql
+--   docker exec -i gegeDot-mysql mysql -u gegedot -p<MOT_DE_PASSE> gegeDot < scripts/reset_database.sql
 
 USE gegeDot;
 
