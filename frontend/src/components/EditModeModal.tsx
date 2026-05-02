@@ -1,13 +1,56 @@
 import React, { useState } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Alert,
-} from '@mui/material';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import TextField from '@mui/material/TextField';
+import { colors, fonts, radius, spacing } from '../theme/tokens';
+
+// ─── NativeButton ─────────────────────────────────────────────────────────────
+
+type BtnVariant = 'contained' | 'outlined' | 'text';
+
+interface NativeBtnProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: BtnVariant;
+  color?: 'primary' | 'error';
+}
+
+function NativeBtn({ variant = 'text', color = 'primary', style, children, ...rest }: NativeBtnProps) {
+  const accent = color === 'error' ? colors.rust : colors.ocean;
+
+  const base: React.CSSProperties = {
+    display:        'inline-flex',
+    alignItems:     'center',
+    justifyContent: 'center',
+    padding:        `${spacing[2]}px ${spacing[4]}px`,
+    fontFamily:     fonts.sans,
+    fontSize:       14,
+    fontWeight:     500,
+    borderRadius:   radius.sm,
+    cursor:         'pointer',
+    transition:     'background 150ms ease, opacity 150ms ease',
+    lineHeight:     1.5,
+    whiteSpace:     'nowrap',
+  };
+
+  const variants: Record<BtnVariant, React.CSSProperties> = {
+    contained: { backgroundColor: accent, color: colors.cream, border: 'none' },
+    outlined:  { backgroundColor: 'transparent', color: accent, border: `1px solid ${accent}` },
+    text:      { backgroundColor: 'transparent', color: accent, border: 'none' },
+  };
+
+  const disabledStyle: React.CSSProperties = rest.disabled
+    ? { opacity: 0.45, cursor: 'not-allowed', pointerEvents: 'none' }
+    : {};
+
+  return (
+    <button {...rest} style={{ ...base, ...variants[variant], ...disabledStyle, ...style }}>
+      {children}
+    </button>
+  );
+}
+
+// ─── EditModeModal ────────────────────────────────────────────────────────────
 
 interface EditModeModalProps {
   open: boolean;
@@ -42,9 +85,25 @@ const EditModeModal: React.FC<EditModeModalProps> = ({ open, onClose, onLogin })
       <form onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
         <DialogContent>
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <div
+              role="alert"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: spacing[2],
+                marginBottom: spacing[2],
+                padding: `${spacing[2]}px ${spacing[3]}px`,
+                backgroundColor: '#fef2f2',
+                border: `1px solid ${colors.rust}`,
+                borderRadius: radius.md,
+                color: colors.rust,
+                fontFamily: fonts.sans,
+                fontSize: 14,
+              }}
+            >
+              <span style={{ fontWeight: 700 }}>✕</span>
               Mot de passe incorrect
-            </Alert>
+            </div>
           )}
           <TextField
             autoFocus
@@ -57,8 +116,8 @@ const EditModeModal: React.FC<EditModeModalProps> = ({ open, onClose, onLogin })
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Annuler</Button>
-          <Button type="submit" variant="contained">Connexion</Button>
+          <NativeBtn onClick={handleClose}>Annuler</NativeBtn>
+          <NativeBtn type="submit" variant="contained">Connexion</NativeBtn>
         </DialogActions>
       </form>
     </Dialog>

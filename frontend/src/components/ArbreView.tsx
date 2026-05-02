@@ -1,13 +1,20 @@
-import { useEffect, useState } from 'react';
-import { Snackbar, Alert } from '@mui/material';
+import { useEffect, useState, useRef } from 'react';
 import FanCanvas from './FanCanvas';
 import PersonForm from './PersonForm';
 import { useFamilyTree } from '../hooks/useFamilyTree';
 import { useFamilyTreeContext } from '../context/FamilyTreeContext';
 import { Person, CreatePersonDto, UpdatePersonDto } from '../types';
 import apiService from '../services/api';
+import { colors, fonts, radius, shadows, spacing } from '../theme/tokens';
 
 type SnackSeverity = 'success' | 'error' | 'info' | 'warning';
+
+const severityStyles: Record<SnackSeverity, { bg: string; border: string; color: string; icon: string }> = {
+  success: { bg: '#f0fdf4', border: colors.forest,  color: colors.forest,  icon: '✓' },
+  error:   { bg: '#fef2f2', border: colors.rust,    color: colors.rust,    icon: '✕' },
+  warning: { bg: '#fffbeb', border: colors.gold,    color: colors.gold,    icon: '!' },
+  info:    { bg: '#eff6ff', border: colors.ocean,   color: colors.ocean,   icon: 'i' },
+};
 
 export default function ArbreView() {
   const { selectedPersonId, onPersonSelect, canEdit, persons } = useFamilyTreeContext();
@@ -18,9 +25,18 @@ export default function ArbreView() {
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: SnackSeverity }>({
     open: false, message: '', severity: 'info',
   });
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const showSnackbar = (message: string, severity: SnackSeverity) =>
+  const showSnackbar = (message: string, severity: SnackSeverity) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
     setSnackbar({ open: true, message, severity });
+    timerRef.current = setTimeout(() => setSnackbar(s => ({ ...s, open: false })), 4000);
+  };
+
+  const closeSnackbar = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setSnackbar(s => ({ ...s, open: false }));
+  };
 
   useEffect(() => {
     if (selectedPersonId !== null) {
@@ -85,6 +101,8 @@ export default function ArbreView() {
     handleFormClose();
   };
 
+  const sty = snackbar.open ? severityStyles[snackbar.severity] : severityStyles.info;
+
   return (
     <>
       <FanCanvas
@@ -105,20 +123,53 @@ export default function ArbreView() {
         title={editingPerson ? 'Modifier la personne' : 'Ajouter une personne'}
       />
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar(s => ({ ...s, open: false }))}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      {/* Snackbar natif — remplace MUI Snackbar + Alert */}
+      <div
+        role="alert"
+        aria-live="polite"
+        style={{
+          position: 'fixed',
+          bottom: spacing[4],
+          right: spacing[4],
+          zIndex: 1400,
+          minWidth: 288,
+          maxWidth: 480,
+          backgroundColor: sty.bg,
+          border: `1px solid ${sty.border}`,
+          borderRadius: radius.md,
+          boxShadow: shadows.lg,
+          padding: `${spacing[3]}px ${spacing[4]}px`,
+          display: 'flex',
+          alignItems: 'center',
+          gap: spacing[2],
+          fontFamily: fonts.sans,
+          fontSize: 14,
+          color: sty.color,
+          pointerEvents: snackbar.open ? 'auto' : 'none',
+          opacity: snackbar.open ? 1 : 0,
+          transform: snackbar.open ? 'translateY(0)' : 'translateY(8px)',
+          transition: 'opacity 225ms ease, transform 225ms ease',
+        }}
       >
-        <Alert
-          onClose={() => setSnackbar(s => ({ ...s, open: false }))}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
+        <span style={{ fontWeight: 700, fontSize: 16, lineHeight: 1 }}>{sty.icon}</span>
+        <span style={{ flex: 1 }}>{snackbar.message}</span>
+        <button
+          onClick={closeSnackbar}
+          aria-label="Fermer"
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: sty.color,
+            fontSize: 18,
+            lineHeight: 1,
+            padding: 0,
+            opacity: 0.7,
+          }}
         >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+          ×
+        </button>
+      </div>
     </>
   );
 }
