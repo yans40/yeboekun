@@ -29,7 +29,7 @@ export default function AdminPage() {
           {t('admin.title')}
         </span>
         <span style={{ fontFamily: fonts.mono, fontSize: 12, color: colors.ink4 }}>
-          Accès restreint — utilisez le menu avatar pour vous connecter.
+          {t('admin.access_restricted')}
         </span>
         <Button variant="outlined" onClick={() => navigate('/')} style={{ fontFamily: fonts.sans }}>
           {t('common.back')}
@@ -52,10 +52,10 @@ export default function AdminPage() {
         {t('admin.title')}
       </span>
       <span style={{ fontFamily: fonts.mono, fontSize: 12, color: colors.forest }}>
-        Mode édition actif
+        {t('admin.edit_mode_active')}
       </span>
       <Button variant="contained" onClick={handleExit} style={{ fontFamily: fonts.sans }}>
-        Quitter le mode édition
+        {t('admin.exit_edit_mode')}
       </Button>
     </div>
   );
