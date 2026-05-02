@@ -61,7 +61,7 @@ export default function TopBar() {
           letterSpacing: '-0.01em',
           lineHeight: 1,
         }}>
-          gegedot
+          {t('app.name')}
         </span>
         <span style={{
           width: 4,
@@ -192,7 +192,7 @@ export default function TopBar() {
       {/* Avatar + menu */}
       <button
         onClick={e => setAvatarAnchor(e.currentTarget)}
-        aria-label="Menu utilisateur"
+        aria-label={t('topbar.user_menu')}
         style={{
           width: 32,
           height: 32,
