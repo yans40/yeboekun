@@ -108,7 +108,7 @@ Chaque lot fait l'objet d'**une PR** unique, **une QA challenge** dédiée, **un
 **Stratégie de réduction de risque**
 - **Coexistence** : ne pas remplacer `FanCanvas.tsx` directement. Créer `ContemplationView.tsx` qui consomme une nouvelle version stylée (`FanCanvasV2.tsx`) tout en gardant `FanCanvas.tsx` accessible via une route legacy `/eventail-classique` jusqu'à validation finale.
 - Feature flag `VUE_CONTEMPLATION_ENABLED`.
-- **Pré-requis backend** (à valider avec Ada avant démarrage) : l'API doit renvoyer ascendants ET descendants pour la vue bidirectionnelle. Sinon, ajouter un sous-lot 3.0 pour étendre l'API.
+- **Pré-requis backend** (à valider avec Ada avant démarrage) : l'API doit renvoyer ascendants ET descendants pour la vue bidirectionnelle. Sinon, ajouter un sous-lot 3.0 pour étendre l'API. Ce même endpoint sera réutilisé pour l'arbre profondeur ajustable (backlog).
 - Benchmark obligatoire : paint time sur arbres de 50, 150, 300, 500 personnes avant/après.
 
 **Critères de sortie**
@@ -160,8 +160,9 @@ Chaque lot fait l'objet d'**une PR** unique, **une QA challenge** dédiée, **un
 
 - **Album** : galerie photos + documents. Bloqué tant que le stockage de documents n'est pas modélisé côté backend (entité `Document`, S3/MinIO ou stockage local).
 - **Pistes** : leads de recherche IA. Bloqué tant que l'entité `ResearchLead` n'est pas modélisée et que la stratégie IA n'est pas définie.
+- **Arbre profondeur ajustable** : afficher l'arborescence ascendante et descendante complète disponible en base, avec un paramètre de profondeur configurable par l'utilisateur (ex. : sélecteur "2 générations en haut / 1 en bas"). Nécessite un endpoint backend `GET /persons/{id}/full-tree?depthUp=N&depthDown=N` avec traversée récursive (CTE MySQL). Le layout `buildLayout` est déjà conçu pour N niveaux arbitraires — seule la donnée manque. La base test (famille royale) contient 12 niveaux ascendants et 12 niveaux descendants. Pré-requis partagé avec le Lot 3 (API bidirectionnelle).
 
-Ces deux lots feront l'objet de chantiers dédiés avec Ada en lead, pas en queue de la refonte UI.
+Ces lots feront l'objet de chantiers dédiés, pas en queue de la refonte UI.
 
 ---
 
