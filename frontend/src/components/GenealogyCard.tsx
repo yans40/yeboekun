@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Person } from '../types';
+import { colors, fonts, radius, shadows } from '../theme/tokens';
 import { CARD_WIDTH, CARD_HEIGHT, CHILD_CARD_WIDTH } from '../utils/familyTreeLayout';
 
 const GENDER_COLORS: Record<string, string> = {
-  M: '#3B82F6',
-  F: '#EC4899',
-  O: '#6B7280',
+  M: colors.ocean,
+  F: colors.rust,
+  O: colors.ink3,
 };
 
 function getInitials(person: Person): string {
@@ -59,20 +60,15 @@ export const GenealogyCard: React.FC<GenealogyCardProps> = ({
     top: y,
     width,
     height: CARD_HEIGHT,
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    boxShadow: hovered
-      ? '0 8px 30px rgba(0,0,0,0.15)'
-      : '0 4px 20px rgba(0,0,0,0.07)',
-    border: isCentral
-      ? `2px solid ${genderColor}`
-      : isSpouse
-      ? '1.5px solid #C084FC'
-      : '1px solid #E5E7EB',
+    backgroundColor: isCentral ? colors.cream : colors.paper,
+    borderRadius: radius.lg,
+    boxShadow: hovered ? shadows.lg : isCentral ? shadows.md : shadows.sm,
+    border: `1px solid ${isCentral ? colors.line : colors.line2}`,
+    borderLeft: `3px solid ${genderColor}`,
     cursor: 'pointer',
     transition: 'box-shadow 150ms, transform 150ms',
     transform: hovered ? 'scale(1.02)' : 'scale(1)',
-    opacity: isChild ? 0.82 : 1,
+    opacity: isChild ? 0.85 : 1,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -87,22 +83,25 @@ export const GenealogyCard: React.FC<GenealogyCardProps> = ({
     width: isCentral ? 48 : 40,
     height: isCentral ? 48 : 40,
     borderRadius: '50%',
-    backgroundColor: isChild ? '#9CA3AF' : genderColor,
-    color: '#fff',
+    background: `linear-gradient(135deg, ${colors.sepiaLt}, ${colors.sepia})`,
+    color: colors.cream,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontWeight: 700,
-    fontSize: isCentral ? 16 : 14,
+    fontFamily: fonts.serif,
+    fontStyle: 'italic',
+    fontSize: isCentral ? 18 : 15,
     flexShrink: 0,
     marginBottom: 6,
     overflow: 'hidden',
+    boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.08)',
   };
 
   const nameStyle: React.CSSProperties = {
     fontSize: isChild ? 11 : isCentral ? 14 : 13,
-    fontWeight: isCentral ? 700 : 600,
-    color: isChild ? '#6B7280' : '#1F2937',
+    fontWeight: isCentral ? 600 : 500,
+    fontFamily: fonts.sans,
+    color: isChild ? colors.ink3 : colors.ink,
     textAlign: 'center',
     lineHeight: 1.3,
     maxHeight: '2.6em',
@@ -116,7 +115,8 @@ export const GenealogyCard: React.FC<GenealogyCardProps> = ({
 
   const metaStyle: React.CSSProperties = {
     fontSize: 10,
-    color: '#9CA3AF',
+    fontFamily: fonts.mono,
+    color: colors.ink4,
     textAlign: 'center',
     lineHeight: 1.4,
     overflow: 'hidden',
@@ -132,8 +132,8 @@ export const GenealogyCard: React.FC<GenealogyCardProps> = ({
     width: 22,
     height: 22,
     borderRadius: '50%',
-    backgroundColor: editHovered ? '#3B82F6' : '#E5E7EB',
-    color: editHovered ? '#fff' : '#6B7280',
+    backgroundColor: editHovered ? colors.sepia : colors.paper3,
+    color: editHovered ? colors.cream : colors.ink3,
     border: 'none',
     cursor: 'pointer',
     display: hovered ? 'flex' : 'none',
@@ -153,7 +153,6 @@ export const GenealogyCard: React.FC<GenealogyCardProps> = ({
       onMouseLeave={() => { setHovered(false); setEditHovered(false); }}
       onClick={() => onPersonClick(person.id)}
     >
-      {/* Edit button (admin only) */}
       {onPersonEdit && (
         <button
           style={editBtnStyle}
@@ -166,7 +165,6 @@ export const GenealogyCard: React.FC<GenealogyCardProps> = ({
         </button>
       )}
 
-      {/* Avatar */}
       <div style={avatarStyle}>
         {person.photoUrl ? (
           <img
@@ -179,10 +177,7 @@ export const GenealogyCard: React.FC<GenealogyCardProps> = ({
         )}
       </div>
 
-      {/* Name */}
       <div style={nameStyle}>{person.fullName}</div>
-
-      {/* Dates */}
       {dateLabel && <div style={metaStyle}>{dateLabel}</div>}
     </div>
   );
