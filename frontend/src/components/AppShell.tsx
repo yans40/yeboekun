@@ -1,7 +1,6 @@
 import { useState, useEffect, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import ErrorBoundary from './ErrorBoundary';
-import NavRail from './NavRail';
 import TopBar from './TopBar';
 import EditModeModal from './EditModeModal';
 import { FamilyTreeContext } from '../context/FamilyTreeContext';
@@ -32,19 +31,15 @@ export default function AppShell() {
       onOpenEditModal: () => setEditModalOpen(true),
       onExitEditMode: exitEditMode,
     }}>
-      <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', backgroundColor: colors.paper }}>
-        <NavRail />
-
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          <TopBar />
-          <main style={{ flex: 1, overflow: 'hidden' }}>
-            <ErrorBoundary>
-              <Suspense fallback={null}>
-                <Outlet />
-              </Suspense>
-            </ErrorBoundary>
-          </main>
-        </div>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', backgroundColor: colors.paper }}>
+        <TopBar />
+        <main style={{ flex: 1, overflow: 'hidden' }}>
+          <ErrorBoundary>
+            <Suspense fallback={null}>
+              <Outlet />
+            </Suspense>
+          </ErrorBoundary>
+        </main>
       </div>
 
       <EditModeModal

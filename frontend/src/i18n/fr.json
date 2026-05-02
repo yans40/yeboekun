@@ -14,6 +14,7 @@
   },
   "topbar": {
     "search_placeholder": "Rechercher… ⌘K",
+    "search": "Rechercher",
     "select_person": "Choisir une personne",
     "no_person": "Aucune sélection",
     "edit_mode": "Mode édition"

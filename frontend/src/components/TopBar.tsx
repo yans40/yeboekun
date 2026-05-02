@@ -1,61 +1,32 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Menu, MenuItem } from '@mui/material';
-import { colors, fonts, shadows } from '../theme/tokens';
+import { colors, fonts } from '../theme/tokens';
 import { useFamilyTreeContext } from '../context/FamilyTreeContext';
 import type { Person } from '../types';
 
-const BREADCRUMB_MAP: Record<string, string> = {
-  '/':          'Arbre',
-  '/arbre':     'Arbre',
-  '/tableau':   'Tableau',
-  '/contempler':'Contempler',
-  '/riviere':   'Rivière',
-  '/atelier':   'Atelier',
-  '/admin':     'Administration',
-};
-
-const topbarStyle: React.CSSProperties = {
-  height: 48,
-  width: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  gap: 12,
-  padding: '0 16px',
-  backgroundColor: colors.paper,
-  borderBottom: `1px solid ${colors.line2}`,
-  boxShadow: shadows.xs,
-  flexShrink: 0,
-  boxSizing: 'border-box',
-};
+const NAV_ITEMS: { to: string; labelKey: string; end?: boolean }[] = [
+  { to: '/',           labelKey: 'nav.arbre',     end: true },
+  { to: '/tableau',    labelKey: 'nav.tableau' },
+  { to: '/riviere',    labelKey: 'nav.riviere' },
+  { to: '/contempler', labelKey: 'nav.contempler' },
+  { to: '/atelier',    labelKey: 'nav.atelier' },
+];
 
 export default function TopBar() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   const { persons, selectedPersonId, onPersonSelect, onOpenEditModal } = useFamilyTreeContext();
 
-  const [selectorOpen, setSelectorOpen] = useState(false);
   const [selectorAnchor, setSelectorAnchor] = useState<HTMLElement | null>(null);
   const [avatarAnchor, setAvatarAnchor] = useState<HTMLElement | null>(null);
 
   const selectedPerson = persons.find(p => p.id === selectedPersonId) ?? null;
-  const breadcrumb = BREADCRUMB_MAP[pathname] ?? '';
-
-  const handleSelectorOpen = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setSelectorAnchor(e.currentTarget);
-    setSelectorOpen(true);
-  };
 
   const handlePersonPick = (person: Person) => {
     onPersonSelect(person.id);
-    setSelectorOpen(false);
     setSelectorAnchor(null);
-  };
-
-  const handleAvatarClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setAvatarAnchor(e.currentTarget);
   };
 
   const handleEditMode = () => {
@@ -69,47 +40,68 @@ export default function TopBar() {
     : 'G';
 
   return (
-    <header style={topbarStyle}>
-      {/* Breadcrumb */}
-      <span style={{
-        fontFamily: fonts.mono,
-        fontSize: 11,
-        color: colors.ink3,
-        letterSpacing: '0.08em',
-        flexShrink: 0,
-      }}>
-        {breadcrumb}
-      </span>
+    <header style={{
+      height: 60,
+      padding: '0 28px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 16,
+      background: `linear-gradient(${colors.cream}, ${colors.paper})`,
+      borderBottom: `1px solid ${colors.line2}`,
+      position: 'relative',
+      flexShrink: 0,
+    }}>
+      {/* Logo */}
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexShrink: 0 }}>
+        <span style={{
+          fontFamily: fonts.serif,
+          fontStyle: 'italic',
+          fontSize: 22,
+          color: colors.ink,
+          letterSpacing: '-0.01em',
+          lineHeight: 1,
+        }}>
+          gegedot
+        </span>
+        <span style={{
+          width: 4,
+          height: 4,
+          borderRadius: '50%',
+          background: colors.rust,
+          display: 'inline-block',
+          marginBottom: 2,
+        }} />
+      </div>
 
-      <span style={{ color: colors.line, fontFamily: fonts.mono, fontSize: 11 }}>›</span>
-
-      {/* Person selector (shell-14 — décision B) */}
+      {/* Person selector */}
       <button
-        onClick={handleSelectorOpen}
+        onClick={e => setSelectorAnchor(e.currentTarget)}
         style={{
-          fontFamily: fonts.sans,
-          fontSize: 12,
+          fontFamily: fonts.mono,
+          fontSize: 11,
           color: colors.ink2,
-          backgroundColor: colors.paper2,
+          backgroundColor: colors.paper3,
           border: `1px solid ${colors.line}`,
-          borderRadius: 4,
-          padding: '3px 8px',
+          borderRadius: 3,
+          padding: '2px 8px',
           cursor: 'pointer',
-          maxWidth: 180,
+          maxWidth: 160,
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
+          letterSpacing: '0.05em',
+          flexShrink: 0,
         }}
       >
         {selectedPerson
-          ? `${selectedPerson.firstName} ${selectedPerson.lastName}`
+          ? `${selectedPerson.firstName} ${selectedPerson.lastName}`.toUpperCase()
           : t('topbar.select_person')}
       </button>
 
       <Menu
-        open={selectorOpen}
+        open={Boolean(selectorAnchor)}
         anchorEl={selectorAnchor}
-        onClose={() => { setSelectorOpen(false); setSelectorAnchor(null); }}
+        onClose={() => setSelectorAnchor(null)}
         PaperProps={{ style: { maxHeight: 320, minWidth: 200 } }}
       >
         {persons.map(p => (
@@ -124,50 +116,99 @@ export default function TopBar() {
         ))}
       </Menu>
 
-      {/* Spacer */}
-      <div style={{ flex: 1 }} />
+      {/* Nav links */}
+      <nav style={{
+        flex: 1,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 26,
+      }}>
+        {NAV_ITEMS.map(({ to, labelKey, end }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end ?? false}
+            style={({ isActive }) => ({
+              fontSize: 13,
+              fontFamily: fonts.sans,
+              fontWeight: isActive ? 500 : 400,
+              color: isActive ? colors.ink : colors.ink3,
+              textDecoration: 'none',
+              position: 'relative',
+              letterSpacing: '0.01em',
+              cursor: 'pointer',
+            })}
+          >
+            {({ isActive }) => (
+              <>
+                {t(labelKey)}
+                {isActive && (
+                  <span style={{
+                    position: 'absolute',
+                    left: -2,
+                    right: -2,
+                    bottom: -21,
+                    height: 2,
+                    background: colors.ink,
+                    borderRadius: 1,
+                  }} />
+                )}
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
 
-      {/* Search placeholder (shell-15) */}
+      {/* Search */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         gap: 6,
-        backgroundColor: colors.paper2,
-        border: `1px solid ${colors.line}`,
-        borderRadius: 999,
-        padding: '4px 12px',
-        cursor: 'text',
-        minWidth: 160,
+        border: `1px solid ${colors.line2}`,
+        borderRadius: 20,
+        padding: '5px 12px',
+        background: colors.cream,
+        fontFamily: fonts.mono,
+        fontSize: 11,
+        color: colors.ink3,
+        minWidth: 180,
+        flexShrink: 0,
       }}>
-        <span style={{ fontSize: 12, color: colors.ink4 }}>⌘</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke={colors.ink3} strokeWidth="1.4">
+          <circle cx="5" cy="5" r="3.4" /><path d="M7.5 7.5l2.5 2.5" />
+        </svg>
+        <span>{t('topbar.search')}</span>
+        <span style={{ flex: 1 }} />
         <span style={{
-          fontFamily: fonts.mono,
-          fontSize: 11,
+          fontSize: 9,
+          padding: '1px 5px',
+          border: `1px solid ${colors.line2}`,
+          borderRadius: 3,
           color: colors.ink4,
-        }}>
-          {t('topbar.search_placeholder')}
-        </span>
+        }}>⌘K</span>
       </div>
 
-      {/* Avatar + menu (shell-16) */}
+      {/* Avatar + menu */}
       <button
-        onClick={handleAvatarClick}
+        onClick={e => setAvatarAnchor(e.currentTarget)}
         aria-label="Menu utilisateur"
         style={{
           width: 32,
           height: 32,
           borderRadius: '50%',
           border: 'none',
-          background: `linear-gradient(135deg, ${colors.sepia}, ${colors.rust})`,
+          background: `linear-gradient(135deg, ${colors.sepiaLt}, ${colors.sepia})`,
           color: colors.cream,
-          fontFamily: fonts.sans,
-          fontSize: 13,
-          fontWeight: 600,
+          fontFamily: fonts.serif,
+          fontStyle: 'italic',
+          fontSize: 14,
           cursor: 'pointer',
           flexShrink: 0,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          boxShadow: 'inset 0 0 0 1px rgba(0,0,0,0.1)',
         }}
       >
         {initials}
