@@ -10,7 +10,7 @@ import apiService from '../services/api';
 type SnackSeverity = 'success' | 'error' | 'info' | 'warning';
 
 export default function ArbreView() {
-  const { selectedPersonId, onPersonSelect, canEdit } = useFamilyTreeContext();
+  const { selectedPersonId, onPersonSelect, canEdit, persons } = useFamilyTreeContext();
   const { familyData, layout, loading, loadFamilyTree, clearTree } = useFamilyTree();
 
   const [formOpen, setFormOpen] = useState(false);
@@ -101,7 +101,7 @@ export default function ArbreView() {
         onSubmit={handleFormSubmit}
         onDelete={editingPerson ? handlePersonDelete : undefined}
         person={editingPerson}
-        persons={[]}
+        persons={persons}
         title={editingPerson ? 'Modifier la personne' : 'Ajouter une personne'}
       />
 
