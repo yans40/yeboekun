@@ -1,4 +1,6 @@
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import ThemeProvider from '@mui/material/styles/ThemeProvider';
+import createTheme from '@mui/material/styles/createTheme';
+import CssBaseline from '@mui/material/CssBaseline';
 import { RouterProvider } from 'react-router-dom';
 import { router } from './router';
 import { colors, fonts, radius } from './theme/tokens';
