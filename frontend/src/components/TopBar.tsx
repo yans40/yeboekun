@@ -3,15 +3,24 @@ import { useTranslation } from 'react-i18next';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { colors, fonts } from '../theme/tokens';
 import { useFamilyTreeContext } from '../context/FamilyTreeContext';
+import { VUE_RIVIERE_ENABLED } from '../config/featureFlags';
 import type { Person } from '../types';
 
-const NAV_ITEMS: { to: string; labelKey: string; end?: boolean }[] = [
+const BASE_NAV_ITEMS: { to: string; labelKey: string; end?: boolean }[] = [
   { to: '/',           labelKey: 'nav.arbre',     end: true },
   { to: '/tableau',    labelKey: 'nav.tableau' },
-  { to: '/riviere',    labelKey: 'nav.riviere' },
   { to: '/contempler', labelKey: 'nav.contempler' },
   { to: '/atelier',    labelKey: 'nav.atelier' },
 ];
+
+const NAV_ITEMS: { to: string; labelKey: string; end?: boolean }[] = VUE_RIVIERE_ENABLED
+  ? [
+      BASE_NAV_ITEMS[0],
+      BASE_NAV_ITEMS[1],
+      { to: '/riviere', labelKey: 'nav.riviere' },
+      ...BASE_NAV_ITEMS.slice(2),
+    ]
+  : BASE_NAV_ITEMS;
 
 // ─── DropdownMenu ─────────────────────────────────────────────────────────────
 
