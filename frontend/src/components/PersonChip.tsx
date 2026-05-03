@@ -5,10 +5,10 @@
  * La bande genre sur le bord gauche utilise les tokens couleurs :
  *   M  → colors.ocean  (#3a6b8a)
  *   F  → colors.rust   (#c45c3a)
- *   Other → colors.ink3 (#7a6048)
+ *   O → colors.ink3 (#7a6048)
  */
 
-import type { KeyboardEvent } from 'react';
+import React, { type KeyboardEvent } from 'react';
 import { colors, fonts, radius, shadows } from '../theme/tokens';
 import type { RiverViewNode } from '../types';
 
@@ -38,7 +38,7 @@ function genderAccentColor(gender: RiverViewNode['gender']): string {
   switch (gender) {
     case 'M':     return colors.ocean;
     case 'F':     return colors.rust;
-    case 'Other': return colors.ink3;
+    case 'O': return colors.ink3;
   }
 }
 

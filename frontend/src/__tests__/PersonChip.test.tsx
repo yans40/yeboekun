@@ -30,14 +30,14 @@ const nodeDecede: RiverViewNode = {
   generation: -1,
 };
 
-const nodeOther: RiverViewNode = {
+const nodeAutre: RiverViewNode = {
   id: 99,
   firstName: 'Alex',
   lastName: 'Beauchamp-Delacroix',
   birthDate: null,
   deathDate: null,
   isAlive: true,
-  gender: 'Other',
+  gender: 'O',
   photoUrl: null,
   generation: 1,
 };
@@ -61,12 +61,12 @@ describe('PersonChip — render basique', () => {
   });
 
   it("affiche ? quand birthDate est null", () => {
-    render(<PersonChip node={nodeOther} />);
+    render(<PersonChip node={nodeAutre} />);
     expect(screen.getByText('?')).toBeInTheDocument();
   });
 
   it('abrège un nom de famille long (> 10 caractères)', () => {
-    render(<PersonChip node={nodeOther} />);
+    render(<PersonChip node={nodeAutre} />);
     // "Beauchamp-Delacroix" (19 chars) → slice(0,9) + '.' = "Beauchamp."
     expect(screen.getByText('Beauchamp.')).toBeInTheDocument();
   });

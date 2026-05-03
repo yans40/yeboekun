@@ -217,8 +217,8 @@ export interface RiverViewNode {
   birthDate: string | null;
   deathDate: string | null;
   isAlive: boolean;
-  /** M=Masculin, F=Féminin, Other=Autre */
-  gender: 'M' | 'F' | 'Other';
+  /** M=Masculin, F=Féminin, O=Autre (aligné Person / backend) */
+  gender: 'M' | 'F' | 'O';
   photoUrl: string | null;
   /** 0=racine, négatif=ascendant, positif=descendant */
   generation: number;

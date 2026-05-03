@@ -64,7 +64,7 @@ export const GenealogyCard: React.FC<GenealogyCardProps> = ({
     borderRadius: radius.lg,
     boxShadow: hovered ? shadows.lg : isCentral ? shadows.md : shadows.sm,
     border: `1px solid ${isCentral ? colors.line : colors.line2}`,
-    borderLeft: `3px solid ${genderColor}`,
+    borderLeft: `2px solid ${genderColor}`,
     cursor: 'pointer',
     transition: 'box-shadow 150ms, transform 150ms',
     transform: hovered ? 'scale(1.02)' : 'scale(1)',

@@ -9,6 +9,13 @@ Workflow officiel pour la refonte UI et tout chantier futur. Inspiré de Gitflow
 - **`main`** — état de production. Protégée. Aucun commit direct, aucun push force, aucun merge sans validation QA. Chaque merge = un tag de release `vX.Y.Z`.
 - **`develop`** — branche d'intégration. Protégée. Toutes les `feature/*` y sont mergées via PR. Doit toujours être déployable en staging.
 
+### Flux PO / intégration vs production (décision PO)
+
+- **Flux quotidien** — tâche PO → dev → QA → PR → revue croisée : les PR de lots se **mergent dans `develop`** (staging / intégration).
+- **`main`** — réservé à la **ligne prod** et aux **releases** (merge depuis `develop` ou depuis une branche `release/*` après stabilisation), pas au rythme de chaque petit lot.
+
+Les deux branches restent **protégées** ; le rythme de merge diffère selon qu’on intègre (`develop`) ou qu’on livre (`main`).
+
 ## Branches temporaires
 
 - **`feature/<nom-lot>`** — un lot de la roadmap = une feature branch. Vit jusqu'au merge dans `develop`. Exemple : `feature/vue-riviere`.

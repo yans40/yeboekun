@@ -116,7 +116,7 @@ const EditModeModal: React.FC<EditModeModalProps> = ({ open, onClose, onLogin })
           />
         </DialogContent>
         <DialogActions>
-          <NativeBtn onClick={handleClose}>Annuler</NativeBtn>
+          <NativeBtn type="button" onClick={handleClose}>Annuler</NativeBtn>
           <NativeBtn type="submit" variant="contained">Connexion</NativeBtn>
         </DialogActions>
       </form>

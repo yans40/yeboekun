@@ -156,6 +156,42 @@ Chaque lot fait l'objet d'**une PR** unique, **une QA challenge** dédiée, **un
 
 ---
 
+## Lot 6 — Renommage Yeboekun
+
+**Branche** : `chore/rename-yeboekun`
+**Effort** : S (~1–2 jours)
+**Risque** : moyen — changements transversaux frontend + backend + infra, aucune logique métier modifiée.
+
+**Contexte**
+Le nom définitif du projet est **Yeboekun**. "gegeDot" était un nom de code temporaire. Ce lot renomme sans modifier de comportement.
+
+**Périmètre**
+
+- **Backend** : namespaces `GegeDot.*` → `Yeboekun.*` (assembly names, `namespace`, `using`, fichiers `.csproj`).
+- **Frontend** : `name` dans `package.json`, `<title>` HTML, tout texte "GegeDot" visible dans l'UI.
+- **Base de données** : nom de la base MySQL `gegeDot` → `yeboekun` (migration + `appsettings.json`).
+- **Dossiers / repo** : renommage des dossiers `gegeDot` / `gegeDot-claude` et du repo GitHub `gegeDot` → `yeboekun` (action manuelle GitHub, puis `git remote set-url`).
+- **Variables d'environnement** : `VITE_*`, chaînes de connexion, tout ce qui contient "gegedot" ou "gegeDot".
+- **Docs** : mettre à jour `IMPLEMENTATION_ROADMAP.md`, `GITFLOW.md`, `PR_TEMPLATE.md` et les fichiers agents.
+
+**Hors périmètre**
+- Aucune modification de logique métier, de schéma BDD (tables/colonnes), ni de contrats d'API.
+
+**Stratégie**
+Renommer en une seule PR atomique avec une checklist exhaustive. Pas de renommage partiel étalé sur plusieurs lots — risque de mélange de noms dans les logs et erreurs de build.
+
+**Pré-requis**
+- Tous les lots en cours (Lot 2 au minimum) mergés sur `main` avant de lancer, pour éviter les conflits de rebase.
+- Kassy renomme le repo GitHub manuellement avant que la branche soit poussée.
+
+**Critères de sortie**
+- `grep -r "gegeDot\|GegeDot\|gegedot" --include="*.ts" --include="*.tsx" --include="*.cs" --include="*.csproj" --include="*.json" --include="*.md"` ne retourne aucun résultat hors historique git.
+- Build frontend + backend verts.
+- App démarre et l'arbre vertical fonctionne.
+- QA challenger valide.
+
+---
+
 ## Backlog
 
 - **Album** : galerie photos + documents. Bloqué tant que le stockage de documents n'est pas modélisé côté backend (entité `Document`, S3/MinIO ou stockage local).
@@ -176,6 +212,7 @@ Ces lots feront l'objet de chantiers dédiés, pas en queue de la refonte UI.
 | 3 | feature/vue-contemplation | L | élevé | Lot 1 mergé + API bidirectionnelle | Sous-lot Ada si API à étendre |
 | 4 | feature/vue-atelier | M | moyen | Lot 1 mergé | Validation FluentValidation Ada |
 | 5 | feature/vue-tableau | M | bas | Lot 1 mergé | API stats Ada |
+| 6 | chore/rename-yeboekun | S | moyen | Lot 2+ mergés | Repo GitHub renommé manuellement |
 
 ---
 

@@ -12,7 +12,7 @@
  * Remplace le PlaceholderView sur /riviere quand VUE_RIVIERE_ENABLED=true.
  */
 
-import { useEffect, useRef, type RefObject } from 'react';
+import React, { useEffect, useRef, type RefObject } from 'react';
 import { colors, fonts, radius, spacing } from '../theme/tokens';
 import PersonChip from '../components/PersonChip';
 import type { RiverViewData, RiverViewNode, RiverViewEdge } from '../types';
@@ -237,7 +237,12 @@ export default function RiviereView({ data, onPersonClick }: RiviereViewProps) {
     const colWidth = rootCol.offsetWidth;
     const scrollTarget = colLeft - containerWidth / 2 + colWidth / 2;
 
-    container.scrollTo({ left: scrollTarget, behavior: 'smooth' });
+    // jsdom n'implémente pas scrollTo sur Element ; navigateurs réels oui.
+    if (typeof container.scrollTo === 'function') {
+      container.scrollTo({ left: scrollTarget, behavior: 'smooth' });
+    } else {
+      container.scrollLeft = scrollTarget;
+    }
   }, []);
 
   // Construire les groupes par génération
