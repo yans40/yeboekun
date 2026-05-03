@@ -39,7 +39,7 @@ _Fichier partagé PO ↔ agents. Mise à jour à chaque interaction structurante
 ## Bloquants avant merge Lot 2
 
 1. ~~Checklist QA~~ — **complétée** (`QA_LOT_2_RIVIERE.md`).
-2. ~~Correctifs + doc hors repo~~ — **poussés** sur `origin/dev` (commit **`d126441`**).
+2. ~~Correctifs + doc hors repo~~ — **poussés** sur `origin/dev` (**`d126441`** lot doc + front, **`6cb0849`** état PR).
 3. **PR Lot 2** : à ouvrir / merger sur **`develop`** (template `docs/process/PR_TEMPLATE.md` + corps `docs/process/PR_LOT_2_RIVIERE.md`) ; **`main`** au moment d’une **release**.
 
 ---
