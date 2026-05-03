@@ -3,10 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GegeDot — Arbre Généalogique</title>
+    <meta name="description" content="GegeDot — Explorez et construisez votre arbre généalogique familial." />
+    <meta name="theme-color" content="#f4efe6" />
+    <title>GegeDot — Arbre généalogique</title>
+
+    <!-- Cormorant Garamond — chargement non-bloquant -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap"
+      />
+    </noscript>
+
     <style>
       *, *::before, *::after { box-sizing: border-box; }
       html, body, #root {
@@ -15,7 +36,7 @@
         width: 100%;
         height: 100%;
         overflow: hidden;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-family: 'Geist', system-ui, sans-serif;
       }
     </style>
   </head>

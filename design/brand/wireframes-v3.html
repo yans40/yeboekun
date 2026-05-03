@@ -1,0 +1,1750 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>GegeDot · v3 consolidé</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&family=Caveat:wght@400&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; height:100%; font-family:'Geist',system-ui,sans-serif; background:#eceae5; }
+  * { box-sizing: border-box; }
+  :root {
+    --paper:#f5f3ee; --paper-2:#ecebe5; --paper-3:#e2e0d8;
+    --ink:#1d1f23; --ink-2:#4a4d54; --ink-3:#82858c; --ink-4:#b6b9bf;
+    --line:#c8c6bd; --line-2:#ddd9d0;
+    --slate:oklch(0.58 0.04 240); --olive:oklch(0.58 0.04 130); --rust:oklch(0.58 0.10 35);
+    --serif:'Cormorant Garamond', Georgia, serif;
+    --sans:'Geist', system-ui, sans-serif;
+    --mono:'Geist Mono', monospace;
+    --hand:'Caveat', cursive;
+  }
+  .wf { font-family:var(--sans); color:var(--ink); background:var(--paper);
+        width:100%; height:100%; overflow:hidden; position:relative; }
+  .wf *::-webkit-scrollbar{display:none;} .wf *{scrollbar-width:none;}
+  .wf-mono{font-family:var(--mono);} .wf-serif{font-family:var(--serif);} .wf-it{font-style:italic;}
+  .wf-eyebrow{font-family:var(--mono); font-size:9.5px; text-transform:uppercase;
+              letter-spacing:.14em; color:var(--ink-3);}
+  .wf-divider{height:1px; background:var(--line-2);}
+  .wf-ph{background:repeating-linear-gradient(135deg, var(--line-2) 0 6px, transparent 6px 12px);
+         border:1px solid var(--line); color:var(--ink-3); font-family:var(--mono);
+         font-size:10px; display:flex; align-items:center; justify-content:center;
+         text-transform:uppercase; letter-spacing:.04em;}
+  .wf-tag{display:inline-flex; align-items:center; gap:4px; font-family:var(--mono);
+          font-size:9px; padding:1px 7px; border-radius:9px; border:1px solid var(--line);
+          color:var(--ink-2); text-transform:uppercase; letter-spacing:.08em;}
+  .wf-tag.solid{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+  .wf-tag.rust{color:var(--rust); border-color:var(--rust);}
+  .wf-anno{position:absolute; font-family:var(--hand); color:var(--rust);
+           font-size:18px; line-height:1.1; pointer-events:none; max-width:240px;}
+  .wf-btn{font-family:var(--sans); font-size:11px; border:1px solid var(--line);
+          background:var(--paper); padding:5px 11px; border-radius:4px; color:var(--ink);}
+  .wf-btn.primary{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+  .wf-btn.ghost{border:none; background:transparent; color:var(--ink-2);}
+  .wf-bar{height:52px; border-bottom:1px solid var(--line); padding:0 22px;
+          display:flex; align-items:center; gap:22px; background:var(--paper);}
+  .wf-bar .brand{font-family:var(--serif); font-style:italic; font-size:19px;}
+  .wf-bar .sep{width:1px; height:18px; background:var(--line);}
+  .wf-bar .nav{font-size:12px; color:var(--ink-2);}
+  .wf-bar .nav.active{color:var(--ink); border-bottom:1px solid var(--ink); padding-bottom:2px;}
+  .wf-bar .search{margin-left:auto; display:flex; align-items:center; gap:8px;
+                  border:1px solid var(--line); border-radius:14px; padding:4px 10px;
+                  font-family:var(--mono); font-size:11px; color:var(--ink-3); min-width:240px;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" data-file="design-canvas.jsx">
+
+// DesignCanvas.jsx — Figma-ish design canvas wrapper
+// Warm gray grid bg + Sections + Artboards + PostIt notes.
+// Artboards are reorderable (grip-drag), labels/titles are inline-editable,
+// and any artboard can be opened in a fullscreen focus overlay (←/→/Esc).
+// State persists to a .design-canvas.state.json sidecar via the host
+// bridge. No assets, no deps.
+//
+// Usage:
+//   <DesignCanvas>
+//     <DCSection id="onboarding" title="Onboarding" subtitle="First-run variants">
+//       <DCArtboard id="a" label="A · Dusk" width={260} height={480}>…</DCArtboard>
+//       <DCArtboard id="b" label="B · Minimal" width={260} height={480}>…</DCArtboard>
+//     </DCSection>
+//   </DesignCanvas>
+
+const DC = {
+  bg: '#f0eee9',
+  grid: 'rgba(0,0,0,0.06)',
+  label: 'rgba(60,50,40,0.7)',
+  title: 'rgba(40,30,20,0.85)',
+  subtitle: 'rgba(60,50,40,0.6)',
+  postitBg: '#fef4a8',
+  postitText: '#5a4a2a',
+  font: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
+};
+
+// One-time CSS injection (classes are dc-prefixed so they don't collide with
+// the hosted design's own styles).
+if (typeof document !== 'undefined' && !document.getElementById('dc-styles')) {
+  const s = document.createElement('style');
+  s.id = 'dc-styles';
+  s.textContent = [
+    '.dc-editable{cursor:text;outline:none;white-space:nowrap;border-radius:3px;padding:0 2px;margin:0 -2px}',
+    '.dc-editable:focus{background:#fff;box-shadow:0 0 0 1.5px #c96442}',
+    '[data-dc-slot]{transition:transform .18s cubic-bezier(.2,.7,.3,1)}',
+    '[data-dc-slot].dc-dragging{transition:none;z-index:10;pointer-events:none}',
+    '[data-dc-slot].dc-dragging .dc-card{box-shadow:0 12px 40px rgba(0,0,0,.25),0 0 0 2px #c96442;transform:scale(1.02)}',
+    '.dc-card{transition:box-shadow .15s,transform .15s}',
+    '.dc-card *{scrollbar-width:none}',
+    '.dc-card *::-webkit-scrollbar{display:none}',
+    '.dc-labelrow{display:flex;align-items:center;gap:4px;height:24px}',
+    '.dc-grip{cursor:grab;display:flex;align-items:center;padding:5px 4px;border-radius:4px;transition:background .12s}',
+    '.dc-grip:hover{background:rgba(0,0,0,.08)}',
+    '.dc-grip:active{cursor:grabbing}',
+    '.dc-labeltext{cursor:pointer;border-radius:4px;padding:3px 6px;display:flex;align-items:center;transition:background .12s}',
+    '.dc-labeltext:hover{background:rgba(0,0,0,.05)}',
+    '.dc-expand{position:absolute;bottom:100%;right:0;margin-bottom:5px;z-index:2;opacity:0;transition:opacity .12s,background .12s;',
+    '  width:22px;height:22px;border-radius:5px;border:none;cursor:pointer;padding:0;',
+    '  background:transparent;color:rgba(60,50,40,.7);display:flex;align-items:center;justify-content:center}',
+    '.dc-expand:hover{background:rgba(0,0,0,.06);color:#2a251f}',
+    '[data-dc-slot]:hover .dc-expand{opacity:1}',
+  ].join('\n');
+  document.head.appendChild(s);
+}
+
+const DCCtx = React.createContext(null);
+
+// ─────────────────────────────────────────────────────────────
+// DesignCanvas — stateful wrapper around the pan/zoom viewport.
+// Owns runtime state (per-section order, renamed titles/labels, focused
+// artboard). Order/titles/labels persist to a .design-canvas.state.json
+// sidecar next to the HTML. Reads go via plain fetch() so the saved
+// arrangement is visible anywhere the HTML + sidecar are served together
+// (omelette preview, direct link, downloaded zip). Writes go through the
+// host's window.omelette bridge — editing requires the omelette runtime.
+// Focus is ephemeral.
+// ─────────────────────────────────────────────────────────────
+const DC_STATE_FILE = '.design-canvas.state.json';
+
+function DesignCanvas({ children, minScale, maxScale, style }) {
+  const [state, setState] = React.useState({ sections: {}, focus: null });
+  // Hold rendering until the sidecar read settles so the saved order/titles
+  // appear on first paint (no source-order flash). didRead gates writes until
+  // the read settles so the empty initial state can't clobber a slow read;
+  // skipNextWrite suppresses the one echo-write that would otherwise follow
+  // hydration.
+  const [ready, setReady] = React.useState(false);
+  const didRead = React.useRef(false);
+  const skipNextWrite = React.useRef(false);
+
+  React.useEffect(() => {
+    let off = false;
+    fetch('./' + DC_STATE_FILE)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((saved) => {
+        if (off || !saved || !saved.sections) return;
+        skipNextWrite.current = true;
+        setState((s) => ({ ...s, sections: saved.sections }));
+      })
+      .catch(() => {})
+      .finally(() => { didRead.current = true; if (!off) setReady(true); });
+    const t = setTimeout(() => { if (!off) setReady(true); }, 150);
+    return () => { off = true; clearTimeout(t); };
+  }, []);
+
+  React.useEffect(() => {
+    if (!didRead.current) return;
+    if (skipNextWrite.current) { skipNextWrite.current = false; return; }
+    const t = setTimeout(() => {
+      window.omelette?.writeFile(DC_STATE_FILE, JSON.stringify({ sections: state.sections })).catch(() => {});
+    }, 250);
+    return () => clearTimeout(t);
+  }, [state.sections]);
+
+  // Build registries synchronously from children so FocusOverlay can read
+  // them in the same render. Only direct DCSection > DCArtboard children are
+  // walked — wrapping them in other elements opts out of focus/reorder.
+  const registry = {};     // slotId -> { sectionId, artboard }
+  const sectionMeta = {};  // sectionId -> { title, subtitle, slotIds[] }
+  const sectionOrder = [];
+  React.Children.forEach(children, (sec) => {
+    if (!sec || sec.type !== DCSection) return;
+    const sid = sec.props.id ?? sec.props.title;
+    if (!sid) return;
+    sectionOrder.push(sid);
+    const persisted = state.sections[sid] || {};
+    const srcIds = [];
+    React.Children.forEach(sec.props.children, (ab) => {
+      if (!ab || ab.type !== DCArtboard) return;
+      const aid = ab.props.id ?? ab.props.label;
+      if (!aid) return;
+      registry[`${sid}/${aid}`] = { sectionId: sid, artboard: ab };
+      srcIds.push(aid);
+    });
+    const kept = (persisted.order || []).filter((k) => srcIds.includes(k));
+    sectionMeta[sid] = {
+      title: persisted.title ?? sec.props.title,
+      subtitle: sec.props.subtitle,
+      slotIds: [...kept, ...srcIds.filter((k) => !kept.includes(k))],
+    };
+  });
+
+  const api = React.useMemo(() => ({
+    state,
+    section: (id) => state.sections[id] || {},
+    patchSection: (id, p) => setState((s) => ({
+      ...s,
+      sections: { ...s.sections, [id]: { ...s.sections[id], ...(typeof p === 'function' ? p(s.sections[id] || {}) : p) } },
+    })),
+    setFocus: (slotId) => setState((s) => ({ ...s, focus: slotId })),
+  }), [state]);
+
+  // Esc exits focus; any outside pointerdown commits an in-progress rename.
+  React.useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') api.setFocus(null); };
+    const onPd = (e) => {
+      const ae = document.activeElement;
+      if (ae && ae.isContentEditable && !ae.contains(e.target)) ae.blur();
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onPd, true);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onPd, true);
+    };
+  }, [api]);
+
+  return (
+    <DCCtx.Provider value={api}>
+      <DCViewport minScale={minScale} maxScale={maxScale} style={style}>{ready && children}</DCViewport>
+      {state.focus && registry[state.focus] && (
+        <DCFocusOverlay entry={registry[state.focus]} sectionMeta={sectionMeta} sectionOrder={sectionOrder} />
+      )}
+    </DCCtx.Provider>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// DCViewport — transform-based pan/zoom (internal)
+//
+// Input mapping (Figma-style):
+//   • trackpad pinch  → zoom   (ctrlKey wheel; Safari gesture* events)
+//   • trackpad scroll → pan    (two-finger)
+//   • mouse wheel     → zoom   (notched; distinguished from trackpad scroll)
+//   • middle-drag / primary-drag-on-bg → pan
+//
+// Transform state lives in a ref and is written straight to the DOM
+// (translate3d + will-change) so wheel ticks don't go through React —
+// keeps pans at 60fps on dense canvases.
+// ─────────────────────────────────────────────────────────────
+function DCViewport({ children, minScale = 0.1, maxScale = 8, style = {} }) {
+  const vpRef = React.useRef(null);
+  const worldRef = React.useRef(null);
+  const tf = React.useRef({ x: 0, y: 0, scale: 1 });
+
+  const apply = React.useCallback(() => {
+    const { x, y, scale } = tf.current;
+    const el = worldRef.current;
+    if (el) el.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+  }, []);
+
+  React.useEffect(() => {
+    const vp = vpRef.current;
+    if (!vp) return;
+
+    const zoomAt = (cx, cy, factor) => {
+      const r = vp.getBoundingClientRect();
+      const px = cx - r.left, py = cy - r.top;
+      const t = tf.current;
+      const next = Math.min(maxScale, Math.max(minScale, t.scale * factor));
+      const k = next / t.scale;
+      // keep the world point under the cursor fixed
+      t.x = px - (px - t.x) * k;
+      t.y = py - (py - t.y) * k;
+      t.scale = next;
+      apply();
+    };
+
+    // Mouse-wheel vs trackpad-scroll heuristic. A physical wheel sends
+    // line-mode deltas (Firefox) or large integer pixel deltas with no X
+    // component (Chrome/Safari, typically multiples of 100/120). Trackpad
+    // two-finger scroll sends small/fractional pixel deltas, often with
+    // non-zero deltaX. ctrlKey is set by the browser for trackpad pinch.
+    const isMouseWheel = (e) =>
+      e.deltaMode !== 0 ||
+      (e.deltaX === 0 && Number.isInteger(e.deltaY) && Math.abs(e.deltaY) >= 40);
+
+    const onWheel = (e) => {
+      e.preventDefault();
+      if (isGesturing) return; // Safari: gesture* owns the pinch — discard concurrent wheels
+      if (e.ctrlKey) {
+        // trackpad pinch (or explicit ctrl+wheel)
+        zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY * 0.01));
+      } else if (isMouseWheel(e)) {
+        // notched mouse wheel — fixed-ratio step per click
+        zoomAt(e.clientX, e.clientY, Math.exp(-Math.sign(e.deltaY) * 0.18));
+      } else {
+        // trackpad two-finger scroll — pan
+        tf.current.x -= e.deltaX;
+        tf.current.y -= e.deltaY;
+        apply();
+      }
+    };
+
+    // Safari sends native gesture* events for trackpad pinch with a smooth
+    // e.scale; preferring these over the ctrl+wheel fallback gives a much
+    // better feel there. No-ops on other browsers. Safari also fires
+    // ctrlKey wheel events during the same pinch — isGesturing makes
+    // onWheel drop those entirely so they neither zoom nor pan.
+    let gsBase = 1;
+    let isGesturing = false;
+    const onGestureStart = (e) => { e.preventDefault(); isGesturing = true; gsBase = tf.current.scale; };
+    const onGestureChange = (e) => {
+      e.preventDefault();
+      zoomAt(e.clientX, e.clientY, (gsBase * e.scale) / tf.current.scale);
+    };
+    const onGestureEnd = (e) => { e.preventDefault(); isGesturing = false; };
+
+    // Drag-pan: middle button anywhere, or primary button on canvas
+    // background (anything that isn't an artboard or an inline editor).
+    let drag = null;
+    const onPointerDown = (e) => {
+      const onBg = !e.target.closest('[data-dc-slot], .dc-editable');
+      if (!(e.button === 1 || (e.button === 0 && onBg))) return;
+      e.preventDefault();
+      vp.setPointerCapture(e.pointerId);
+      drag = { id: e.pointerId, lx: e.clientX, ly: e.clientY };
+      vp.style.cursor = 'grabbing';
+    };
+    const onPointerMove = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      tf.current.x += e.clientX - drag.lx;
+      tf.current.y += e.clientY - drag.ly;
+      drag.lx = e.clientX; drag.ly = e.clientY;
+      apply();
+    };
+    const onPointerUp = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      vp.releasePointerCapture(e.pointerId);
+      drag = null;
+      vp.style.cursor = '';
+    };
+
+    vp.addEventListener('wheel', onWheel, { passive: false });
+    vp.addEventListener('gesturestart', onGestureStart, { passive: false });
+    vp.addEventListener('gesturechange', onGestureChange, { passive: false });
+    vp.addEventListener('gestureend', onGestureEnd, { passive: false });
+    vp.addEventListener('pointerdown', onPointerDown);
+    vp.addEventListener('pointermove', onPointerMove);
+    vp.addEventListener('pointerup', onPointerUp);
+    vp.addEventListener('pointercancel', onPointerUp);
+    return () => {
+      vp.removeEventListener('wheel', onWheel);
+      vp.removeEventListener('gesturestart', onGestureStart);
+      vp.removeEventListener('gesturechange', onGestureChange);
+      vp.removeEventListener('gestureend', onGestureEnd);
+      vp.removeEventListener('pointerdown', onPointerDown);
+      vp.removeEventListener('pointermove', onPointerMove);
+      vp.removeEventListener('pointerup', onPointerUp);
+      vp.removeEventListener('pointercancel', onPointerUp);
+    };
+  }, [apply, minScale, maxScale]);
+
+  const gridSvg = `url("data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M120 0H0v120' fill='none' stroke='${encodeURIComponent(DC.grid)}' stroke-width='1'/%3E%3C/svg%3E")`;
+  return (
+    <div
+      ref={vpRef}
+      className="design-canvas"
+      style={{
+        height: '100vh', width: '100vw',
+        background: DC.bg,
+        overflow: 'hidden',
+        overscrollBehavior: 'none',
+        touchAction: 'none',
+        position: 'relative',
+        fontFamily: DC.font,
+        boxSizing: 'border-box',
+        ...style,
+      }}
+    >
+      <div
+        ref={worldRef}
+        style={{
+          position: 'absolute', top: 0, left: 0,
+          transformOrigin: '0 0',
+          willChange: 'transform',
+          width: 'max-content', minWidth: '100%',
+          minHeight: '100%',
+          padding: '60px 0 80px',
+        }}
+      >
+        <div style={{ position: 'absolute', inset: -6000, backgroundImage: gridSvg, backgroundSize: '120px 120px', pointerEvents: 'none', zIndex: -1 }} />
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// DCSection — editable title + h-row of artboards in persisted order
+// ─────────────────────────────────────────────────────────────
+function DCSection({ id, title, subtitle, children, gap = 48 }) {
+  const ctx = React.useContext(DCCtx);
+  const sid = id ?? title;
+  const all = React.Children.toArray(children);
+  const artboards = all.filter((c) => c && c.type === DCArtboard);
+  const rest = all.filter((c) => !(c && c.type === DCArtboard));
+  const srcOrder = artboards.map((a) => a.props.id ?? a.props.label);
+  const sec = (ctx && sid && ctx.section(sid)) || {};
+
+  const order = React.useMemo(() => {
+    const kept = (sec.order || []).filter((k) => srcOrder.includes(k));
+    return [...kept, ...srcOrder.filter((k) => !kept.includes(k))];
+  }, [sec.order, srcOrder.join('|')]);
+
+  const byId = Object.fromEntries(artboards.map((a) => [a.props.id ?? a.props.label, a]));
+
+  return (
+    <div data-dc-section={sid} style={{ marginBottom: 80, position: 'relative' }}>
+      <div style={{ padding: '0 60px 56px' }}>
+        <DCEditable tag="div" value={sec.title ?? title}
+          onChange={(v) => ctx && sid && ctx.patchSection(sid, { title: v })}
+          style={{ fontSize: 28, fontWeight: 600, color: DC.title, letterSpacing: -0.4, marginBottom: 6, display: 'inline-block' }} />
+        {subtitle && <div style={{ fontSize: 16, color: DC.subtitle }}>{subtitle}</div>}
+      </div>
+      <div style={{ display: 'flex', gap, padding: '0 60px', alignItems: 'flex-start', width: 'max-content' }}>
+        {order.map((k) => (
+          <DCArtboardFrame key={k} sectionId={sid} artboard={byId[k]} order={order}
+            label={(sec.labels || {})[k] ?? byId[k].props.label}
+            onRename={(v) => ctx && ctx.patchSection(sid, (x) => ({ labels: { ...x.labels, [k]: v } }))}
+            onReorder={(next) => ctx && ctx.patchSection(sid, { order: next })}
+            onFocus={() => ctx && ctx.setFocus(`${sid}/${k}`)} />
+        ))}
+      </div>
+      {rest}
+    </div>
+  );
+}
+
+// DCArtboard — marker; rendered by DCArtboardFrame via DCSection.
+function DCArtboard() { return null; }
+
+function DCArtboardFrame({ sectionId, artboard, label, order, onRename, onReorder, onFocus }) {
+  const { id: rawId, label: rawLabel, width = 260, height = 480, children, style = {} } = artboard.props;
+  const id = rawId ?? rawLabel;
+  const ref = React.useRef(null);
+
+  // Live drag-reorder: dragged card sticks to cursor; siblings slide into
+  // their would-be slots in real time via transforms. DOM order only
+  // changes on drop.
+  const onGripDown = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    const me = ref.current;
+    // translateX is applied in local (pre-scale) space but pointer deltas and
+    // getBoundingClientRect().left are screen-space — divide by the viewport's
+    // current scale so the dragged card tracks the cursor at any zoom level.
+    const scale = me.getBoundingClientRect().width / me.offsetWidth || 1;
+    const peers = Array.from(document.querySelectorAll(`[data-dc-section="${sectionId}"] [data-dc-slot]`));
+    const homes = peers.map((el) => ({ el, id: el.dataset.dcSlot, x: el.getBoundingClientRect().left }));
+    const slotXs = homes.map((h) => h.x);
+    const startIdx = order.indexOf(id);
+    const startX = e.clientX;
+    let liveOrder = order.slice();
+    me.classList.add('dc-dragging');
+
+    const layout = () => {
+      for (const h of homes) {
+        if (h.id === id) continue;
+        const slot = liveOrder.indexOf(h.id);
+        h.el.style.transform = `translateX(${(slotXs[slot] - h.x) / scale}px)`;
+      }
+    };
+
+    const move = (ev) => {
+      const dx = ev.clientX - startX;
+      me.style.transform = `translateX(${dx / scale}px)`;
+      const cur = homes[startIdx].x + dx;
+      let nearest = 0, best = Infinity;
+      for (let i = 0; i < slotXs.length; i++) {
+        const d = Math.abs(slotXs[i] - cur);
+        if (d < best) { best = d; nearest = i; }
+      }
+      if (liveOrder.indexOf(id) !== nearest) {
+        liveOrder = order.filter((k) => k !== id);
+        liveOrder.splice(nearest, 0, id);
+        layout();
+      }
+    };
+
+    const up = () => {
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', up);
+      const finalSlot = liveOrder.indexOf(id);
+      me.classList.remove('dc-dragging');
+      me.style.transform = `translateX(${(slotXs[finalSlot] - homes[startIdx].x) / scale}px)`;
+      // After the settle transition, kill transitions + clear transforms +
+      // commit the reorder in the same frame so there's no visual snap-back.
+      setTimeout(() => {
+        for (const h of homes) { h.el.style.transition = 'none'; h.el.style.transform = ''; }
+        if (liveOrder.join('|') !== order.join('|')) onReorder(liveOrder);
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          for (const h of homes) h.el.style.transition = '';
+        }));
+      }, 180);
+    };
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up);
+  };
+
+  return (
+    <div ref={ref} data-dc-slot={id} style={{ position: 'relative', flexShrink: 0 }}>
+      <div className="dc-labelrow" style={{ position: 'absolute', bottom: '100%', left: -4, marginBottom: 4, color: DC.label }}>
+        <div className="dc-grip" onPointerDown={onGripDown} title="Drag to reorder">
+          <svg width="9" height="13" viewBox="0 0 9 13" fill="currentColor"><circle cx="2" cy="2" r="1.1"/><circle cx="7" cy="2" r="1.1"/><circle cx="2" cy="6.5" r="1.1"/><circle cx="7" cy="6.5" r="1.1"/><circle cx="2" cy="11" r="1.1"/><circle cx="7" cy="11" r="1.1"/></svg>
+        </div>
+        <div className="dc-labeltext" onClick={onFocus} title="Click to focus">
+          <DCEditable value={label} onChange={onRename} onClick={(e) => e.stopPropagation()}
+            style={{ fontSize: 15, fontWeight: 500, color: DC.label, lineHeight: 1 }} />
+        </div>
+      </div>
+      <button className="dc-expand" onClick={onFocus} onPointerDown={(e) => e.stopPropagation()} title="Focus">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M7 1h4v4M5 11H1V7M11 1L7.5 4.5M1 11l3.5-3.5"/></svg>
+      </button>
+      <div className="dc-card"
+        style={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06)', overflow: 'hidden', width, height, background: '#fff', ...style }}>
+        {children || <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb', fontSize: 13, fontFamily: DC.font }}>{id}</div>}
+      </div>
+    </div>
+  );
+}
+
+// Inline rename — commits on blur or Enter.
+function DCEditable({ value, onChange, style, tag = 'span', onClick }) {
+  const T = tag;
+  return (
+    <T className="dc-editable" contentEditable suppressContentEditableWarning
+      onClick={onClick}
+      onPointerDown={(e) => e.stopPropagation()}
+      onBlur={(e) => onChange && onChange(e.currentTarget.textContent)}
+      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } }}
+      style={style}>{value}</T>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Focus mode — overlay one artboard; ←/→ within section, ↑/↓ across
+// sections, Esc or backdrop click to exit.
+// ─────────────────────────────────────────────────────────────
+function DCFocusOverlay({ entry, sectionMeta, sectionOrder }) {
+  const ctx = React.useContext(DCCtx);
+  const { sectionId, artboard } = entry;
+  const sec = ctx.section(sectionId);
+  const meta = sectionMeta[sectionId];
+  const peers = meta.slotIds;
+  const aid = artboard.props.id ?? artboard.props.label;
+  const idx = peers.indexOf(aid);
+  const secIdx = sectionOrder.indexOf(sectionId);
+
+  const go = (d) => { const n = peers[(idx + d + peers.length) % peers.length]; if (n) ctx.setFocus(`${sectionId}/${n}`); };
+  const goSection = (d) => {
+    const ns = sectionOrder[(secIdx + d + sectionOrder.length) % sectionOrder.length];
+    const first = sectionMeta[ns] && sectionMeta[ns].slotIds[0];
+    if (first) ctx.setFocus(`${ns}/${first}`);
+  };
+
+  React.useEffect(() => {
+    const k = (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); goSection(-1); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); goSection(1); }
+    };
+    document.addEventListener('keydown', k);
+    return () => document.removeEventListener('keydown', k);
+  });
+
+  const { width = 260, height = 480, children } = artboard.props;
+  const [vp, setVp] = React.useState({ w: window.innerWidth, h: window.innerHeight });
+  React.useEffect(() => { const r = () => setVp({ w: window.innerWidth, h: window.innerHeight }); window.addEventListener('resize', r); return () => window.removeEventListener('resize', r); }, []);
+  const scale = Math.max(0.1, Math.min((vp.w - 200) / width, (vp.h - 260) / height, 2));
+
+  const [ddOpen, setDd] = React.useState(false);
+  const Arrow = ({ dir, onClick }) => (
+    <button onClick={(e) => { e.stopPropagation(); onClick(); }}
+      style={{ position: 'absolute', top: '50%', [dir]: 28, transform: 'translateY(-50%)',
+        border: 'none', background: 'rgba(255,255,255,.08)', color: 'rgba(255,255,255,.9)',
+        width: 44, height: 44, borderRadius: 22, fontSize: 18, cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .15s' }}
+      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,.18)')}
+      onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,.08)')}>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <path d={dir === 'left' ? 'M11 3L5 9l6 6' : 'M7 3l6 6-6 6'} /></svg>
+    </button>
+  );
+
+  // Portal to body so position:fixed is the real viewport regardless of any
+  // transform on DesignCanvas's ancestors (including the canvas zoom itself).
+  return ReactDOM.createPortal(
+    <div onClick={() => ctx.setFocus(null)}
+      onWheel={(e) => e.preventDefault()}
+      style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(24,20,16,.6)', backdropFilter: 'blur(14px)',
+        fontFamily: DC.font, color: '#fff' }}>
+
+      {/* top bar: section dropdown (left) · close (right) */}
+      <div onClick={(e) => e.stopPropagation()}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 72, display: 'flex', alignItems: 'flex-start', padding: '16px 20px 0', gap: 16 }}>
+        <div style={{ position: 'relative' }}>
+          <button onClick={() => setDd((o) => !o)}
+            style={{ border: 'none', background: 'transparent', color: '#fff', cursor: 'pointer', padding: '6px 8px',
+              borderRadius: 6, textAlign: 'left', fontFamily: 'inherit' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: -0.3 }}>{meta.title}</span>
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" style={{ opacity: .7 }}><path d="M2 4l3.5 3.5L9 4"/></svg>
+            </span>
+            {meta.subtitle && <span style={{ display: 'block', fontSize: 13, opacity: .6, fontWeight: 400, marginTop: 2 }}>{meta.subtitle}</span>}
+          </button>
+          {ddOpen && (
+            <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#2a251f', borderRadius: 8,
+              boxShadow: '0 8px 32px rgba(0,0,0,.4)', padding: 4, minWidth: 200, zIndex: 10 }}>
+              {sectionOrder.map((sid) => (
+                <button key={sid} onClick={() => { setDd(false); const f = sectionMeta[sid].slotIds[0]; if (f) ctx.setFocus(`${sid}/${f}`); }}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', border: 'none', cursor: 'pointer',
+                    background: sid === sectionId ? 'rgba(255,255,255,.1)' : 'transparent', color: '#fff',
+                    padding: '8px 12px', borderRadius: 5, fontSize: 14, fontWeight: sid === sectionId ? 600 : 400, fontFamily: 'inherit' }}>
+                  {sectionMeta[sid].title}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <div style={{ flex: 1 }} />
+        <button onClick={() => ctx.setFocus(null)}
+          onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,.12)')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+          style={{ border: 'none', background: 'transparent', color: 'rgba(255,255,255,.7)', width: 32, height: 32,
+            borderRadius: 16, fontSize: 20, cursor: 'pointer', lineHeight: 1, transition: 'background .12s' }}>×</button>
+      </div>
+
+      {/* card centered, label + index below — only the card itself stops
+          propagation so any backdrop click (including the margins around
+          the card) exits focus */}
+      <div
+        style={{ position: 'absolute', top: 64, bottom: 56, left: 100, right: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+        <div onClick={(e) => e.stopPropagation()} style={{ width: width * scale, height: height * scale, position: 'relative' }}>
+          <div style={{ width, height, transform: `scale(${scale})`, transformOrigin: 'top left', background: '#fff', borderRadius: 2, overflow: 'hidden',
+            boxShadow: '0 20px 80px rgba(0,0,0,.4)' }}>
+            {children || <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb' }}>{aid}</div>}
+          </div>
+        </div>
+        <div onClick={(e) => e.stopPropagation()} style={{ fontSize: 14, fontWeight: 500, opacity: .85, textAlign: 'center' }}>
+          {(sec.labels || {})[aid] ?? artboard.props.label}
+          <span style={{ opacity: .5, marginLeft: 10, fontVariantNumeric: 'tabular-nums' }}>{idx + 1} / {peers.length}</span>
+        </div>
+      </div>
+
+      <Arrow dir="left" onClick={() => go(-1)} />
+      <Arrow dir="right" onClick={() => go(1)} />
+
+      {/* dots */}
+      <div onClick={(e) => e.stopPropagation()}
+        style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 8 }}>
+        {peers.map((p, i) => (
+          <button key={p} onClick={() => ctx.setFocus(`${sectionId}/${p}`)}
+            style={{ border: 'none', padding: 0, cursor: 'pointer', width: 6, height: 6, borderRadius: 3,
+              background: i === idx ? '#fff' : 'rgba(255,255,255,.3)' }} />
+        ))}
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Post-it — absolute-positioned sticky note
+// ─────────────────────────────────────────────────────────────
+function DCPostIt({ children, top, left, right, bottom, rotate = -2, width = 180 }) {
+  return (
+    <div style={{
+      position: 'absolute', top, left, right, bottom, width,
+      background: DC.postitBg, padding: '14px 16px',
+      fontFamily: '"Comic Sans MS", "Marker Felt", "Segoe Print", cursive',
+      fontSize: 14, lineHeight: 1.4, color: DC.postitText,
+      boxShadow: '0 2px 8px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08)',
+      transform: `rotate(${rotate}deg)`,
+      zIndex: 5,
+    }}>{children}</div>
+  );
+}
+
+Object.assign(window, { DesignCanvas, DCSection, DCArtboard, DCPostIt });
+
+
+</script>
+<script type="text/babel" data-file="tweaks-panel.jsx">
+
+// tweaks-panel.jsx
+// Reusable Tweaks shell + form-control helpers.
+//
+// Owns the host protocol (listens for __activate_edit_mode / __deactivate_edit_mode,
+// posts __edit_mode_available / __edit_mode_set_keys / __edit_mode_dismissed) so
+// individual prototypes don't re-roll it. Ships a consistent set of controls so you
+// don't hand-draw <input type="range">, segmented radios, steppers, etc.
+//
+// Usage (in an HTML file that loads React + Babel):
+//
+//   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+//     "primaryColor": "#D97757",
+//     "fontSize": 16,
+//     "density": "regular",
+//     "dark": false
+//   }/*EDITMODE-END*/;
+//
+//   function App() {
+//     const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+//     return (
+//       <div style={{ fontSize: t.fontSize, color: t.primaryColor }}>
+//         Hello
+//         <TweaksPanel>
+//           <TweakSection label="Typography" />
+//           <TweakSlider label="Font size" value={t.fontSize} min={10} max={32} unit="px"
+//                        onChange={(v) => setTweak('fontSize', v)} />
+//           <TweakRadio  label="Density" value={t.density}
+//                        options={['compact', 'regular', 'comfy']}
+//                        onChange={(v) => setTweak('density', v)} />
+//           <TweakSection label="Theme" />
+//           <TweakColor  label="Primary" value={t.primaryColor}
+//                        onChange={(v) => setTweak('primaryColor', v)} />
+//           <TweakToggle label="Dark mode" value={t.dark}
+//                        onChange={(v) => setTweak('dark', v)} />
+//         </TweaksPanel>
+//       </div>
+//     );
+//   }
+//
+// ─────────────────────────────────────────────────────────────────────────────
+
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+
+  .twk-field{appearance:none;width:100%;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;
+    overflow-wrap:anywhere}
+
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+
+  .twk-num{display:flex;align-items:center;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+`;
+
+// ── useTweaks ───────────────────────────────────────────────────────────────
+// Single source of truth for tweak values. setTweak persists via the host
+// (__edit_mode_set_keys → host rewrites the EDITMODE block on disk).
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  // Accepts either setTweak('key', value) or setTweak({ key: value, ... }) so a
+  // useState-style call doesn't write a "[object Object]" key into the persisted
+  // JSON block.
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+      ? keyOrEdits : { [keyOrEdits]: val };
+    setValues((prev) => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+  }, []);
+  return [values, setTweak];
+}
+
+// ── TweaksPanel ─────────────────────────────────────────────────────────────
+// Floating shell. Registers the protocol listener BEFORE announcing
+// availability — if the announce ran first, the host's activate could land
+// before our handler exists and the toolbar toggle would silently no-op.
+// The close button posts __edit_mode_dismissed so the host's toolbar toggle
+// flips off in lockstep; the host echoes __deactivate_edit_mode back which
+// is what actually hides the panel.
+function TweaksPanel({ title = 'Tweaks', children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel"
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">{children}</div>
+      </div>
+    </>
+  );
+}
+
+// ── Layout helpers ──────────────────────────────────────────────────────────
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+// ── Controls ────────────────────────────────────────────────────────────────
+
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+
+  // The active value is read by pointer-move handlers attached for the lifetime
+  // of a drag — ref it so a stale closure doesn't fire onChange for every move.
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+
+function TweakColor({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <input type="color" className="twk-swatch" value={value}
+             onChange={(e) => onChange(e.target.value)} />
+    </div>
+  );
+}
+
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+Object.assign(window, {
+  useTweaks, TweaksPanel, TweakSection, TweakRow,
+  TweakSlider, TweakToggle, TweakRadio, TweakSelect,
+  TweakText, TweakNumber, TweakColor, TweakButton,
+});
+
+</script>
+<script type="text/babel" data-file="v3-app.jsx">
+const { DesignCanvas, DCSection, DCArtboard } = window;
+
+function TopBar({ active = 'Atelier' }) {
+  const items = ['Tableau de bord','Rivière','Contemplation','Atelier','Album','Pistes'];
+  return (
+    <div className="wf-bar">
+      <span className="brand">gegedot.</span>
+      <span className="wf-mono" style={{fontSize:11, color:'var(--ink-3)'}}>▾ Lefèvre · 1640–</span>
+      <span className="sep" />
+      {items.map(i => <span key={i} className={'nav '+(i===active?'active':'')}>{i}</span>)}
+      <div className="search">
+        <span>⌕</span><span>noms, lieux, mots…</span>
+        <span style={{marginLeft:'auto', border:'1px solid var(--line)', padding:'1px 5px', borderRadius:3, fontSize:9}}>⌘K</span>
+      </div>
+      <span style={{width:28, height:28, borderRadius:'50%', border:'1px solid var(--line)',
+        display:'flex', alignItems:'center', justifyContent:'center',
+        fontFamily:'var(--mono)', fontSize:10, color:'var(--ink-3)'}}>CL</span>
+    </div>
+  );
+}
+
+function Portrait({ size=36, label='photo', round=true }) {
+  return <div className="wf-ph" style={{ width:size, height:size,
+    borderRadius:round?'50%':'4px', fontSize:Math.max(8, size*0.18) }}>{label}</div>;
+}
+
+// ─────────────────────────────────────────────────────────────
+// 01 · DASHBOARD (v1 enrichi avec timeline intégrée)
+// ─────────────────────────────────────────────────────────────
+function Dashboard() {
+  const lives = [
+    {n:'Pierre Lefèvre', s:1842, e:1893, sea:true},
+    {n:'Henri L.',       s:1885, e:1962},
+    {n:'Pierre L.',      s:1918, e:1981},
+    {n:'Anne Berthier',  s:1922, e:2003},
+    {n:'Jean Lefèvre',   s:1948, e:2019, sea:true},
+    {n:'Marguerite R.',  s:1952, e:null},
+    {n:'Camille',        s:1981, e:null},
+  ];
+  const minY=1840, maxY=2030, w=520;
+  const px = y => ((y-minY)/(maxY-minY))*w;
+
+  return (
+    <div className="wf" style={{display:'flex', flexDirection:'column'}}>
+      <TopBar active="Tableau de bord" />
+      <div style={{flex:1, padding:'30px 40px', overflow:'auto'}}>
+        <div className="wf-eyebrow">Bienvenue</div>
+        <h1 className="wf-serif wf-it" style={{fontSize:48, fontWeight:400, lineHeight:1, margin:'4px 0 4px'}}>
+          Famille Lefèvre.
+        </h1>
+        <p className="wf-serif" style={{color:'var(--ink-3)', fontStyle:'italic', fontSize:22, margin:'0 0 22px'}}>
+          327 vies, neuf générations, deux disparus en mer.
+        </p>
+
+        <div style={{display:'grid', gridTemplateColumns:'1.4fr 1fr', gap:20}}>
+          {/* Snapshot fan compressé */}
+          <div style={{border:'1px solid var(--line)', borderRadius:10, padding:14, background:'var(--paper-2)'}}>
+            <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+              <span className="wf-eyebrow">Aperçu de l'arbre</span>
+              <span className="wf-mono" style={{fontSize:9, color:'var(--ink-3)'}}>demi-cercle · 5 générations</span>
+            </div>
+            <svg width="100%" height="220" viewBox="0 0 460 240">
+              {/* mini half-fan — readable at small size */}
+              {(() => {
+                const cx=230, cy=210, r0=22, step=32;
+                const out = [];
+                const empty = {4: new Set([0,7])};
+                const NAMES = {1:['Père','Mère'], 2:['Henri','Sophie','Paul','Madel.']};
+                const polar = (r,d)=>{const a=(d-90)*Math.PI/180; return [cx+r*Math.cos(a), cy+r*Math.sin(a)];};
+                for (let g=1; g<=5; g++) {
+                  const n=Math.pow(2,g), span=180/n;
+                  for (let i=0;i<n;i++) {
+                    const a0=-180+i*span, a1=a0+span;
+                    const isEmpty = empty[g]?.has(i);
+                    const r1=r0+(g-1)*step, r2=r0+g*step;
+                    const [x0a,y0a]=polar(r1,a0),[x0b,y0b]=polar(r1,a1),[x1a,y1a]=polar(r2,a0),[x1b,y1b]=polar(r2,a1);
+                    const colors=['#e3e0d6','#d6d3c8','#c9c5b9','#bcb8ab','#aeaa9b'];
+                    out.push(<path key={g+'-'+i}
+                      d={`M ${x0a} ${y0a} A ${r1} ${r1} 0 0 1 ${x0b} ${y0b} L ${x1b} ${y1b} A ${r2} ${r2} 0 0 0 ${x1a} ${y1a} Z`}
+                      fill={isEmpty?'transparent':colors[g-1]}
+                      stroke="var(--paper)" strokeWidth="0.8"
+                      strokeDasharray={isEmpty?'2 2':'none'} />);
+                    if (g<=2 && !isEmpty) {
+                      const r=(r1+r2)/2, mid=(a0+a1)/2;
+                      const [tx,ty]=polar(r,mid);
+                      const rot = mid;
+                      out.push(<text key={'t'+g+'-'+i} x={tx} y={ty}
+                        transform={`rotate(${rot} ${tx} ${ty})`}
+                        textAnchor="middle" dominantBaseline="middle"
+                        fontFamily="Cormorant Garamond" fontStyle="italic"
+                        fontSize={g===1?12:9.5} fill="var(--ink)">{NAMES[g][i]||''}</text>);
+                    }
+                  }
+                }
+                out.push(<circle key="c" cx={cx} cy={cy} r={r0-3} fill="var(--paper)" stroke="var(--ink-2)"/>);
+                out.push(<text key="ego" x={cx} y={cy-2} textAnchor="middle" fontFamily="Cormorant Garamond" fontStyle="italic" fontSize="11" fill="var(--ink)">Camille</text>);
+                return out;
+              })()}
+            </svg>
+            <div style={{display:'flex', justifyContent:'space-between', marginTop:6}}>
+              <span className="wf-mono" style={{fontSize:10, color:'var(--ink-3)'}}>74% des branches connues</span>
+              <span className="wf-btn ghost" style={{fontSize:10}}>Ouvrir →</span>
+            </div>
+          </div>
+          {/* Stats */}
+          <div style={{display:'flex', flexDirection:'column', gap:10}}>
+            {[['327','personnes'],['9','générations'],['142','documents'],['2','disparus en mer']].map(([n,l],i) => (
+              <div key={i} style={{border:'1px solid var(--line)', borderRadius:8,
+                padding:'10px 14px', background:'var(--paper)', display:'flex',
+                alignItems:'baseline', gap:12}}>
+                <span className="wf-serif wf-it" style={{fontSize:28, lineHeight:1}}>{n}</span>
+                <span style={{fontSize:11.5, color:'var(--ink-2)'}}>{l}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Timeline intégrée */}
+        <div style={{marginTop:22, border:'1px solid var(--line)', borderRadius:10, padding:'16px 18px', background:'var(--paper)'}}>
+          <div style={{display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:10}}>
+            <div>
+              <div className="wf-eyebrow">Frise chronologique</div>
+              <div className="wf-serif wf-it" style={{fontSize:18, marginTop:2}}>Sept vies, deux siècles.</div>
+            </div>
+            <span className="wf-mono" style={{fontSize:10, color:'var(--ink-3)'}}>événements historiques en arrière-plan</span>
+          </div>
+          {/* axis */}
+          <div style={{position:'relative', height:18, marginLeft:120}}>
+            {[1840,1880,1920,1960,2000].map(y => (
+              <div key={y} style={{position:'absolute', left:px(y), top:0}}>
+                <div style={{width:1, height:6, background:'var(--line)'}} />
+                <div className="wf-mono" style={{fontSize:9, color:'var(--ink-3)', marginTop:2}}>{y}</div>
+              </div>
+            ))}
+          </div>
+          {/* WW1/WW2 bands */}
+          <div style={{position:'relative'}}>
+            <div style={{position:'absolute', left:120+px(1914), top:0, width:px(1918)-px(1914),
+              height: lives.length*22, background:'rgba(184,89,58,0.06)',
+              borderLeft:'1px dashed rgba(184,89,58,0.35)', borderRight:'1px dashed rgba(184,89,58,0.35)'}}>
+              <div className="wf-mono" style={{fontSize:8, color:'var(--rust)', padding:'2px 4px'}}>14–18</div>
+            </div>
+            <div style={{position:'absolute', left:120+px(1939), top:0, width:px(1945)-px(1939),
+              height: lives.length*22, background:'rgba(184,89,58,0.06)',
+              borderLeft:'1px dashed rgba(184,89,58,0.35)', borderRight:'1px dashed rgba(184,89,58,0.35)'}}>
+              <div className="wf-mono" style={{fontSize:8, color:'var(--rust)', padding:'2px 4px'}}>39–45</div>
+            </div>
+            {lives.map((l,i) => {
+              const end = l.e || 2026;
+              return (
+                <div key={i} style={{display:'flex', alignItems:'center', height:22, gap:8}}>
+                  <div style={{width:112, fontSize:11}} className="wf-serif wf-it">{l.n}</div>
+                  <div style={{position:'relative', width:w, height:12}}>
+                    <div style={{position:'absolute', left:0, right:0, top:5, height:1, background:'var(--line-2)'}} />
+                    <div style={{position:'absolute', left:px(l.s), width:px(end)-px(l.s),
+                      top:0, height:12, background:'var(--paper-2)', border:'1px solid var(--ink-2)',
+                      borderRadius:6, display:'flex', alignItems:'center', padding:'0 6px',
+                      fontSize:8, fontFamily:'var(--mono)', color:'var(--ink-2)', gap:6}}>
+                      <span>{l.s}</span>
+                      <span style={{flex:1}} />
+                      {l.sea && <span style={{color:'var(--rust)'}}>⚓</span>}
+                      <span>{l.e || '·'}</span>
+                    </div>
+                    {!l.e && <div style={{position:'absolute', left:px(end)+3, top:1, fontSize:8, color:'var(--ink-3)'}}>vivant</div>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:20, marginTop:22}}>
+          <div>
+            <div className="wf-eyebrow" style={{marginBottom:8}}>Pistes du moment</div>
+            {[
+              ['Doublon','Jean Lefèvre × 2 (1842)','rust'],
+              ['Date','Mariage avant naissance · Anne B.','rust'],
+              ['Branche','3 personnes orphelines',''],
+            ].map(([k,v,t],i) => (
+              <div key={i} style={{display:'flex', gap:10, padding:'8px 0', borderTop:'1px solid var(--line-2)', alignItems:'center'}}>
+                <span className={'wf-tag '+(t||'')} style={{minWidth:90}}>{k}</span>
+                <span style={{fontSize:12.5}} className="wf-serif">{v}</span>
+                <span className="wf-btn ghost" style={{marginLeft:'auto', fontSize:10}}>Examiner →</span>
+              </div>
+            ))}
+          </div>
+          <div>
+            <div className="wf-eyebrow" style={{marginBottom:8}}>Dernières fiches consultées</div>
+            {[['Marguerite Roux','1952–','Institutrice'],
+              ['Henri Lefèvre','1885–1962','Marin'],
+              ['Anne Berthier','1922–2003','Couturière']].map(([n,d,j],i) => (
+              <div key={i} style={{display:'flex', gap:10, padding:'8px 0', borderTop:'1px solid var(--line-2)', alignItems:'center'}}>
+                <Portrait size={26} round />
+                <div style={{flex:1}}>
+                  <div className="wf-serif wf-it" style={{fontSize:13.5}}>{n}</div>
+                  <div className="wf-mono" style={{fontSize:9, color:'var(--ink-3)'}}>{d} · {j}</div>
+                </div>
+                <span className="wf-mono" style={{fontSize:9, color:'var(--ink-3)'}}>il y a 2h</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="wf-anno" style={{right:40, top:340}}>
+          timeline intégrée<br/>au dashboard ↓<br/>plus de page séparée
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// 02 · CONTEMPLATION — éventail cercle complet compressé
+// ─────────────────────────────────────────────────────────────
+function Contemplation() {
+  // Bidirectional fan: ascendants radiate UP (top half, 5 gén.),
+  //                    descendants radiate DOWN (bottom half, 2 gén.).
+  const cx=560, cy=380, r0=46, stepUp=56, stepDn=72;
+  const polar = (r,d)=>{const a=(d-90)*Math.PI/180; return [cx+r*Math.cos(a), cy+r*Math.sin(a)];};
+  const arc = (r1,r2,a0,a1) => {
+    const [x0a,y0a]=polar(r1,a0),[x0b,y0b]=polar(r1,a1),[x1a,y1a]=polar(r2,a0),[x1b,y1b]=polar(r2,a1);
+    return `M ${x0a} ${y0a} A ${r1} ${r1} 0 0 1 ${x0b} ${y0b} L ${x1b} ${y1b} A ${r2} ${r2} 0 0 0 ${x1a} ${y1a} Z`;
+  };
+  // ASCENDANTS — upper half (-180..0 degrees in our coord, i.e. -90 from top)
+  const upEmpty = {3:new Set([0,7]), 4:new Set([0,1,2,13,14,15])};
+  const upSectors = [];
+  for (let g=1; g<=5; g++) {
+    const n=Math.pow(2,g), span=180/n;
+    for (let i=0;i<n;i++){
+      const a0=-180+i*span, a1=a0+span;
+      upSectors.push({d:arc(r0+(g-1)*stepUp, r0+g*stepUp, a0, a1),
+        g, i, midA:(a0+a1)/2, isEmpty: upEmpty[g]?.has(i)});
+    }
+  }
+  // DESCENDANTS — lower half (0..180)
+  const dnSectors = [];
+  // 2 enfants, 3 petits-enfants (uneven — siblings can have variable counts)
+  const dnLayout = [
+    [{n:2, names:['Léo','Inès']}],
+    [{n:3, names:['Eva','Jules','Mia']}],
+  ];
+  for (let g=1; g<=2; g++) {
+    const layout = dnLayout[g-1][0];
+    const n = layout.n;
+    const span = 180/n;
+    for (let i=0;i<n;i++){
+      const a0=i*span, a1=a0+span;
+      dnSectors.push({d:arc(r0+(g-1)*stepDn, r0+g*stepDn, a0, a1),
+        g, i, midA:(a0+a1)/2, name: layout.names[i]});
+    }
+  }
+  const upColors=['#e3e0d6','#d6d3c8','#c9c5b9','#bcb8ab','#aeaa9b'];
+  const dnColors=['#dce4d8','#cad6c4']; // légèrement vert/olive pour distinguer
+  const NAMES={1:['Jean','Marguerite'],2:['Pierre','Anne','Étienne','Louise']};
+
+  return (
+    <div className="wf" style={{display:'flex', flexDirection:'column', background:'var(--paper-2)'}}>
+      <TopBar active="Contemplation" />
+      <div style={{flex:1, position:'relative', overflow:'hidden'}}>
+        <div style={{position:'absolute', top:24, left:32, zIndex:1, maxWidth:340}}>
+          <div className="wf-eyebrow">Mode contemplation · ascendants ↑ descendants ↓</div>
+          <div className="wf-serif wf-it" style={{fontSize:26, fontWeight:400, marginTop:4, lineHeight:1.05}}>
+            Ce qui nous précède,<br/>ce qui nous suit.
+          </div>
+        </div>
+
+        {/* Axis labels at the top + bottom edges */}
+        <div style={{position:'absolute', left:'50%', top:60, transform:'translateX(-50%)',
+          textAlign:'center', pointerEvents:'none'}}>
+          <div className="wf-eyebrow" style={{color:'var(--ink-2)'}}>↑ Ascendants · 5 générations</div>
+        </div>
+        <div style={{position:'absolute', left:'50%', bottom:60, transform:'translateX(-50%)',
+          textAlign:'center', pointerEvents:'none'}}>
+          <div className="wf-eyebrow" style={{color:'var(--ink-2)'}}>↓ Descendants · 2 générations</div>
+        </div>
+
+        <svg width="100%" height="100%" viewBox="0 0 1100 760" style={{position:'absolute', inset:0}}>
+          {/* horizon line through ego — visualizes the pivot */}
+          <line x1={140} x2={1100-140} y1={cy} y2={cy} stroke="var(--line)" strokeDasharray="2 4" />
+
+          {/* ASCENDANTS */}
+          {upSectors.map((s,k)=>(
+            <path key={'u'+k} d={s.d}
+              fill={s.isEmpty?'transparent':upColors[Math.min(s.g-1,4)]}
+              stroke="var(--paper)" strokeWidth="1"
+              strokeDasharray={s.isEmpty?'3 3':'none'}
+              opacity={s.isEmpty?0.5:1}
+            />
+          ))}
+          {/* DESCENDANTS */}
+          {dnSectors.map((s,k)=>(
+            <path key={'d'+k} d={s.d}
+              fill={dnColors[Math.min(s.g-1,1)]}
+              stroke="var(--paper)" strokeWidth="1"
+            />
+          ))}
+
+          {/* center — ego pivot */}
+          <circle cx={cx} cy={cy} r={r0-6} fill="var(--paper)" stroke="var(--ink-2)" strokeWidth="1.2" />
+          <text x={cx} y={cy-2} textAnchor="middle" fontFamily="Cormorant Garamond" fontStyle="italic" fontSize="18" fill="var(--ink)">Camille</text>
+          <text x={cx} y={cy+14} textAnchor="middle" fontFamily="Geist Mono" fontSize="9" fill="var(--ink-3)">1981–</text>
+
+          {/* ascendant labels (closest 2 gen) */}
+          {upSectors.filter(s=>s.g<=2 && !s.isEmpty).map((s,k)=>{
+            const r=(r0+(s.g-1)*stepUp + r0+s.g*stepUp)/2;
+            const [x,y]=polar(r,s.midA);
+            const rot=s.midA>0?s.midA-90:s.midA+90;
+            return (
+              <g key={'lu'+k} transform={`translate(${x},${y}) rotate(${rot})`}>
+                <text textAnchor="middle" dominantBaseline="middle" fontFamily="Cormorant Garamond" fontStyle="italic" fontSize={s.g===1?15:12} fill="var(--ink)">
+                  {NAMES[s.g][s.i]||''}
+                </text>
+              </g>
+            );
+          })}
+          {/* descendant labels (both generations) */}
+          {dnSectors.map((s,k)=>{
+            const r=(r0+(s.g-1)*stepDn + r0+s.g*stepDn)/2;
+            const [x,y]=polar(r,s.midA);
+            const rot=s.midA>0?s.midA-90:s.midA+90;
+            return (
+              <g key={'ld'+k} transform={`translate(${x},${y}) rotate(${rot})`}>
+                <text textAnchor="middle" dominantBaseline="middle" fontFamily="Cormorant Garamond" fontStyle="italic" fontSize={s.g===1?14:11.5} fill="var(--ink)">
+                  {s.name}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+
+        <div style={{position:'absolute', top:90, right:32, fontFamily:'var(--mono)', fontSize:10.5, color:'var(--ink-3)', textAlign:'right', lineHeight:1.7}}>
+          <div><span style={{color:'var(--ink-2)'}}>haut</span> · ascendance (sépia)</div>
+          <div><span style={{color:'var(--ink-2)'}}>bas</span> · descendance (olive)</div>
+          <div style={{color:'var(--rust)', marginTop:6}}>secteurs vides = à rechercher</div>
+          <div>cliquer pour ajouter</div>
+        </div>
+        <div style={{position:'absolute', bottom:24, right:32, fontFamily:'var(--mono)', fontSize:11, color:'var(--ink-3)'}}>
+          esc · revenir
+        </div>
+        <div style={{position:'absolute', bottom:24, left:32,
+          display:'flex', gap:14, fontSize:10, color:'var(--ink-3)', fontFamily:'var(--mono)'}}>
+          <span>327 personnes</span><span>·</span><span>9 générations</span><span>·</span><span>74% connues</span>
+        </div>
+        <div className="wf-anno" style={{left:60, top:cy-20}}>
+          la ligne d'horizon ←<br/>passe par l'ego
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// 03 · RIVIÈRE
+// ─────────────────────────────────────────────────────────────
+function River() {
+  const cols = [
+    { gen:'IX · 1640–1700', people:[['Mathurin Lefèvre','1652–1718','laboureur'],['Perrine T.','1655–1729','—']] },
+    { gen:'VIII · 1700–1760', people:[['Yves L.','1690–1755','marin'],['Marie L.','1693–1761','filandière'],['Jacques B.','1701–1768','tonnelier'],['Anne C.','1705–1772','—']] },
+    { gen:'VII · 1760–1820', people:[['Mathurin','1745–1812','—'],['Renée','1748–1820','—'],['Jean','1750–1815','marin'],['Marguerite','1755–1828','—']] },
+    { gen:'VI · 1820–1860', people:[['Pierre-Marie','1788–1849','cordier'],['Jeanne','1792–1860','lingère'],['Henri','1798–1855','—'],['Sophie','1801–1868','—']] },
+    { gen:'V · 1860–1900', people:[['Pierre Lefèvre','1842–1893','charpentier','sea'],['Marie Dupont','1844–1881','—'],['Jeanne Martin','1851–1922','—']] },
+    { gen:'IV · 1900–1945', people:[['Henri','1885–1962','marin'],['Sophie','1890–1971','—'],['Paul','1882–1958','boulanger'],['Madeleine','1888–1969','—']] },
+    { gen:'III · 1945–1985', people:[['Pierre','1918–1981','pêcheur'],['Anne','1922–2003','couturière'],['Étienne','1920–1995','forgeron'],['Louise','1925–2010','sage-femme']] },
+    { gen:'II · 1985–', people:[['Jean Lefèvre','1948–2019','charpentier','sea'],['Marguerite','1952–','institutrice']] },
+    { gen:'I · ego', people:[['Camille','1981–','architecte','ego']] },
+  ];
+  return (
+    <div className="wf" style={{display:'flex', flexDirection:'column'}}>
+      <TopBar active="Rivière" />
+      <div style={{display:'flex', gap:8, padding:'10px 22px', borderBottom:'1px solid var(--line-2)', alignItems:'center'}}>
+        <span className="wf-tag solid">Rivière</span>
+        <span className="wf-tag">Éventail</span>
+        <span className="wf-tag">Arbre vertical</span>
+        <span className="wf-tag">Liste</span>
+        <span className="wf-mono" style={{marginLeft:'auto', fontSize:10, color:'var(--ink-3)'}}>scroll horizontal · 9 générations</span>
+      </div>
+      <div style={{flex:1, overflow:'hidden', position:'relative'}}>
+        <div style={{display:'flex', gap:0, height:'100%', padding:'18px 0'}}>
+          {cols.map((c, ci) => (
+            <div key={ci} style={{
+              minWidth: ci===cols.length-1 ? 220 : 180,
+              borderRight:'1px dashed var(--line)',
+              padding:'0 16px', display:'flex', flexDirection:'column', gap:8,
+              background: ci===cols.length-1 ? 'var(--paper-2)' : 'transparent',
+            }}>
+              <div className="wf-eyebrow" style={{borderBottom:'1px solid var(--line)', paddingBottom:6, marginBottom:4}}>{c.gen}</div>
+              {c.people.map((p, pi) => (
+                <div key={pi} style={{
+                  border:'1px solid '+(p[3]==='ego'?'var(--ink)':'var(--line)'),
+                  borderRadius:5, padding:'6px 8px', background:'var(--paper)',
+                  boxShadow: p[3]==='ego' ? '0 0 0 3px rgba(29,31,35,0.06)' : 'none',
+                }}>
+                  <div style={{display:'flex', gap:6, alignItems:'flex-start'}}>
+                    <Portrait size={22} round />
+                    <div style={{flex:1, minWidth:0}}>
+                      <div className="wf-serif wf-it" style={{fontSize:13, lineHeight:1.05}}>{p[0]}</div>
+                      <div className="wf-mono" style={{fontSize:8, color:'var(--ink-3)', marginTop:2}}>{p[1]}</div>
+                      {p[2]!=='—' && <div style={{fontSize:9, color:'var(--ink-2)', marginTop:1, fontStyle:'italic'}}>{p[2]}</div>}
+                    </div>
+                  </div>
+                  {p[3]==='sea' && <div style={{marginTop:4}}><span className="wf-tag rust" style={{fontSize:7.5}}>⚓ Mort en Mer</span></div>}
+                </div>
+              ))}
+              {ci<4 && (
+                <div style={{border:'1px dashed var(--line)', borderRadius:5,
+                  padding:'10px 8px', textAlign:'center',
+                  fontFamily:'var(--mono)', fontSize:9, color:'var(--ink-3)'}}>+ ancêtre</div>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="wf-anno" style={{left:480, top:96}}>
+          chaque colonne = une génération<br/>la plus ancienne à gauche
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// 04 · ATELIER (page personne pleine)
+// ─────────────────────────────────────────────────────────────
+function Atelier() {
+  return (
+    <div className="wf" style={{display:'flex', flexDirection:'column'}}>
+      <TopBar active="Atelier" />
+      <div style={{flex:1, overflow:'auto', padding:'40px 60px 60px'}}>
+        <div className="wf-eyebrow" style={{marginBottom:6}}>Génération V · branche paternelle</div>
+        <h1 className="wf-serif wf-it" style={{fontSize:68, fontWeight:400, lineHeight:0.95, margin:'4px 0 8px'}}>
+          Pierre<br/>Lefèvre.
+        </h1>
+        <div style={{display:'flex', gap:12, alignItems:'baseline', flexWrap:'wrap'}}>
+          <span className="wf-serif" style={{fontSize:18, color:'var(--ink-3)', fontStyle:'italic'}}>1842 — 1893,&nbsp;Charpentier de marine</span>
+          <span className="wf-tag rust">⚓ Mort en Mer · Cap Fréhel</span>
+        </div>
+
+        <div style={{display:'grid', gridTemplateColumns:'2fr 1fr', gap:36, marginTop:28}}>
+          <article style={{lineHeight:1.7, fontSize:14, color:'var(--ink-2)', maxWidth:580}}>
+            <div className="wf-eyebrow" style={{marginBottom:8}}>Biographie · éditable inline</div>
+            <p style={{marginTop:0}}>
+              Charpentier de marine à Saint-Malo, embarqué dès l'âge de seize ans sur des goélettes
+              terre-neuvas. Premier mariage avec Marie Dupont en 1865 — trois enfants, séparation en 1880.
+            </p>
+            <p>
+              Second mariage en 1882 avec Jeanne Martin, veuve. Disparu lors d'un coup de vent au large
+              du Cap Fréhel en décembre 1893, le corps n'a jamais été retrouvé.
+              <span className="wf-tag rust" style={{fontSize:8, marginLeft:6, verticalAlign:'middle'}}>à rechercher</span>
+            </p>
+
+            <div className="wf-divider" style={{margin:'22px 0'}} />
+            <div className="wf-eyebrow" style={{marginBottom:10}}>Conjoints · 2</div>
+            <div style={{display:'flex', gap:0, borderBottom:'1px solid var(--line-2)'}}>
+              <div style={{padding:'8px 14px 10px', borderBottom:'2px solid var(--ink)', fontSize:13}}>
+                <span className="wf-serif wf-it">Marie Dupont</span>
+                <span className="wf-mono" style={{fontSize:10, color:'var(--ink-3)', marginLeft:8}}>1865–1880 · divorce</span>
+              </div>
+              <div style={{padding:'8px 14px 10px', fontSize:13, color:'var(--ink-3)'}}>
+                <span className="wf-serif wf-it">Jeanne Martin</span>
+                <span className="wf-mono" style={{fontSize:10, marginLeft:8}}>1882–1893</span>
+              </div>
+            </div>
+            <p style={{marginTop:12, fontSize:13}}>
+              <span className="wf-serif wf-it">Marie Dupont</span> (1844–1881), fille de marin, rencontrée
+              à la halle aux poissons. Trois enfants : Henri (1868), Marie-Anne (1871), Joseph (1874).
+            </p>
+
+            <div className="wf-divider" style={{margin:'22px 0'}} />
+            <div className="wf-eyebrow" style={{marginBottom:10}}>Enfants · 3</div>
+            <div style={{display:'flex', gap:10, flexWrap:'wrap'}}>
+              {[['Henri','1868–1942'],['Marie-Anne','1871–1948'],['Joseph','1874–1901']].map(([n,d]) => (
+                <div key={n} style={{display:'flex', alignItems:'center', gap:8,
+                  border:'1px solid var(--line)', borderRadius:6, padding:'6px 10px', background:'var(--paper)'}}>
+                  <Portrait size={26} round />
+                  <div>
+                    <div className="wf-serif wf-it" style={{fontSize:13}}>{n}</div>
+                    <div className="wf-mono" style={{fontSize:9, color:'var(--ink-3)'}}>{d}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <aside>
+            <Portrait size={220} round={false} label="portrait sépia · 1885" />
+            <div className="wf-eyebrow" style={{marginTop:18, marginBottom:8}}>Vie</div>
+            <div style={{borderLeft:'1px solid var(--line)', paddingLeft:14, fontSize:12, color:'var(--ink-2)'}}>
+              {[['1842','Naissance · Saint-Malo'],['1865','Mariage · Marie D.'],['1868','Naissance · Henri'],['1880','Divorce'],['1882','Mariage · Jeanne M.'],['1893','Décès en mer']].map(([y,t],i) => (
+                <div key={i} style={{position:'relative', padding:'5px 0'}}>
+                  <span style={{position:'absolute', left:-19, top:9, width:7, height:7, borderRadius:'50%', background:'var(--paper)', border:'1px solid var(--ink-2)'}} />
+                  <span className="wf-mono" style={{fontSize:10, color:'var(--ink-3)', marginRight:8}}>{y}</span>
+                  <span className="wf-serif wf-it">{t}</span>
+                </div>
+              ))}
+            </div>
+            <div className="wf-eyebrow" style={{marginTop:18, marginBottom:8}}>Documents · 4</div>
+            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:6}}>
+              {['acte naissance','photo 1885','registre','avis décès'].map(l => (
+                <div key={l} className="wf-ph" style={{height:60, fontSize:8.5}}>{l}</div>
+              ))}
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// 05 · MUR DE SOUVENIRS
+// ─────────────────────────────────────────────────────────────
+function Album() {
+  const tiles = [
+    {w:3,h:2,l:'mariage 1923 · Saint-Malo'},
+    {w:1,h:1,l:'P. Lefèvre · 1885'},
+    {w:1,h:1,l:'acte 1842'},
+    {w:2,h:2,l:'famille · 1948'},
+    {w:1,h:2,l:'lettre Jeanne'},
+    {w:1,h:1,l:'1962'},
+    {w:1,h:1,l:'avis ⚓'},
+    {w:2,h:1,l:'classe 1958'},
+    {w:1,h:1,l:'1978'},
+    {w:1,h:1,l:'1985'},
+  ];
+  return (
+    <div className="wf" style={{display:'flex', flexDirection:'column'}}>
+      <TopBar active="Album" />
+      <div style={{padding:'36px 48px 14px'}}>
+        <div className="wf-eyebrow">Mur de souvenirs · 142 documents</div>
+        <h1 className="wf-serif wf-it" style={{fontSize:48, fontWeight:400, margin:'4px 0 14px', lineHeight:1}}>
+          Le mur des souvenirs.
+        </h1>
+        <div style={{display:'flex', gap:8, alignItems:'center', flexWrap:'wrap'}}>
+          {['Toutes','Pierre L.','Branche maternelle','1900–1950','Lettres','Actes','Photos'].map((t,i) => (
+            <span key={t} className={'wf-tag '+(i===0?'solid':'')}>{t}</span>
+          ))}
+          <span className="wf-mono" style={{marginLeft:'auto', fontSize:10, color:'var(--ink-3)'}}>glisser sur une fiche pour rattacher</span>
+        </div>
+      </div>
+      <div style={{flex:1, padding:'4px 48px 36px', overflow:'hidden'}}>
+        <div style={{display:'grid', gridTemplateColumns:'repeat(6, 1fr)', gridAutoRows:'120px', gap:12}}>
+          {tiles.map((t,i) => (
+            <div key={i} className="wf-ph" style={{
+              gridColumn:`span ${t.w}`, gridRow:`span ${t.h}`,
+              borderRadius:4, fontSize:9.5, padding:10,
+              alignItems:'flex-end', justifyContent:'flex-start',
+            }}>{t.l}</div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// 06 · PISTES
+// ─────────────────────────────────────────────────────────────
+function Pistes() {
+  const items = [
+    {kind:'Doublon', title:'Jean Lefèvre apparaît deux fois', sub:'Naissance 1842 · Saint-Malo · DuplicateDetectionService', cta:'Fusionner'},
+    {kind:'Date', title:'Mariage avant naissance', sub:'Anne Berthier · mariage en 1918, née 1922', cta:'Corriger'},
+    {kind:'Branche', title:'Trois personnes orphelines', sub:'Aucun rattachement à l\'arbre principal', cta:'Rattacher'},
+    {kind:'Visage', title:'Photo de mariage 1923', sub:'Sept personnes non identifiées · proposer des noms ?', cta:'Identifier'},
+    {kind:'Lieu', title:'Saint-Malo orthographié de 4 façons', sub:'St-Malo · St Malo · Saint-Malo · St. Malo', cta:'Normaliser'},
+  ];
+  return (
+    <div className="wf" style={{display:'flex', flexDirection:'column'}}>
+      <TopBar active="Pistes" />
+      <div style={{padding:'40px 60px 24px'}}>
+        <div className="wf-eyebrow">Pistes · 5 suggestions</div>
+        <h1 className="wf-serif wf-it" style={{fontSize:46, fontWeight:400, margin:'4px 0 6px', lineHeight:1}}>
+          Ce que l'app a remarqué.
+        </h1>
+        <p style={{maxWidth:520, fontSize:13, color:'var(--ink-3)', margin:0, lineHeight:1.55}}>
+          Détecté à partir des données existantes. Rien n'est modifié sans votre accord —
+          chaque piste peut être ignorée, archivée, ou remise à plus tard.
+        </p>
+      </div>
+      <div style={{flex:1, padding:'0 60px 36px', overflow:'auto'}}>
+        {items.map((h,i) => (
+          <article key={i} style={{display:'flex', alignItems:'center', gap:18,
+            padding:'18px 0', borderTop:'1px solid var(--line-2)'}}>
+            <span className="wf-mono" style={{fontSize:10, color:'var(--ink-3)', minWidth:28}}>0{i+1}</span>
+            <span className="wf-tag" style={{minWidth:90, justifyContent:'center'}}>{h.kind}</span>
+            <div style={{flex:1}}>
+              <h3 className="wf-serif wf-it" style={{fontSize:20, fontWeight:400, margin:0, lineHeight:1.15}}>{h.title}</h3>
+              <p style={{margin:'2px 0 0', fontSize:11.5, color:'var(--ink-3)'}}>{h.sub}</p>
+            </div>
+            <button className="wf-btn ghost" style={{fontSize:10}}>plus tard</button>
+            <button className="wf-btn">{h.cta}</button>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Compose
+// ─────────────────────────────────────────────────────────────
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection id="intro" title="GegeDot · v3 consolidée" subtitle="Synthèse des 6 écrans retenus — vue verticale et timeline rangées au bon endroit">
+        <DCArtboard id="dash" label="01 · Tableau de bord (timeline intégrée)" width={1200} height={920}>
+          <Dashboard />
+        </DCArtboard>
+      </DCSection>
+      <DCSection id="hero" title="Vues principales" subtitle="Rivière au quotidien · Contemplation pour l'arbre entier">
+        <DCArtboard id="river" label="02 · Rivière" width={1280} height={780}>
+          <River />
+        </DCArtboard>
+        <DCArtboard id="contempl" label="03 · Contemplation · cercle complet compressé" width={1280} height={780}>
+          <Contemplation />
+        </DCArtboard>
+      </DCSection>
+      <DCSection id="reading" title="Lecture & édition" subtitle="L'Atelier — page personne pleine, jamais de panneau">
+        <DCArtboard id="atelier" label="04 · Atelier (page personne)" width={1280} height={920}>
+          <Atelier />
+        </DCArtboard>
+      </DCSection>
+      <DCSection id="tools" title="Mémoire & curation" subtitle="Mur de souvenirs · Pistes IA">
+        <DCArtboard id="album" label="05 · Mur de souvenirs" width={1280} height={780}>
+          <Album />
+        </DCArtboard>
+        <DCArtboard id="pistes" label="06 · Pistes" width={1280} height={780}>
+          <Pistes />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

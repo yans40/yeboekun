@@ -207,3 +207,36 @@ export interface PersonWithRelations extends Person {
   parent1Id?: number;
   parent2Id?: number;
 }
+
+// ─── Vue Rivière types (endpoint GET /api/persons/{id}/river-view) ─────────────
+
+export interface RiverViewNode {
+  id: number;
+  firstName: string;
+  lastName: string;
+  birthDate: string | null;
+  deathDate: string | null;
+  isAlive: boolean;
+  /** M=Masculin, F=Féminin, O=Autre (aligné Person / backend) */
+  gender: 'M' | 'F' | 'O';
+  photoUrl: string | null;
+  /** 0=racine, négatif=ascendant, positif=descendant */
+  generation: number;
+}
+
+export interface RiverViewEdge {
+  sourceId: number;
+  targetId: number;
+  type: 'Parent' | 'Spouse' | 'Sibling';
+  startDate: string | null;
+  endDate: string | null;
+  isActive: boolean;
+}
+
+export interface RiverViewData {
+  rootId: number;
+  depth: number;
+  nodes: RiverViewNode[];
+  edges: RiverViewEdge[];
+  generationRange: { min: number; max: number };
+}

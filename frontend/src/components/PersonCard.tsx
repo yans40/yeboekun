@@ -1,23 +1,18 @@
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  CardMedia,
-  Typography,
-  Box,
-  Chip,
-  IconButton,
-  Tooltip,
-} from '@mui/material';
-import {
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Person as PersonIcon,
-  Female as FemaleIcon,
-  Male as MaleIcon,
-  Transgender as OtherIcon,
-} from '@mui/icons-material';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import PersonIcon from '@mui/icons-material/Person';
+import FemaleIcon from '@mui/icons-material/Female';
+import MaleIcon from '@mui/icons-material/Male';
+import OtherIcon from '@mui/icons-material/Transgender';
 import { Person as PersonType } from '@/types';
+import { colors, fonts, radius, spacing } from '@/theme/tokens';
 
 interface PersonCardProps {
   person: PersonType;
@@ -25,6 +20,31 @@ interface PersonCardProps {
   onDelete?: (person: PersonType) => void;
   onViewDetails?: (person: PersonType) => void;
 }
+
+// Remplace MUI Chip variant="outlined" size="small"
+const GenderChip: React.FC<{ label: string; gender: string | null }> = ({ label, gender }) => {
+  const borderColor = gender === 'M' ? colors.ocean : gender === 'F' ? colors.sepiaLt : colors.ink4;
+  const textColor   = gender === 'M' ? colors.ocean : gender === 'F' ? colors.sepia   : colors.ink3;
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        padding: `1px ${spacing[2]}px`,
+        border: `1px solid ${borderColor}`,
+        borderRadius: radius.pill,
+        fontSize: 11,
+        fontFamily: fonts.sans,
+        color: textColor,
+        backgroundColor: 'transparent',
+        lineHeight: '18px',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {label}
+    </span>
+  );
+};
 
 const PersonCard: React.FC<PersonCardProps> = ({
   person,
@@ -43,17 +63,6 @@ const PersonCard: React.FC<PersonCardProps> = ({
     }
   };
 
-  const getGenderColor = (gender: string) => {
-    switch (gender) {
-      case 'M':
-        return 'primary';
-      case 'F':
-        return 'secondary';
-      default:
-        return 'default';
-    }
-  };
-
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Non renseigné';
     return new Date(dateString).toLocaleDateString('fr-FR');
@@ -69,6 +78,15 @@ const PersonCard: React.FC<PersonCardProps> = ({
       return `Né(e) en ${birthYear}`;
     }
     return 'Âge inconnu';
+  };
+
+  // styles partagés pour les textes secondaires (remplace Typography body2 color="text.secondary")
+  const secondaryText: React.CSSProperties = {
+    fontFamily: fonts.sans,
+    fontSize: 14,
+    color: colors.ink3,
+    marginBottom: spacing[1],
+    lineHeight: 1.5,
   };
 
   return (
@@ -109,49 +127,49 @@ const PersonCard: React.FC<PersonCardProps> = ({
 
       <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-          <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
+          {/* Remplace Typography h6 */}
+          <h6 style={{
+            margin: 0,
+            fontFamily: fonts.serif,
+            fontSize: '1.25rem',
+            fontWeight: 700,
+            color: colors.ink,
+            lineHeight: 1.3,
+          }}>
             {person.fullName}
-          </Typography>
+          </h6>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             {getGenderIcon(person.gender ?? 'O')}
-            <Chip
+            {/* Remplace MUI Chip */}
+            <GenderChip
               label={person.gender === 'M' ? 'Homme' : person.gender === 'F' ? 'Femme' : 'Autre'}
-              size="small"
-              color={getGenderColor(person.gender ?? 'O') as any}
-              variant="outlined"
+              gender={person.gender ?? null}
             />
           </Box>
         </Box>
 
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          {getAgeText()}
-        </Typography>
+        {/* Remplace Typography body2 × 4 */}
+        <p style={secondaryText}>{getAgeText()}</p>
 
         {person.birthPlace && (
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            📍 {person.birthPlace}
-          </Typography>
+          <p style={secondaryText}>📍 {person.birthPlace}</p>
         )}
 
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+        <p style={secondaryText}>
           🎂 {formatDate(person.birthDate)}
           {person.deathDate && ` - 💀 ${formatDate(person.deathDate)}`}
-        </Typography>
+        </p>
 
         {person.biography && (
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              mb: 1,
-            }}
-          >
+          <p style={{
+            ...secondaryText,
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          } as React.CSSProperties}>
             {person.biography}
-          </Typography>
+          </p>
         )}
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 2 }}>

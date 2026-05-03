@@ -7,6 +7,9 @@
 ehthumbs.db
 Thumbs.db
 
+# Claude Code local agents (ne pas versionner)
+.claude/
+
 # IDE files
 .vscode/
 .idea/
@@ -209,3 +212,4 @@ appsettings.Development.json
 appsettings.Production.json
 *.pfx
 *.p12
+.cursor/rules/
