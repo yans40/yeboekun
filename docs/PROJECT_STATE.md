@@ -1,54 +1,42 @@
 # PROJECT_STATE — GegeDot / Yeboekun
 
-_Fichier partagé PO ↔ agents. Mise à jour à chaque interaction structurante._
-
----
-
-## Relais équipe Claude (Émile) — lecture obligatoire en entrée de session
-
-**Dernière main Cursor (Victor)** : 2026-05-03.
-
-1. **Lot 2** : implémentation front + tests + QA **validée** — détail **`docs/qa/QA_LOT_2_RIVIERE.md`**. Il reste **d’exécuter côté Git** : commit / push des fichiers locaux si besoin, puis **PR vers `develop`** (brouillon description : **`docs/process/PR_LOT_2_RIVIERE.md`**). **`main`** = prod uniquement via **release** — voir **`docs/process/GITFLOW.md`** (section *Flux PO / intégration vs production*).
-2. **Dettes actées dans la QA** (ne pas rouvrir sans ticket) : **i18n** Rivière/PersonChip → **Lot 2bis** ; **`onPersonClick`** sur `/riviere` → lot ultérieur ; **API `GET …/river-view`** → quand Ada branchera, valider `RiverViewData` + genre **`M/F/O`**.
-3. **Prochain lot logique** : **Lot 3** — Vue Contemplation ; prérequis API noté dans la roadmap (Ada).
-
-Émile : mets à jour ce fichier après ta première action structurante (PR mergée, rebaselot, etc.) et signe **Émile + date**.
+> Source de vérité du projet — pilotée par Émile (Claude Code)
+> Dernière mise à jour : 2026-05-07 par Émile
 
 ---
 
 ## Lot en cours : **Lot 2 — Vue Rivière**
 
-**Branche** : `dev`
-**Statut** : **QA validée** (2026-05-03) — voir `docs/qa/QA_LOT_2_RIVIERE.md`. **Suite : PR Lot 2 → `develop`** (prod = `main` via release).
+- **Branche** : `dev`
+- **Statut** : layout validé par le PO. Points bloquants avant QA et merge.
 
 ---
 
-## Ce qui est fait (Lot 2)
+## Avancement Lot 2
 
-| Élément | État |
-|---|---|
-| `RiviereView.tsx` — layout colonnes + scroll horizontal | ✅ |
-| `PersonChip.tsx` — carte 140×56px, bande genre, a11y clavier | ✅ |
-| `featureFlags.ts` — `VUE_RIVIERE_ENABLED` (ON en DEV, OFF en prod) | ✅ |
-| `router.tsx` — `/riviere` derrière feature flag | ✅ |
-| `GenealogyCard.tsx` — bande genre `borderLeft` (encodage genre Lot 1 reporté) | ✅ |
-| Tests `PersonChip.test.tsx` + `RiviereView.test.tsx` | ✅ 26/26 passent (Jest) |
-
----
-
-## Bloquants avant merge Lot 2
-
-1. ~~Checklist QA~~ — **complétée** (`QA_LOT_2_RIVIERE.md`).
-2. ~~Correctifs + doc hors repo~~ — **poussés** sur `origin/dev` (**`d126441`** lot doc + front, **`6cb0849`** état PR).
-3. **PR Lot 2** : à ouvrir / merger sur **`develop`** (template `docs/process/PR_TEMPLATE.md` + corps `docs/process/PR_LOT_2_RIVIERE.md`) ; **`main`** au moment d’une **release**.
+- [x] `RiviereView.tsx` — layout colonnes + scroll horizontal
+- [x] `PersonChip.tsx` — carte 140×56px, bande genre, a11y clavier
+- [x] `featureFlags.ts` — `VUE_RIVIERE_ENABLED` (ON en DEV, OFF en prod)
+- [x] `router.tsx` — `/riviere` câblé derrière feature flag
+- [x] `GenealogyCard.tsx` — bande genre `borderLeft` (encodage genre reporté du Lot 1)
+- [x] Tests `PersonChip.test.tsx` + `RiviereView.test.tsx` (à valider verts)
+- [ ] Unifier type `gender` : `RiverViewNode` utilise `'Other'`, tout le reste utilise `'O'` → corriger
+- [ ] Bande GenealogyCard : spec 2px, code 3px → vérifier/corriger
+- [ ] `QA_LOT_2_RIVIERE.md` — checklist QA à créer (Iris)
+- [ ] PR Lot 2 → `main`
 
 ---
 
-## Décisions actées (Lot 2)
+## Décisions actées (ne pas rouvrir)
 
-- **Genre** : `RiverViewNode.gender` aligné sur **`'M' | 'F' | 'O'`** (comme `Person` / enum C#). `PersonChip` + types mis à jour.
-- **GenealogyCard** : bande genre **`2px`** (aligné spec).
-- **Jest** : `babel.config` — preset **TypeScript avant React** ; `PersonChip` / `RiviereView` importent **React** (Babel émettait `createElement` sans binding) ; **scrollTo** dégradé proprement si absent (jsdom).
+- shell-14 = B (sélecteur de personne dans TopBar)
+- shell-admin = C (menu sur l'avatar)
+- Encodage genre = reporté Lot 2 (zero touch sur GenealogyCard au Lot 1)
+- Brand Yeboekun = Direction B (Y monogramme Sankofa) + tagline "La mémoire des liens"
+- Vue principale = Arbre vertical sur `/`, conservé jusqu'à fin de refonte
+- Migration repo hors iCloud = faite (`~/Code/gegeDot-claude/`)
+- auto-assign-reviewers.yml = désactivé (renommé `.disabled`) jusqu'à création d'une org GitHub
+- **Collaboration Cursor/Victor = abandonnée** — projet piloté uniquement via Claude Code
 
 ---
 
@@ -57,17 +45,27 @@ _Fichier partagé PO ↔ agents. Mise à jour à chaque interaction structurante
 | Lot | Statut | PR |
 |---|---|---|
 | Lot 0 — Préparation | ✅ mergé | — |
-| Lot 1 — Foundation | ✅ mergé | #33 + #35 |
-| Lot 2 — Vue Rivière | ✅ QA validée — PR à merger | à ouvrir |
+| Lot 1 — Foundation (tokens, shell, i18n, routing) | ✅ mergé | #33 + #35 |
+| Lot 2 — Vue Rivière | 🔶 en cours | à ouvrir |
 
 ---
 
 ## Prochains lots
 
-- **Lot 3** — Vue Contemplation (refacto FanCanvas). Pré-requis : valider avec Ada que l'API renvoie ascendants + descendants.
+- **Lot 3** — Vue Contemplation (refacto FanCanvas). Pré-requis : confirmer avec Ada que l'API renvoie ascendants + descendants.
 - **Lot 4** — Vue Atelier (PersonForm en page dédiée)
 - **Lot 5** — Vue Tableau (dashboard)
 
 ---
 
-_Mis à jour par Victor — 2026-05-03 (relais + doc poussée `d126441`)_
+## CI/CD active
+
+- ✅ ci.yml — build + tests frontend/backend
+- ✅ pr-checklist.yml — cases obligatoires du PR template
+- ✅ require-qa-label.yml — label `qa-validated` requis
+- ✅ perf-gates.yml — bundle size + Lighthouse vs BASELINE
+- ⏸️ auto-assign-reviewers.yml.disabled (à réactiver si org GitHub créée)
+
+---
+
+*Mis à jour par Émile — 2026-05-07*
