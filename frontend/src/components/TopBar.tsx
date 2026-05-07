@@ -183,7 +183,7 @@ export default function TopBar() {
       <img
         src="/brand/yeboekun-wordmark.svg"
         alt="Yeboekun"
-        style={{ height: 22, display: 'block', marginLeft: 16, flexShrink: 0 }}
+        style={{ height: 22, width: 101, display: 'block', marginLeft: 16, flexShrink: 0 }}
       />
 
       {/* Person selector */}
