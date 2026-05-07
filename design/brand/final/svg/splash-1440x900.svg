@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900">
+  <defs>
+    
+  </defs>
+  <rect fill="#F4EFE6" width="1440" height="900"></rect>
+  <g stroke="#1F1A14" stroke-width="4.3" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M 554.4 365.2 L 597.6 430.0"></path>
+    <path d="M 640.8 365.2 Q 648.0 394.0, 630.0 408.4 Q 612.0 419.2, 604.8 404.8 L 597.6 430.0"></path>
+    <path d="M 597.6 430.0 L 597.6 494.8"></path>
+  </g>
+  <circle cx="579.6" cy="397.6" r="5.8" stroke="#7D5A36" stroke-width="4.3" fill="none"></circle>
+  <text class="em" x="685" y="494.8">eboekun</text>
+  <line x1="688" y1="580" x2="752" y2="580" stroke="#CABFA6" stroke-width="1"></line>
+  <text class="tagline" x="720" y="624" text-anchor="middle">LA MÉMOIRE DES LIENS</text>
+  <text class="meta" x="1392" y="852" text-anchor="end">v 1.0 · 2026</text>
+</svg>

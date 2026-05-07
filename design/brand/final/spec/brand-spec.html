@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"/><title>Yeboekun — spécification de marque (B)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="icon" type="image/svg+xml" href="../svg/yeboekun-favicon.svg"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500;1,600&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#1F1A14; --ink2:#3D342A; --ink3:#766A58; --ink4:#A89F8C;
+    --ivory:#F4EFE6; --cream:#FAF6EC; --paper2:#ECE5D6;
+    --line:#CABFA6; --line2:#DDD2B8; --sepia:#7D5A36; --rust:#A4502A; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; padding:0; background:var(--ivory); color:var(--ink);
+    font-family:'Geist',system-ui,sans-serif; }
+  ::selection { background:var(--sepia); color:var(--cream); }
+  .eyebrow { font-family:'Geist Mono',monospace; font-size:10px; letter-spacing:0.18em;
+    text-transform:uppercase; color:var(--ink3); }
+  .em { font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500;
+    letter-spacing:-0.02em; }
+  .ru { font-family:'Cormorant Garamond',serif; font-weight:500; }
+  .mono { font-family:'Geist Mono',monospace; }
+  section { padding:96px 88px; border-bottom:1px solid var(--line2); }
+  h1 { margin:0; font-size:144px; line-height:0.88; letter-spacing:-0.03em; }
+  h2 { margin:0 0 24px; font-size:56px; line-height:0.95; }
+  p { font-family:'Cormorant Garamond',serif; font-size:16.5px; line-height:1.6; color:var(--ink2); }
+  .grid { display:grid; gap:32px; }
+  .tile { background:var(--cream); border:1px solid var(--line2); padding:48px;
+    display:flex; align-items:center; justify-content:center; min-height:240px; }
+  .cap { display:flex; justify-content:space-between; padding-top:8px;
+    font-family:'Geist Mono',monospace; font-size:10px; color:var(--ink3); letter-spacing:0.06em; }
+  table { border-collapse:collapse; width:100%; }
+  th, td { text-align:left; padding:14px 18px; border-bottom:1px solid var(--line2);
+    font-family:'Cormorant Garamond',serif; font-size:14.5px; color:var(--ink2); font-style:italic; }
+  th { font-style:normal; font-family:'Geist Mono',monospace; font-size:10px; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--ink3); border-bottom:1px solid var(--line); }
+  .swatch { aspect-ratio:1; }
+  .construction { background:var(--cream); padding:48px; }
+  .blockquote { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:32px;
+    line-height:1.4; color:var(--ink); max-width:760px; }
+</style>
+</head><body>
+
+<section style="padding:80px 88px 64px; background:var(--ivory);">
+  <div style="display:flex; justify-content:space-between; margin-bottom:80px;">
+    <div class="eyebrow">Yeboekun · spécification de marque · direction B</div>
+    <div class="mono" style="font-size:10px; color:var(--ink3); letter-spacing:0.06em;">06 mai 2026 · v1 final</div>
+  </div>
+  <div style="display:flex; align-items:flex-end; gap:48px;">
+    <img src="../svg/yeboekun-y-sankofa.svg" style="width:160px; color:var(--ink); --accent:var(--sepia);" alt=""/>
+    <div>
+      <h1 class="em">Yeboekun.</h1>
+      <p class="em" style="font-size:26px; margin:24px 0 0;">« La mémoire des liens. »</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Étymologie</div>
+  <h2 class="em">Le nom.</h2>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:48px;">
+    <p><span class="mono" style="font-size:13px; color:var(--ink); letter-spacing:0.05em;">yé-bo-é-koun</span> · akan / twi · « <em>nous · avons · un socle commun</em> ». Langue parlée au Ghana et en Côte d'Ivoire.</p>
+    <p>La marque est à la fois nom et promesse : retrouver les racines partagées. Le proverbe twi <em>« Sankofa wo nkyi »</em> — « il n'est pas tabou de revenir chercher ce qu'on a oublié » — fonde le geste graphique du Y.</p>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Symbole</div>
+  <h2 class="em">Le Y monogramme.</h2>
+  <p style="max-width:760px; margin-bottom:48px;">La branche droite du Y se courbe vers l'arrière, comme la tête de Sankofa qui se retourne pour reprendre l'œuf. L'œuf, en sépia, est inscrit dans le creux du V. Économie totale : un seul signe pour le nom et le symbole.</p>
+  <div class="grid" style="grid-template-columns:1.2fr 1fr;">
+    <div class="tile" style="min-height:380px; padding:64px;">
+      <img src="../svg/yeboekun-y-sankofa.svg" style="width:200px; color:var(--ink); --accent:var(--sepia);" alt="Y monogramme"/>
+    </div>
+    <div class="construction">
+      <div class="eyebrow">Construction</div>
+      <p style="margin:14px 0 0;">Cap-height 64 unités sur grille 80×100. Branche droite quitte la diagonale standard à mi-hauteur, décrit un quart de cercle de rayon 14, retourne vers le centre. Tracé monoline 2.4 unités. L'œuf : cercle de rayon 3.2 centré à (22, 32).</p>
+      <ul style="font-family:'Cormorant Garamond',serif; font-size:15px; color:var(--ink2); line-height:1.7; padding-left:18px; margin-top:18px;">
+        <li>Tracé constant 2.4 unités · jamais en dessous de 1.6</li>
+        <li>Œuf en accent sépia · jamais rempli</li>
+        <li>Pas d'ombre, pas de dégradé, pas de contour secondaire</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Wordmark</div>
+  <h2 class="em">Lockup principal.</h2>
+  <div class="tile" style="min-height:280px; padding:64px;">
+    <img src="../svg/yeboekun-wordmark.svg" style="height:120px; color:var(--ink);" alt="Yeboekun wordmark"/>
+  </div>
+  <div class="cap"><span>Wordmark · Y monogramme + eboekun en Cormorant Garamond Italic 500</span><span>WM.01</span></div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:24px;">
+    <div>
+      <div class="tile" style="min-height:160px;">
+        <img src="../svg/yeboekun-wordmark.svg" style="height:48px; color:var(--ink);" alt=""/>
+      </div>
+      <div class="cap"><span>Compact · usage standard</span><span>WM.02</span></div>
+    </div>
+    <div>
+      <div class="tile" style="min-height:160px; background:var(--ink);">
+        <img src="../svg/yeboekun-wordmark-inverse.svg" style="height:48px; color:var(--ivory); --accent:#D9A56A;" alt=""/>
+      </div>
+      <div class="cap"><span>Inversé · sur fond sombre</span><span>WM.03</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Palette</div>
+  <h2 class="em">Couleurs.</h2>
+  <div class="grid" style="grid-template-columns:repeat(6, 1fr); gap:14px;">
+    
+      <div>
+        <div class="swatch" style="background:#1F1A14; "></div>
+        <div class="em" style="font-size:15px; margin-top:10px; color:var(--ink);">Encre profonde</div>
+        <div class="mono" style="font-size:9.5px; color:var(--ink3); letter-spacing:0.05em; margin-top:2px;">#1F1A14</div>
+        <div class="mono" style="font-size:9px; color:var(--ink4); letter-spacing:0.04em; margin-top:2px;">wordmark</div>
+      </div>
+    
+      <div>
+        <div class="swatch" style="background:#3D342A; "></div>
+        <div class="em" style="font-size:15px; margin-top:10px; color:var(--ink);">Encre tiède</div>
+        <div class="mono" style="font-size:9.5px; color:var(--ink3); letter-spacing:0.05em; margin-top:2px;">#3D342A</div>
+        <div class="mono" style="font-size:9px; color:var(--ink4); letter-spacing:0.04em; margin-top:2px;">wordmark alt.</div>
+      </div>
+    
+      <div>
+        <div class="swatch" style="background:#7D5A36; "></div>
+        <div class="em" style="font-size:15px; margin-top:10px; color:var(--ink);">Sépia</div>
+        <div class="mono" style="font-size:9.5px; color:var(--ink3); letter-spacing:0.05em; margin-top:2px;">#7D5A36</div>
+        <div class="mono" style="font-size:9px; color:var(--ink4); letter-spacing:0.04em; margin-top:2px;">accent · œuf</div>
+      </div>
+    
+      <div>
+        <div class="swatch" style="background:#D9A56A; "></div>
+        <div class="em" style="font-size:15px; margin-top:10px; color:var(--ink);">Sépia clair</div>
+        <div class="mono" style="font-size:9.5px; color:var(--ink3); letter-spacing:0.05em; margin-top:2px;">#D9A56A</div>
+        <div class="mono" style="font-size:9px; color:var(--ink4); letter-spacing:0.04em; margin-top:2px;">accent inversé</div>
+      </div>
+    
+      <div>
+        <div class="swatch" style="background:#FAF6EC; border:1px solid var(--line2);"></div>
+        <div class="em" style="font-size:15px; margin-top:10px; color:var(--ink);">Crème</div>
+        <div class="mono" style="font-size:9.5px; color:var(--ink3); letter-spacing:0.05em; margin-top:2px;">#FAF6EC</div>
+        <div class="mono" style="font-size:9px; color:var(--ink4); letter-spacing:0.04em; margin-top:2px;">fond clair</div>
+      </div>
+    
+      <div>
+        <div class="swatch" style="background:#F4EFE6; border:1px solid var(--line2);"></div>
+        <div class="em" style="font-size:15px; margin-top:10px; color:var(--ink);">Ivoire</div>
+        <div class="mono" style="font-size:9.5px; color:var(--ink3); letter-spacing:0.05em; margin-top:2px;">#F4EFE6</div>
+        <div class="mono" style="font-size:9px; color:var(--ink4); letter-spacing:0.04em; margin-top:2px;">fond standard</div>
+      </div>
+    
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Typographie</div>
+  <h2 class="em">Familles.</h2>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:48px;">
+    <div style="border-top:1px solid var(--line2); padding-top:24px;">
+      <div class="em" style="font-size:96px; color:var(--ink); line-height:1;">Aa</div>
+      <div style="display:flex; justify-content:space-between; margin-top:16px;">
+        <span class="mono" style="font-size:11px; color:var(--ink3); letter-spacing:0.05em;">Cormorant Garamond</span>
+        <span class="mono" style="font-size:11px; color:var(--ink3);">500 italic · 500</span>
+      </div>
+      <p style="margin-top:12px;">Wordmark, titres, citations. L'italique pour l'expressif et le wordmark, le regular pour les titres institutionnels.</p>
+    </div>
+    <div style="border-top:1px solid var(--line2); padding-top:24px;">
+      <div class="mono" style="font-size:72px; color:var(--ink); line-height:1; font-weight:500; letter-spacing:0.04em;">Aa</div>
+      <div style="display:flex; justify-content:space-between; margin-top:16px;">
+        <span class="mono" style="font-size:11px; color:var(--ink3); letter-spacing:0.05em;">Geist Mono</span>
+        <span class="mono" style="font-size:11px; color:var(--ink3);">400 · 500</span>
+      </div>
+      <p style="margin-top:12px;">Tagline, métadonnées, étiquettes. Letter-spacing 0.18–0.22em selon la taille.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Espace de protection · échelles</div>
+  <h2 class="em">Règles d'usage.</h2>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:48px;">
+    <div class="construction">
+      <div class="eyebrow">Espace minimal</div>
+      <p style="margin:14px 0 0;">Marge égale à la hauteur de la lettre <em>o</em> du wordmark autour du lockup complet. Aucun élément graphique, photo ou trait dans cette zone. Sur fond photographique, intercaler un voile crème à 70 %.</p>
+    </div>
+    <div class="construction">
+      <div class="eyebrow">Échelle minimale</div>
+      <p style="margin:14px 0 0;">Wordmark complet : 24 px de hauteur de cap. <strong style="color:var(--ink);">Y monogramme seul : 36 px minimum.</strong> En dessous, basculer sur la version Direction A (pictogramme + wordmark séparés) pour préserver la lisibilité de l'œuf.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="eyebrow">Usages</div>
+  <h2 class="em">Application.</h2>
+  <table>
+    <thead><tr><th style="width:30%;">Contexte</th><th>Forme retenue</th><th>Taille</th></tr></thead>
+    <tbody>
+      <tr><td>App icon · iOS / Android</td><td>Y monogramme seul, fond ivoire</td><td>120 px sur 180 (apple-touch)</td></tr>
+      <tr><td>Favicon</td><td>Y monogramme, trait épaissi 3.2</td><td>32 / 64 / 192 / 512 px</td></tr>
+      <tr><td>TopBar application</td><td>Wordmark complet</td><td>22 px de cap</td></tr>
+      <tr><td>Splash · onboarding</td><td>Wordmark + tagline + version</td><td>120 px de cap</td></tr>
+      <tr><td>Footer · documents</td><td>Wordmark italique seul</td><td>56 px de cap</td></tr>
+      <tr><td>Carte de visite · papeterie</td><td>Wordmark, version inversée sur encre</td><td>14 mm de hauteur</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="eyebrow">Champ interdit</div>
+  <h2 class="em">Ce qu'on ne fait pas.</h2>
+  <ul style="font-family:'Cormorant Garamond',serif; font-size:17px; line-height:1.8; color:var(--ink2); padding-left:18px; columns:2; column-gap:48px; max-width:1000px;">
+    <li>Arbres généalogiques littéraux, branches, feuilles</li>
+    <li>Mains qui se tiennent, globe, parchemin</li>
+    <li>Calligraphie « africaine » stéréotypée</li>
+    <li>Dégradés, 3D, bevel, ombre portée</li>
+    <li>Couleurs primaires saturées hors palette</li>
+    <li>Y monogramme remplis (l'œuf reste un cercle vide)</li>
+    <li>Wordmark étiré, condensé, ou italicisé deux fois</li>
+    <li>Co-branding qui sépare le Y de "eboekun"</li>
+  </ul>
+</section>
+
+<section style="background:var(--cream); padding:120px 88px;">
+  <div class="eyebrow" style="margin-bottom:32px;">Dédicace</div>
+  <p class="blockquote">« Sankofa wo nkyi. »<br>
+    <span style="font-size:20px; color:var(--ink2);">Il n'est pas tabou de revenir chercher ce qu'on a oublié.</span></p>
+  <div class="mono" style="font-size:11px; color:var(--ink3); letter-spacing:0.16em; text-transform:uppercase; margin-top:32px;">Proverbe akan · Ghana</div>
+</section>
+
+<section style="background:var(--ink); color:var(--ivory); border-bottom:none; padding:64px 88px;">
+  <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+    <div>
+      <span class="em" style="font-size:48px; color:var(--ivory);">Yeboekun.</span>
+      <div class="mono" style="font-size:11px; color:rgba(244,239,230,0.55); letter-spacing:0.16em; text-transform:uppercase; margin-top:12px;">spécification de marque · direction B · v1 final</div>
+    </div>
+    <div class="mono" style="font-size:10px; color:rgba(244,239,230,0.5); letter-spacing:0.08em; text-align:right; max-width:320px; line-height:1.6;">
+      Document interne. Toute exécution finale exige validation typographique (Cormorant Garamond, version sourcée).
+    </div>
+  </div>
+</section>
+
+</body></html>
