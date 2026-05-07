@@ -8,7 +8,7 @@
 ## Lot en cours : **Lot 2 — Vue Rivière**
 
 - **Branche** : `dev`
-- **Statut** : layout validé par le PO. Points bloquants avant QA et merge.
+- **Statut** : layout mergé en main (PR #38). Deux correctifs techniques restants avant clôture du lot.
 
 ---
 
@@ -19,11 +19,11 @@
 - [x] `featureFlags.ts` — `VUE_RIVIERE_ENABLED` (ON en DEV, OFF en prod)
 - [x] `router.tsx` — `/riviere` câblé derrière feature flag
 - [x] `GenealogyCard.tsx` — bande genre `borderLeft` (encodage genre reporté du Lot 1)
-- [x] Tests `PersonChip.test.tsx` + `RiviereView.test.tsx` (à valider verts)
+- [x] Tests `PersonChip.test.tsx` + `RiviereView.test.tsx` — verts (75/75)
+- [x] Brand Yeboekun — wordmark TopBar, favicon, manifest PWA (PR #38 mergé)
 - [ ] Unifier type `gender` : `RiverViewNode` utilise `'Other'`, tout le reste utilise `'O'` → corriger
 - [ ] Bande GenealogyCard : spec 2px, code 3px → vérifier/corriger
-- [ ] `QA_LOT_2_RIVIERE.md` — checklist QA à créer (Iris)
-- [ ] PR Lot 2 → `main`
+- [ ] `MINOR-A11Y-01` — `PersonForm.tsx` : `<h6>` dans `<DialogTitle>` (`<h2>`) → passer `component="div"`
 
 ---
 
@@ -46,7 +46,7 @@
 |---|---|---|
 | Lot 0 — Préparation | ✅ mergé | — |
 | Lot 1 — Foundation (tokens, shell, i18n, routing) | ✅ mergé | #33 + #35 |
-| Lot 2 — Vue Rivière | 🔶 en cours | à ouvrir |
+| Lot 2 — Vue Rivière + Brand | ✅ mergé | #38 |
 
 ---
 
