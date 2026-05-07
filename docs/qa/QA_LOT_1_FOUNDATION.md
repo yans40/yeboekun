@@ -124,7 +124,7 @@ Format : `[ ]` à faire · `[x]` fait · `[~]` partiel · `[!]` bloquant/décisi
 - [~] **shell-1** ~~NavRail 72px~~ — retiré au profit de la TopBar maquette. `NavRailLegacy.tsx` conservé.
 - [~] **shell-2** — voir shell-1
 - [~] **shell-3** — voir shell-1
-- [~] **shell-4** Logo `G.` remplacé par `gegedot` italic dans la TopBar (conforme maquette)
+- [~] **shell-4** Logo `G.` → `yeboekun-favicon.svg` (Y-Sankofa seul, ~32px, `color.ink` via `currentColor`) — si NavRail réactivé. En TopBar : voir shell-10bis.
 - [~] **shell-5** Icônes + codes 2 lettres — supprimés (décision 2026-05-02, sans icônes)
 - [~] **shell-6** — voir shell-1
 - [~] **shell-7** — voir shell-1
@@ -134,6 +134,7 @@ Format : `[ ]` à faire · `[x]` fait · `[~]` partiel · `[!]` bloquant/décisi
 #### TopBar (hauteur 60px, conforme maquette hifi-shared.jsx)
 
 - [x] **shell-10** Créer `frontend/src/components/TopBar.tsx` — hauteur `60px` (maquette), `width: 100%`
+- [ ] **shell-10bis** Wordmark TopBar : `<img src="/brand/yeboekun-wordmark.svg" />`, hauteur `22px`, `margin-left: 16px`, `vertical-align: middle` — remplace le `<span>` texte `t('app.name')` actuel. Précède le breadcrumb. *(mockup B.12 — 2026-05-07)*
 - [x] **shell-11** Background : gradient `color.cream → color.paper` (conforme maquette)
 - [x] **shell-12** Bordure basse : `1px solid color.line2`
 - [~] **shell-13** Breadcrumb remplacé par les liens nav texte (plus pertinent sans NavRail)

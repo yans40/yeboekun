@@ -150,7 +150,7 @@ export default function TopBar() {
 
   const initials = selectedPerson
     ? (selectedPerson.firstName?.[0] ?? '') + (selectedPerson.lastName?.[0] ?? '')
-    : 'G';
+    : 'Y';
 
   const selectorItems: DropdownItem[] = persons.map(p => ({
     key: String(p.id),
@@ -179,27 +179,12 @@ export default function TopBar() {
       position: 'relative',
       flexShrink: 0,
     }}>
-      {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexShrink: 0 }}>
-        <span style={{
-          fontFamily: fonts.serif,
-          fontStyle: 'italic',
-          fontSize: 22,
-          color: colors.ink,
-          letterSpacing: '-0.01em',
-          lineHeight: 1,
-        }}>
-          {t('app.name')}
-        </span>
-        <span style={{
-          width: 4,
-          height: 4,
-          borderRadius: '50%',
-          background: colors.rust,
-          display: 'inline-block',
-          marginBottom: 2,
-        }} />
-      </div>
+      {/* Logo — shell-10bis */}
+      <img
+        src="/brand/yeboekun-wordmark.svg"
+        alt="Yeboekun"
+        style={{ height: 22, display: 'block', marginLeft: 16, flexShrink: 0 }}
+      />
 
       {/* Person selector */}
       <button

@@ -9,8 +9,7 @@
     "label_tb": "TB",
     "label_ct": "CT",
     "label_rv": "RV",
-    "label_at": "AT",
-    "logo": "G."
+    "label_at": "AT"
   },
   "topbar": {
     "search_placeholder": "Rechercher… ⌘K",
@@ -77,6 +76,6 @@
     "back": "Retour"
   },
   "app": {
-    "name": "gegedot"
+    "name": "Yeboekun"
   }
 }
