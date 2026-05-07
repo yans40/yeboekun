@@ -40,6 +40,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<IDataNormalizationService, DataNormalizationService>();
 builder.Services.AddScoped<IDuplicateDetectionService, DuplicateDetectionService>();
+builder.Services.AddScoped<ITreeTraversalService, TreeTraversalService>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(GegeDot.Services.Mappings.MappingProfile));

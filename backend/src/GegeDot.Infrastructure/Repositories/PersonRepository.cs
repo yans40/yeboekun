@@ -122,4 +122,67 @@ public class PersonRepository : IPersonRepository
     {
         return await _context.Persons.AnyAsync(p => p.Id == id);
     }
+
+    /// <inheritdoc/>
+    public async Task<Dictionary<int, List<int>>> GetParentIdsBatchAsync(
+        IEnumerable<int> personIds,
+        CancellationToken cancellationToken = default)
+    {
+        var ids = personIds.ToList();
+        if (ids.Count == 0)
+            return new Dictionary<int, List<int>>();
+
+        // Convention : Type=Parent, Person1=parent, Person2=enfant
+        // On veut : pour chaque enfant (Person2Id), ses parents (Person1Id)
+        var rows = await _context.Relationships
+            .AsNoTracking()
+            .Where(r => r.RelationshipType == RelationshipType.Parent && ids.Contains(r.Person2Id))
+            .Select(r => new { ChildId = r.Person2Id, ParentId = r.Person1Id })
+            .ToListAsync(cancellationToken);
+
+        var result = ids.ToDictionary(id => id, _ => new List<int>());
+        foreach (var row in rows)
+            result[row.ChildId].Add(row.ParentId);
+
+        return result;
+    }
+
+    /// <inheritdoc/>
+    public async Task<Dictionary<int, List<int>>> GetChildIdsBatchAsync(
+        IEnumerable<int> personIds,
+        CancellationToken cancellationToken = default)
+    {
+        var ids = personIds.ToList();
+        if (ids.Count == 0)
+            return new Dictionary<int, List<int>>();
+
+        // Convention : Type=Parent, Person1=parent, Person2=enfant
+        // On veut : pour chaque parent (Person1Id), ses enfants (Person2Id)
+        var rows = await _context.Relationships
+            .AsNoTracking()
+            .Where(r => r.RelationshipType == RelationshipType.Parent && ids.Contains(r.Person1Id))
+            .Select(r => new { ParentId = r.Person1Id, ChildId = r.Person2Id })
+            .ToListAsync(cancellationToken);
+
+        var result = ids.ToDictionary(id => id, _ => new List<int>());
+        foreach (var row in rows)
+            result[row.ParentId].Add(row.ChildId);
+
+        return result;
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<Person>> GetPersonsByIdsAsync(
+        IEnumerable<int> ids,
+        CancellationToken cancellationToken = default)
+    {
+        var idList = ids.ToList();
+        if (idList.Count == 0)
+            return [];
+
+        return await _context.Persons
+            .AsNoTracking()
+            .Where(p => idList.Contains(p.Id))
+            .ToListAsync(cancellationToken);
+    }
 }
