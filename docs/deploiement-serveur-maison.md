@@ -407,11 +407,13 @@ docker compose up -d --build
 
 ---
 
-## Prochaines étapes
+## Sécurité mise en place (2026-05-07)
 
-- [ ] **Sécurité** — UFW (pare-feu) + Fail2ban (anti brute-force) + SSH par clé
-- [ ] **Sauvegardes automatiques** — export MySQL régulier
-- [ ] **Mises à jour automatiques Ubuntu** — `unattended-upgrades`
+- [x] **SSH par clé** — clé ED25519 installée, auth par mot de passe désactivée dans `sshd_config`
+- [x] **UFW** — pare-feu actif, SSH autorisé uniquement depuis 192.168.1.0/24, tout le reste bloqué
+- [x] **Fail2ban** — surveillance SSH active, 5 tentatives max / 10 min → ban 1h
+- [x] **Sauvegardes automatiques** — script `/home/yandark/backups/mysql/mysql-backup.sh`, cron à 3h chaque nuit, rétention 7 jours
+- [x] **Mises à jour automatiques Ubuntu** — `unattended-upgrades` actif
 
 ---
 

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <title>Yeboekun</title>
+  <g stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 6 8 L 26 38"></path>
+    <path d="M 46 8 Q 50 24, 40 30 Q 28 36, 24 26 L 26 38"></path>
+    <path d="M 26 38 L 26 58"></path>
+  </g>
+  <circle cx="16" cy="22" r="3.2" stroke="var(--accent, #7D5A36)" stroke-width="3.2" fill="none"></circle>
+</svg>

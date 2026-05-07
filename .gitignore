@@ -7,6 +7,9 @@
 ehthumbs.db
 Thumbs.db
 
+# Claude Code local agents (ne pas versionner)
+.claude/
+
 # IDE files
 .vscode/
 .idea/
@@ -115,6 +118,8 @@ dist
 # Gatsby files
 .cache/
 public
+!frontend/public/
+!frontend/public/**
 
 # Storybook build outputs
 .out
@@ -209,3 +214,4 @@ appsettings.Development.json
 appsettings.Production.json
 *.pfx
 *.p12
+.cursor/rules/

@@ -3,10 +3,36 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GegeDot — Arbre Généalogique</title>
+    <meta name="description" content="La mémoire des liens" />
+    <meta name="theme-color" content="#F4EFE6" />
+    <title>Yeboekun — La mémoire des liens</title>
+    <link rel="icon" type="image/svg+xml" href="/brand/yeboekun-favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/brand/yeboekun-favicon-32.png" />
+    <link rel="apple-touch-icon" href="/brand/apple-touch-icon-180.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="preload" as="image" href="/brand/yeboekun-wordmark.svg" type="image/svg+xml" />
+
+    <!-- Cormorant Garamond — chargement non-bloquant -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap"
+      />
+    </noscript>
+
     <style>
       *, *::before, *::after { box-sizing: border-box; }
       html, body, #root {
@@ -15,7 +41,7 @@
         width: 100%;
         height: 100%;
         overflow: hidden;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-family: 'Geist', system-ui, sans-serif;
       }
     </style>
   </head>

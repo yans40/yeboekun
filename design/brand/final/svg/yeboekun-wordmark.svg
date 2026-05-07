@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 100" fill="none">
+  <title>Yeboekun — wordmark complet (Direction B)</title>
+  <desc>Y monogramme Sankofa fondu avec &#34;eboekun&#34; en Cormorant Garamond Italic. Œuf en accent sépia.</desc>
+  
+  <g class="stroke-ink" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 8 14 L 32 50"></path>
+    <path d="M 56 14 Q 60 30, 50 38 Q 40 44, 36 36 L 32 50"></path>
+    <path d="M 32 50 L 32 86"></path>
+  </g>
+  <circle class="accent" cx="22" cy="32" r="3.2" stroke-width="2.4"></circle>
+  <text class="ink em" x="76" y="80">eboekun</text>
+</svg>

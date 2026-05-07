@@ -1,0 +1,1053 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>Yeboekun · identité de marque</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; font-family:'Geist',system-ui,sans-serif;
+    background:#F4EFE6; color:#1F1A14; }
+  * { box-sizing: border-box; }
+  ::selection { background:#7D5A36; color:#FAF6EC; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" data-presets="react" id="bundle">
+/* === yk-brand.jsx === */
+const Y = { ink:'#1F1A14', ink2:'#3D342A', ink3:'#766A58', ink4:'#A89F8C',
+  ivory:'#F4EFE6', cream:'#FAF6EC', paper2:'#ECE5D6',
+  line:'#CABFA6', line2:'#DDD2B8', sepia:'#7D5A36', rust:'#A4502A' };
+
+function SankofaA({ size=64, color=Y.ink, accent=Y.sepia, stroke=2 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none"
+      stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M 14 44 Q 14 24, 32 24 Q 50 24, 50 38" />
+      <path d="M 50 38 Q 50 46, 42 46 Q 36 46, 36 40" />
+      <path d="M 36 40 L 30 36" />
+      <path d="M 14 44 L 10 50 M 14 44 L 16 52 M 14 44 L 22 50" />
+      <path d="M 24 50 L 24 56 M 32 50 L 32 56" />
+      <ellipse cx="22" cy="20" rx="3.5" ry="4.2" stroke={accent} fill="none" strokeWidth={stroke}/>
+    </svg>
+  );
+}
+
+function SankofaC({ size=64, color=Y.ink, accent=Y.rust, stroke=1.6 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none"
+      stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="32" cy="32" r="28" stroke={color} fill="none" strokeWidth={stroke}/>
+      <path d="M 18 40 Q 18 22, 32 22 Q 44 22, 44 32 Q 44 40, 36 40 Q 30 40, 30 34" />
+      <path d="M 30 34 L 25 30" />
+      <circle cx="22" cy="27" r="2.4" stroke={accent} fill="none" strokeWidth={stroke}/>
+      <path d="M 18 40 L 14 46 M 18 40 L 22 46" />
+      <path d="M 26 44 L 26 48 M 32 44 L 32 48" />
+    </svg>
+  );
+}
+
+function YSankofa({ size=100, color=Y.ink, accent=Y.sepia }) {
+  return (
+    <svg width={size*0.8} height={size} viewBox="0 0 80 100" fill="none"
+      stroke={color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M 8 14 L 32 50" />
+      <path d="M 56 14 Q 60 30, 50 38 Q 40 44, 36 36 L 32 50" fill="none"/>
+      <path d="M 32 50 L 32 86" />
+      <circle cx="22" cy="32" r="3.2" stroke={accent} fill="none"/>
+    </svg>
+  );
+}
+Object.assign(window, { Y, SankofaA, SankofaC, YSankofa });
+</script>
+
+<script type="text/babel">
+(() => {
+const { Y, SankofaA, SankofaC, YSankofa } = window;
+
+/* === yk-page-1.jsx === */
+// Yeboekun — brand identity specification page
+// Long-scroll editorial document presenting 3 distinct directions
+
+
+const COR = "'Cormorant Garamond', serif";
+const MONO = "'Geist Mono', monospace";
+const SANS = "'Geist', sans-serif";
+
+// =================================================================
+// Reusable layout primitives
+// =================================================================
+function Eyebrow({ children, color = Y.ink3 }) {
+  return <div style={{
+    fontFamily: MONO, fontSize: 10, letterSpacing: '0.18em',
+    textTransform: 'uppercase', color,
+  }}>{children}</div>;
+}
+
+function Section({ children, tone = 'ivory', style = {}, id }) {
+  const bg = tone === 'ink' ? Y.ink : tone === 'cream' ? Y.cream
+           : tone === 'paper' ? Y.paper2 : Y.ivory;
+  return <section id={id} style={{
+    background: bg, padding: '120px 96px', position: 'relative',
+    ...style,
+  }}>{children}</section>;
+}
+
+function Tile({ tone = 'ivory', children, style = {}, label, code }) {
+  const bg = tone === 'ink' ? Y.ink : tone === 'cream' ? Y.cream
+           : tone === 'paper' ? Y.paper2 : Y.ivory;
+  const fg = tone === 'ink' ? Y.ivory : Y.ink;
+  return (
+    <figure style={{
+      margin: 0, display: 'flex', flexDirection: 'column', gap: 10,
+    }}>
+      <div style={{
+        background: bg, color: fg, padding: 56,
+        border: tone === 'ivory' ? `1px solid ${Y.line2}` : 'none',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'relative', minHeight: 240,
+        ...style,
+      }}>{children}</div>
+      {(label || code) && (
+        <figcaption style={{
+          display: 'flex', justifyContent: 'space-between',
+          fontFamily: MONO, fontSize: 10, color: Y.ink3,
+          letterSpacing: '0.06em', paddingTop: 4,
+        }}>
+          {label && <span>{label}</span>}
+          {code && <span style={{color: Y.ink4}}>{code}</span>}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
+
+// =================================================================
+// Wordmarks — three different lockups per direction
+// =================================================================
+
+// DIRECTION A — Cormorant Garamond regular, calm, editorial
+function WordmarkA({ size = 64, color = Y.ink, italic = false }) {
+  return (
+    <span style={{
+      fontFamily: COR, fontWeight: 500,
+      fontStyle: italic ? 'italic' : 'normal',
+      fontSize: size, color, letterSpacing: '-0.02em',
+      lineHeight: 0.9, whiteSpace: 'nowrap',
+    }}>Yeboekun</span>
+  );
+}
+
+// DIRECTION B — Cormorant Italic, custom Y
+function WordmarkB({ size = 64, color = Y.ink, accent = Y.sepia }) {
+  // Render: custom Y SVG followed by 'eboekun' in italic
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'baseline', gap: 0,
+      fontFamily: COR, fontStyle: 'italic', fontWeight: 500,
+      fontSize: size, color, letterSpacing: '-0.025em',
+      lineHeight: 0.9, whiteSpace: 'nowrap',
+    }}>
+      <span style={{position:'relative', width: size*0.78, height: size, display:'inline-block'}}>
+        <span style={{position:'absolute', left: -size*0.06, top: -size*0.04}}>
+          <YSankofa size={size*1.05} color={color} accent={accent}/>
+        </span>
+      </span>
+      <span style={{marginLeft: -size*0.05}}>eboekun</span>
+    </span>
+  );
+}
+
+// DIRECTION C — All-caps tracked, Tenor-like serif feel via Cormorant
+function WordmarkC({ size = 28, color = Y.ink }) {
+  return (
+    <span style={{
+      fontFamily: COR, fontWeight: 500,
+      fontSize: size, color, letterSpacing: '0.32em',
+      lineHeight: 1, whiteSpace: 'nowrap',
+      textTransform: 'uppercase', paddingLeft: '0.32em',
+    }}>YEBOEKUN</span>
+  );
+}
+
+// =================================================================
+// Hero
+// =================================================================
+function Hero() {
+  return (
+    <Section tone="ivory" style={{padding: '88px 96px 80px', borderBottom: `1px solid ${Y.line2}`}}>
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 96}}>
+        <Eyebrow>Identité de marque · spécification v1</Eyebrow>
+        <div style={{display: 'flex', gap: 36, fontFamily: MONO, fontSize: 10, color: Y.ink3, letterSpacing: '0.06em'}}>
+          <span>03 mai 2026</span>
+          <span>document interne</span>
+          <span>03 directions</span>
+        </div>
+      </div>
+
+      <div style={{display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 80, alignItems: 'flex-end'}}>
+        <div>
+          <h1 style={{
+            fontFamily: COR, fontStyle: 'italic', fontWeight: 500,
+            fontSize: 168, lineHeight: 0.88, margin: 0, color: Y.ink,
+            letterSpacing: '-0.03em',
+          }}>Yeboekun.</h1>
+          <p style={{
+            fontFamily: COR, fontSize: 30, lineHeight: 1.35,
+            color: Y.ink2, margin: '32px 0 0', maxWidth: 720,
+            fontStyle: 'italic', fontWeight: 400,
+          }}>
+            « Nous avons un socle commun. »
+          </p>
+        </div>
+        <div style={{
+          borderLeft: `1px solid ${Y.line}`, paddingLeft: 32,
+          paddingTop: 12, paddingBottom: 12,
+        }}>
+          <Eyebrow>Étymologie</Eyebrow>
+          <p style={{
+            fontFamily: COR, fontSize: 17, lineHeight: 1.55,
+            color: Y.ink2, margin: '12px 0 0',
+          }}>
+            <span style={{fontFamily: MONO, fontSize: 13, color: Y.ink, letterSpacing: '0.05em'}}>yé-bo-é-koun</span> · akan / twi · <em>nous · avons · un socle commun</em>. Langue parlée au Ghana et en Côte d'Ivoire. La marque est à la fois le nom et la promesse : retrouver les racines partagées.
+          </p>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+// =================================================================
+// Foundations — typography, palette
+// =================================================================
+function Foundations() {
+  return (
+    <Section tone="cream" style={{padding: '88px 96px'}}>
+      <div style={{display: 'grid', gridTemplateColumns: '320px 1fr', gap: 80}}>
+        <div>
+          <Eyebrow>Chapitre 01</Eyebrow>
+          <h2 style={{
+            fontFamily: COR, fontStyle: 'italic', fontWeight: 500,
+            fontSize: 56, lineHeight: 0.95, margin: '12px 0 24px',
+            color: Y.ink, letterSpacing: '-0.02em',
+          }}>Fondations.</h2>
+          <p style={{
+            fontFamily: COR, fontSize: 16, lineHeight: 1.6, color: Y.ink2,
+            margin: 0, maxWidth: 280,
+          }}>
+            Système typographique et palette communs aux trois directions. Toute déclinaison s'inscrit dans ces deux contraintes.
+          </p>
+        </div>
+
+        <div style={{display: 'flex', flexDirection: 'column', gap: 64}}>
+          {/* Type system */}
+          <div>
+            <Eyebrow>Typographie</Eyebrow>
+            <div style={{
+              display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 16,
+            }}>
+              <div style={{borderTop: `1px solid ${Y.line2}`, paddingTop: 20}}>
+                <div style={{
+                  fontFamily: COR, fontStyle: 'italic', fontSize: 84,
+                  color: Y.ink, lineHeight: 1, fontWeight: 500,
+                  letterSpacing: '-0.02em',
+                }}>Aa</div>
+                <div style={{marginTop: 16, display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: 10.5, color: Y.ink3, letterSpacing: '0.05em'}}>
+                  <span>Cormorant Garamond</span>
+                  <span>500 italic</span>
+                </div>
+                <p style={{fontFamily: COR, fontSize: 14, color: Y.ink2, margin: '12px 0 0', lineHeight: 1.5}}>Wordmark, titres, chapeaux. Italique pour l'expressif, regular pour les usages institutionnels.</p>
+              </div>
+              <div style={{borderTop: `1px solid ${Y.line2}`, paddingTop: 20}}>
+                <div style={{
+                  fontFamily: MONO, fontSize: 64, color: Y.ink,
+                  letterSpacing: '0.04em', lineHeight: 1, fontWeight: 500,
+                }}>Aa</div>
+                <div style={{marginTop: 16, display: 'flex', justifyContent: 'space-between', fontFamily: MONO, fontSize: 10.5, color: Y.ink3, letterSpacing: '0.05em'}}>
+                  <span>Geist Mono</span>
+                  <span>400 / 500</span>
+                </div>
+                <p style={{fontFamily: COR, fontSize: 14, color: Y.ink2, margin: '12px 0 0', lineHeight: 1.5}}>Tagline, métadonnées, étiquettes. Letter-spacing 0.08–0.18em selon la taille.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Palette */}
+          <div>
+            <Eyebrow>Palette</Eyebrow>
+            <div style={{
+              display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)',
+              gap: 14, marginTop: 16, borderTop: `1px solid ${Y.line2}`, paddingTop: 20,
+            }}>
+              {[
+                ['Encre profonde', Y.ink, '#1F1A14', 'wordmark · principal'],
+                ['Encre tiède',   Y.ink2, '#3D342A', 'wordmark alt.'],
+                ['Sépia',         Y.sepia, '#7D5A36', 'accent · pictogr.'],
+                ['Rouille',       Y.rust, '#A4502A', 'accent alt.'],
+                ['Crème',         Y.cream, '#FAF6EC', 'fond clair'],
+                ['Ivoire',        Y.ivory, '#F4EFE6', 'fond standard'],
+              ].map(([n,c,h,u]) => (
+                <div key={c} style={{display: 'flex', flexDirection: 'column', gap: 10}}>
+                  <div style={{
+                    aspectRatio: '1', background: c,
+                    border: c === Y.cream || c === Y.ivory ? `1px solid ${Y.line2}` : 'none',
+                  }}/>
+                  <div>
+                    <div style={{fontFamily: COR, fontStyle: 'italic', fontSize: 15, color: Y.ink, fontWeight: 500}}>{n}</div>
+                    <div style={{fontFamily: MONO, fontSize: 9.5, color: Y.ink3, letterSpacing: '0.05em', marginTop: 2}}>{h}</div>
+                    <div style={{fontFamily: MONO, fontSize: 9, color: Y.ink4, letterSpacing: '0.04em', marginTop: 2}}>{u}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Forbidden territory */}
+          <div style={{
+            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32,
+            paddingTop: 24, borderTop: `1px solid ${Y.line2}`,
+          }}>
+            <div>
+              <Eyebrow color={Y.ink2}>Champ autorisé</Eyebrow>
+              <ul style={{fontFamily: COR, fontSize: 15, lineHeight: 1.7, color: Y.ink2, margin: '10px 0 0', paddingLeft: 18}}>
+                <li>Géométrie monoline, tracé constant 1.5–2.4 px</li>
+                <li>Référence Adinkra discrète, lisible pour qui sait</li>
+                <li>Hiérarchie sérif italique / mono espacé</li>
+                <li>Couleurs terreuses, palette unique</li>
+              </ul>
+            </div>
+            <div>
+              <Eyebrow color={Y.rust}>Champ interdit</Eyebrow>
+              <ul style={{fontFamily: COR, fontSize: 15, lineHeight: 1.7, color: Y.ink2, margin: '10px 0 0', paddingLeft: 18}}>
+                <li>Arbres, branches, feuilles littérales</li>
+                <li>Mains qui se tiennent, globe, parchemin</li>
+                <li>Calligraphie « africaine » stéréotypée</li>
+                <li>Dégradés, 3D, couleurs primaires saturées</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+// =================================================================
+// Direction header
+// =================================================================
+function DirectionHeader({ letter, name, subtitle, reference, accent }) {
+  return (
+    <div style={{
+      display: 'grid', gridTemplateColumns: '160px 1fr 280px',
+      gap: 48, alignItems: 'flex-end',
+      borderBottom: `1px solid ${Y.line}`, paddingBottom: 32, marginBottom: 56,
+    }}>
+      <div>
+        <div style={{
+          fontFamily: COR, fontStyle: 'italic', fontWeight: 500,
+          fontSize: 144, lineHeight: 0.85, color: accent,
+          letterSpacing: '-0.04em',
+        }}>{letter}</div>
+      </div>
+      <div>
+        <Eyebrow color={accent}>Direction {letter}</Eyebrow>
+        <h2 style={{
+          fontFamily: COR, fontStyle: 'italic', fontWeight: 500,
+          fontSize: 64, lineHeight: 0.95, margin: '10px 0 0',
+          color: Y.ink, letterSpacing: '-0.025em',
+        }}>{name}.</h2>
+        <p style={{
+          fontFamily: COR, fontSize: 18, lineHeight: 1.5, color: Y.ink2,
+          margin: '14px 0 0', fontStyle: 'italic', maxWidth: 540, fontWeight: 400,
+        }}>{subtitle}</p>
+      </div>
+      <div style={{
+        borderLeft: `1px solid ${Y.line}`, paddingLeft: 24,
+      }}>
+        <Eyebrow>Référence</Eyebrow>
+        <p style={{
+          fontFamily: COR, fontSize: 13.5, lineHeight: 1.55,
+          color: Y.ink2, margin: '10px 0 0',
+        }}>{reference}</p>
+      </div>
+    </div>
+  );
+}
+
+window.YK = {
+  Y, COR, MONO, SANS,
+  Eyebrow, Section, Tile,
+  WordmarkA, WordmarkB, WordmarkC,
+  Hero, Foundations, DirectionHeader,
+  SankofaA, SankofaC, YSankofa,
+};
+
+
+
+/* === yk-dir-a.jsx === */
+// Yeboekun — Direction A : Sankofa éditorial
+// Pictogramme Sankofa monoline + Cormorant regular. Sépia en accent.
+
+
+function DirA() {
+  return (
+    <Section tone="ivory" id="direction-a" style={{padding: '120px 96px'}}>
+      <DirectionHeader
+        letter="A"
+        name="Sankofa éditorial"
+        accent={Y.sepia}
+        subtitle="Pictogramme Sankofa épuré, dissocié du wordmark. Composition latérale calme, presque institutionnelle. La marque parle à voix basse."
+        reference="Gallimard, Folio Histoire, Bibliothèque nationale. La sobriété d'un colophon d'éditeur sérieux. Le pictogramme se fait reconnaître seulement pour qui en connaît la grammaire."
+      />
+
+      {/* Hero composition */}
+      <Tile tone="ivory" label="Composition principale · pictogramme + wordmark" code="A.01"
+        style={{minHeight: 360, padding: 80}}>
+        <div style={{display: 'flex', alignItems: 'center', gap: 36}}>
+          <SankofaA size={120} color={Y.ink} accent={Y.sepia} stroke={2.2}/>
+          <div style={{width: 1, height: 88, background: Y.line2}}/>
+          <WordmarkA size={92}/>
+        </div>
+      </Tile>
+
+      {/* Three lockups */}
+      <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 16}}>
+        <Tile tone="ivory" label="Horizontal" code="A.02">
+          <div style={{display: 'flex', alignItems: 'center', gap: 20}}>
+            <SankofaA size={64} color={Y.ink} accent={Y.sepia} stroke={2}/>
+            <WordmarkA size={48}/>
+          </div>
+        </Tile>
+        <Tile tone="ivory" label="Empilé centré" code="A.03">
+          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16}}>
+            <SankofaA size={72} color={Y.ink} accent={Y.sepia} stroke={2}/>
+            <WordmarkA size={40}/>
+          </div>
+        </Tile>
+        <Tile tone="ivory" label="Wordmark seul · italique" code="A.04">
+          <WordmarkA size={48} italic/>
+        </Tile>
+      </div>
+
+      {/* Tagline studies */}
+      <div style={{marginTop: 64, marginBottom: 24}}>
+        <Eyebrow>Études de tagline · 03 propositions</Eyebrow>
+      </div>
+      <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16}}>
+        {[
+          ['Nos racines en commun', 'le plus direct'],
+          ['L\'histoire en partage', 'le plus collectif'],
+          ['La mémoire des liens', 'le plus émotif'],
+        ].map(([t, n], i) => (
+          <Tile key={t} tone={i===1?'cream':'ivory'} label={`Tagline ${String.fromCharCode(945+i)}`} code={`A.0${5+i}`}
+            style={{padding: 48}}>
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 18}}>
+              <SankofaA size={48} color={Y.ink} accent={Y.sepia} stroke={1.8}/>
+              <WordmarkA size={42}/>
+              <div style={{
+                fontFamily: MONO, fontSize: 11, color: Y.ink2,
+                letterSpacing: '0.18em', textTransform: 'uppercase',
+                paddingTop: 8, borderTop: `1px solid ${Y.line2}`, alignSelf: 'stretch',
+              }}>{t}</div>
+              <div style={{fontFamily: MONO, fontSize: 9, color: Y.ink4, letterSpacing: '0.06em'}}>note · {n}</div>
+            </div>
+          </Tile>
+        ))}
+      </div>
+
+      {/* Technical declensions */}
+      <div style={{marginTop: 64, marginBottom: 24}}>
+        <Eyebrow>Déclinaisons techniques</Eyebrow>
+      </div>
+      <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 16}}>
+        <Tile tone="ivory" label="App icon · 512" code="A.08" style={{minHeight: 200}}>
+          <div style={{
+            width: 160, height: 160, background: Y.ivory,
+            border: `1px solid ${Y.line2}`, borderRadius: 32,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 6px 24px rgba(40,28,12,0.12)',
+          }}>
+            <SankofaA size={108} color={Y.ink} accent={Y.sepia} stroke={2.4}/>
+          </div>
+        </Tile>
+        <Tile tone="ivory" label="Favicon · 32" code="A.09" style={{minHeight: 200}}>
+          <div style={{display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'center'}}>
+            <div style={{padding: 12, background: Y.cream, border: `1px solid ${Y.line2}`}}>
+              <SankofaA size={32} color={Y.ink} accent={Y.sepia} stroke={2.6}/>
+            </div>
+            <div style={{fontFamily: MONO, fontSize: 9, color: Y.ink4, letterSpacing: '0.05em'}}>32 × 32 px</div>
+          </div>
+        </Tile>
+        <Tile tone="ivory" label="Inversé" code="A.10" style={{minHeight: 200, background: Y.ink}}>
+          <SankofaA size={88} color={Y.ivory} accent="#D9A56A" stroke={2}/>
+        </Tile>
+        <Tile tone="ivory" label="Monochrome" code="A.11" style={{minHeight: 200}}>
+          <SankofaA size={88} color={Y.ink} accent={Y.ink} stroke={2}/>
+        </Tile>
+      </div>
+
+      {/* TopBar */}
+      <div style={{marginTop: 16}}>
+        <Tile tone="cream" label="TopBar application · hauteur 48 px" code="A.12"
+          style={{padding: 0, minHeight: 0, alignItems: 'stretch'}}>
+          <div style={{
+            height: 48, padding: '0 18px', display: 'flex', alignItems: 'center', gap: 14,
+            borderBottom: `1px solid ${Y.line2}`, width: '100%',
+            background: `linear-gradient(${Y.cream}, ${Y.ivory})`,
+          }}>
+            <SankofaA size={22} color={Y.ink} accent={Y.sepia} stroke={2.4}/>
+            <span style={{fontFamily: COR, fontSize: 18, color: Y.ink, fontWeight: 500, letterSpacing: '-0.01em'}}>Yeboekun</span>
+            <span style={{
+              fontFamily: MONO, fontSize: 10, color: Y.ink3,
+              letterSpacing: '0.1em', textTransform: 'uppercase', marginLeft: 18,
+            }}>Famille Lefèvre</span>
+            <span style={{flex: 1}}/>
+            <span style={{fontFamily: MONO, fontSize: 10, color: Y.ink4, letterSpacing: '0.05em'}}>chapitre actuel · Atelier</span>
+          </div>
+        </Tile>
+      </div>
+
+      {/* Splash */}
+      <div style={{marginTop: 16}}>
+        <Tile tone="ivory" label="Splash 1440 × 900 · ouverture de l'application" code="A.13"
+          style={{minHeight: 0, padding: 0}}>
+          <div style={{
+            width: '100%', aspectRatio: '1440/900', background: Y.ivory,
+            position: 'relative', display: 'flex', flexDirection: 'column',
+            justifyContent: 'space-between', padding: '64px 96px',
+            border: `1px solid ${Y.line2}`,
+          }}>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+              <SankofaA size={56} color={Y.ink} accent={Y.sepia} stroke={2}/>
+              <span style={{fontFamily: MONO, fontSize: 10, color: Y.ink3, letterSpacing: '0.1em'}}>v 1.0 · 2026</span>
+            </div>
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
+              <span style={{
+                fontFamily: COR, fontStyle: 'italic', fontWeight: 500,
+                fontSize: 124, lineHeight: 0.9, color: Y.ink,
+                letterSpacing: '-0.025em',
+              }}>Yeboekun.</span>
+              <span style={{
+                fontFamily: MONO, fontSize: 13, color: Y.ink2,
+                letterSpacing: '0.18em', textTransform: 'uppercase',
+                marginTop: 24, paddingLeft: 4,
+              }}>Nos racines en commun</span>
+            </div>
+          </div>
+        </Tile>
+      </div>
+
+      {/* Construction notes */}
+      <div style={{
+        marginTop: 64, padding: '48px 0', borderTop: `1px solid ${Y.line}`,
+        display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 48,
+      }}>
+        <div>
+          <Eyebrow>Symbole retenu</Eyebrow>
+          <p style={{fontFamily: COR, fontSize: 15, lineHeight: 1.6, color: Y.ink2, margin: '12px 0 0'}}>
+            <strong style={{color: Y.ink}}>Sankofa.</strong> L'oiseau qui se retourne pour reprendre l'œuf qu'il a laissé derrière lui — emblème akan de la mémoire qu'on revient chercher. Lecture exacte pour une app de généalogie : on regarde en arrière pour comprendre devant.
+          </p>
+        </div>
+        <div>
+          <Eyebrow>Construction</Eyebrow>
+          <p style={{fontFamily: COR, fontSize: 15, lineHeight: 1.6, color: Y.ink2, margin: '12px 0 0'}}>
+            Tracé sur grille 64×64. Trait constant 2 px (proportion 1/32). Corps en arc continu, tête séparée par une rupture nette à 90°. Œuf circulaire indépendant, accent sépia, posé devant le bec.
+          </p>
+        </div>
+        <div>
+          <Eyebrow>Espace de protection</Eyebrow>
+          <p style={{fontFamily: COR, fontSize: 15, lineHeight: 1.6, color: Y.ink2, margin: '12px 0 0'}}>
+            Marge minimale égale à la hauteur de l'œuf (≈ 8 px sur grille 64). Aucun élément graphique dans cette zone. Sur fond photographique, accompagner d'un voile crème à 70 %.
+          </p>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+window.DirA = DirA;
+
+
+/* === yk-dir-b.jsx === */
+// Yeboekun — Direction B : Y monogramme custom
+// La lettre Y devient elle-même un Sankofa. Pas de pictogramme séparé.
+
+
+function DirB() {
+  return (
+    <Section tone="cream" id="direction-b" style={{padding: '120px 96px'}}>
+      <DirectionHeader
+        letter="B"
+        name="Y monogramme"
+        accent={Y.sepia}
+        subtitle="Pas de pictogramme séparé. La lettre Y du wordmark se courbe d'elle-même comme la tête de Sankofa : l'œuf est posé dans le creux du V. Économie totale."
+        reference="Aesop, Apartamento, Are.na. Le geste est dans la lettre, pas à côté. La marque tient en un seul signe."
+      />
+
+      <Tile tone="cream" label="Wordmark à monogramme intégré · italique" code="B.01"
+        style={{minHeight: 360, padding: 80}}>
+        <WordmarkB size={132} color={Y.ink} accent={Y.sepia}/>
+      </Tile>
+
+      <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 16}}>
+        <Tile tone="cream" label="Compact" code="B.02">
+          <WordmarkB size={56} color={Y.ink} accent={Y.sepia}/>
+        </Tile>
+        <Tile tone="cream" label="Détail · le Y seul" code="B.03">
+          <YSankofa size={140} color={Y.ink} accent={Y.sepia}/>
+        </Tile>
+        <Tile tone="cream" label="Sans accent · monochrome" code="B.04">
+          <WordmarkB size={56} color={Y.ink} accent={Y.ink}/>
+        </Tile>
+      </div>
+
+      <div style={{marginTop: 64, marginBottom: 24}}>
+        <Eyebrow>Études de tagline</Eyebrow>
+      </div>
+      <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16}}>
+        {[
+          ['D\'où l\'on vient ensemble', 'collectif chaleureux'],
+          ['Nos racines en commun', 'le plus direct'],
+          ['Une mémoire à plusieurs', 'le plus humain'],
+        ].map(([t, n], i) => (
+          <Tile key={t} tone={i===1?'ivory':'cream'} label={`Tagline ${String.fromCharCode(945+i)}`} code={`B.0${5+i}`}
+            style={{padding: 48, alignItems: 'flex-start', justifyContent: 'flex-start', flexDirection: 'column', gap: 24}}>
+            <WordmarkB size={48} color={Y.ink} accent={Y.sepia}/>
+            <div style={{
+              fontFamily: MONO, fontSize: 11, color: Y.ink2,
+              letterSpacing: '0.16em', textTransform: 'uppercase',
+              paddingTop: 12, borderTop: `1px solid ${Y.line2}`, alignSelf: 'stretch',
+              marginTop: 'auto',
+            }}>{t}</div>
+            <div style={{fontFamily: MONO, fontSize: 9, color: Y.ink4, letterSpacing: '0.06em'}}>note · {n}</div>
+          </Tile>
+        ))}
+      </div>
+
+      <div style={{marginTop: 64, marginBottom: 24}}>
+        <Eyebrow>Déclinaisons techniques</Eyebrow>
+      </div>
+      <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 16}}>
+        <Tile tone="cream" label="App icon · 512" code="B.08" style={{minHeight: 200}}>
+          <div style={{
+            width: 160, height: 160, background: Y.ivory,
+            border: `1px solid ${Y.line2}`, borderRadius: 32,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 6px 24px rgba(40,28,12,0.12)',
+          }}>
+            <YSankofa size={120} color={Y.ink} accent={Y.sepia}/>
+          </div>
+        </Tile>
+        <Tile tone="cream" label="Favicon · 32" code="B.09" style={{minHeight: 200}}>
+          <div style={{display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'center'}}>
+            <div style={{padding: 8, background: Y.ivory, border: `1px solid ${Y.line2}`}}>
+              <YSankofa size={36} color={Y.ink} accent={Y.sepia}/>
+            </div>
+            <div style={{fontFamily: MONO, fontSize: 9, color: Y.ink4, letterSpacing: '0.05em'}}>32 × 32 px</div>
+          </div>
+        </Tile>
+        <Tile tone="cream" label="Inversé" code="B.10" style={{minHeight: 200, background: Y.ink}}>
+          <WordmarkB size={56} color={Y.ivory} accent="#D9A56A"/>
+        </Tile>
+        <Tile tone="cream" label="Monochrome" code="B.11" style={{minHeight: 200}}>
+          <WordmarkB size={56} color={Y.ink} accent={Y.ink}/>
+        </Tile>
+      </div>
+
+      <div style={{marginTop: 16}}>
+        <Tile tone="ivory" label="TopBar · 48 px" code="B.12"
+          style={{padding: 0, minHeight: 0, alignItems: 'stretch'}}>
+          <div style={{
+            height: 48, padding: '0 18px', display: 'flex', alignItems: 'center', gap: 8,
+            borderBottom: `1px solid ${Y.line2}`, width: '100%',
+            background: `linear-gradient(${Y.cream}, ${Y.ivory})`,
+          }}>
+            <WordmarkB size={22} color={Y.ink} accent={Y.sepia}/>
+            <span style={{
+              fontFamily: MONO, fontSize: 10, color: Y.ink3,
+              letterSpacing: '0.1em', textTransform: 'uppercase', marginLeft: 24,
+            }}>Famille Lefèvre</span>
+            <span style={{flex: 1}}/>
+            <span style={{fontFamily: MONO, fontSize: 10, color: Y.ink4, letterSpacing: '0.05em'}}>chapitre · Rivière</span>
+          </div>
+        </Tile>
+      </div>
+
+      <div style={{marginTop: 16}}>
+        <Tile tone="ivory" label="Splash 1440 × 900" code="B.13"
+          style={{minHeight: 0, padding: 0}}>
+          <div style={{
+            width: '100%', aspectRatio: '1440/900', background: Y.ivory,
+            position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: `1px solid ${Y.line2}`,
+          }}>
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 32}}>
+              <WordmarkB size={120} color={Y.ink} accent={Y.sepia}/>
+              <div style={{width: 64, height: 1, background: Y.line}}/>
+              <span style={{
+                fontFamily: MONO, fontSize: 13, color: Y.ink2,
+                letterSpacing: '0.22em', textTransform: 'uppercase',
+              }}>D'où l'on vient ensemble</span>
+            </div>
+            <span style={{
+              position: 'absolute', bottom: 32, right: 48,
+              fontFamily: MONO, fontSize: 10, color: Y.ink3, letterSpacing: '0.1em',
+            }}>v 1.0 · 2026</span>
+          </div>
+        </Tile>
+      </div>
+
+      <div style={{
+        marginTop: 64, padding: '48px 0', borderTop: `1px solid ${Y.line}`,
+        display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 48,
+      }}>
+        <div>
+          <Eyebrow>Symbole retenu</Eyebrow>
+          <p style={{fontFamily: COR, fontSize: 15, lineHeight: 1.6, color: Y.ink2, margin: '12px 0 0'}}>
+            <strong style={{color: Y.ink}}>Sankofa</strong>, mais fondu dans la première lettre. La branche droite du Y se courbe vers l'arrière, comme la tête qui se retourne. L'œuf, en sépia, est inscrit dans le creux du V.
+          </p>
+        </div>
+        <div>
+          <Eyebrow>Construction</Eyebrow>
+          <p style={{fontFamily: COR, fontSize: 15, lineHeight: 1.6, color: Y.ink2, margin: '12px 0 0'}}>
+            Hauteur de cap 64 unités. La branche droite quitte la diagonale standard à mi-hauteur, décrit un quart de cercle de rayon 14, retourne vers le centre. Tracé monoline 2.4 unités. L'œuf est un cercle de rayon 3.2, centré dans le V à 32 unités du sommet.
+          </p>
+        </div>
+        <div>
+          <Eyebrow>Espace de protection</Eyebrow>
+          <p style={{fontFamily: COR, fontSize: 15, lineHeight: 1.6, color: Y.ink2, margin: '12px 0 0'}}>
+            Égale à la hauteur de la lettre o du wordmark. Le Y monogramme ne doit jamais être utilisé seul à moins de 24 px : en dessous, basculer sur la version Direction A.
+          </p>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+window.DirB = DirB;
+
+
+/* === yk-dir-c.jsx === */
+// Yeboekun — Direction C : Sceau / cachet d'éditeur
+// Pictogramme Sankofa inscrit dans un cercle, wordmark en capitales tracking large.
+
+
+function DirC() {
+  return (
+    <Section tone="paper" id="direction-c" style={{padding: '120px 96px'}}>
+      <DirectionHeader
+        letter="C"
+        name="Sceau d'éditeur"
+        accent={Y.rust}
+        subtitle="Composition centrée verticale. Pictogramme circulaire qui évoque le sceau, le cachet, la marque imprimée. Wordmark en capitales tracking large, comme une devise gravée. Plus institutionnel, plus solennel."
+        reference="Sceaux d'éditeurs anciens, marques d'imprimeurs du XVIᵉ. Logo de la NRF, blasons de bibliothèques. Une forme close, dense, à laquelle on ne peut rien ajouter."
+      />
+
+      <Tile tone="paper" label="Composition principale · sceau centré" code="C.01"
+        style={{minHeight: 420, padding: 80}}>
+        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 32}}>
+          <SankofaC size={144} color={Y.ink} accent={Y.rust} stroke={1.6}/>
+          <div style={{width: 40, height: 1, background: Y.line}}/>
+          <WordmarkC size={22}/>
+        </div>
+      </Tile>
+
+      <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 16}}>
+        <Tile tone="paper" label="Sceau seul" code="C.02">
+          <SankofaC size={88} color={Y.ink} accent={Y.rust} stroke={1.6}/>
+        </Tile>
+        <Tile tone="paper" label="Horizontal · usage in-line" code="C.03">
+          <div style={{display: 'flex', alignItems: 'center', gap: 18}}>
+            <SankofaC size={48} color={Y.ink} accent={Y.rust} stroke={1.8}/>
+            <WordmarkC size={16}/>
+          </div>
+        </Tile>
+        <Tile tone="paper" label="Empilé compact" code="C.04">
+          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14}}>
+            <SankofaC size={64} color={Y.ink} accent={Y.rust} stroke={1.8}/>
+            <WordmarkC size={13}/>
+          </div>
+        </Tile>
+      </div>
+
+      <div style={{marginTop: 64, marginBottom: 24}}>
+        <Eyebrow>Études de tagline</Eyebrow>
+      </div>
+      <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16}}>
+        {[
+          ['Nous avons un socle commun', 'la traduction littérale'],
+          ['L\'histoire en partage', 'le plus institutionnel'],
+          ['La mémoire des liens', 'le plus poétique'],
+        ].map(([t, n], i) => (
+          <Tile key={t} tone={i===1?'ivory':'paper'} label={`Tagline ${String.fromCharCode(945+i)}`} code={`C.0${5+i}`}
+            style={{padding: 48}}>
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16}}>
+              <SankofaC size={68} color={Y.ink} accent={Y.rust} stroke={1.6}/>
+              <div style={{width: 32, height: 1, background: Y.line}}/>
+              <WordmarkC size={15}/>
+              <div style={{
+                fontFamily: COR, fontSize: 14, fontStyle: 'italic',
+                color: Y.ink2, marginTop: 8, textAlign: 'center',
+              }}>« {t} »</div>
+              <div style={{fontFamily: MONO, fontSize: 9, color: Y.ink4, letterSpacing: '0.06em'}}>note · {n}</div>
+            </div>
+          </Tile>
+        ))}
+      </div>
+
+      <div style={{marginTop: 64, marginBottom: 24}}>
+        <Eyebrow>Déclinaisons techniques</Eyebrow>
+      </div>
+      <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 16}}>
+        <Tile tone="paper" label="App icon · 512" code="C.08" style={{minHeight: 200}}>
+          <div style={{
+            width: 160, height: 160, background: Y.ivory,
+            border: `1px solid ${Y.line2}`, borderRadius: 32,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 6px 24px rgba(40,28,12,0.12)',
+          }}>
+            <SankofaC size={120} color={Y.ink} accent={Y.rust} stroke={2}/>
+          </div>
+        </Tile>
+        <Tile tone="paper" label="Favicon · 32" code="C.09" style={{minHeight: 200}}>
+          <div style={{display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'center'}}>
+            <div style={{padding: 8, background: Y.ivory, border: `1px solid ${Y.line2}`}}>
+              <SankofaC size={32} color={Y.ink} accent={Y.rust} stroke={2}/>
+            </div>
+            <div style={{fontFamily: MONO, fontSize: 9, color: Y.ink4, letterSpacing: '0.05em'}}>32 × 32 px</div>
+          </div>
+        </Tile>
+        <Tile tone="paper" label="Inversé" code="C.10" style={{minHeight: 200, background: Y.ink}}>
+          <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18}}>
+            <SankofaC size={88} color={Y.ivory} accent="#D9764A" stroke={1.6}/>
+            <WordmarkC size={12} color={Y.ivory}/>
+          </div>
+        </Tile>
+        <Tile tone="paper" label="Monochrome" code="C.11" style={{minHeight: 200}}>
+          <SankofaC size={88} color={Y.ink} accent={Y.ink} stroke={1.6}/>
+        </Tile>
+      </div>
+
+      <div style={{marginTop: 16}}>
+        <Tile tone="ivory" label="TopBar · 48 px" code="C.12"
+          style={{padding: 0, minHeight: 0, alignItems: 'stretch'}}>
+          <div style={{
+            height: 48, padding: '0 18px', display: 'flex', alignItems: 'center', gap: 14,
+            borderBottom: `1px solid ${Y.line2}`, width: '100%',
+            background: `linear-gradient(${Y.cream}, ${Y.ivory})`,
+          }}>
+            <SankofaC size={28} color={Y.ink} accent={Y.rust} stroke={2}/>
+            <WordmarkC size={11}/>
+            <span style={{
+              fontFamily: MONO, fontSize: 10, color: Y.ink3,
+              letterSpacing: '0.1em', textTransform: 'uppercase', marginLeft: 18,
+            }}>Famille Lefèvre</span>
+            <span style={{flex: 1}}/>
+            <span style={{fontFamily: MONO, fontSize: 10, color: Y.ink4, letterSpacing: '0.05em'}}>chapitre · Album</span>
+          </div>
+        </Tile>
+      </div>
+
+      <div style={{marginTop: 16}}>
+        <Tile tone="ivory" label="Splash 1440 × 900" code="C.13"
+          style={{minHeight: 0, padding: 0}}>
+          <div style={{
+            width: '100%', aspectRatio: '1440/900', background: Y.ivory,
+            position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: `1px solid ${Y.line2}`,
+          }}>
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 36}}>
+              <SankofaC size={196} color={Y.ink} accent={Y.rust} stroke={1.6}/>
+              <div style={{width: 56, height: 1, background: Y.line}}/>
+              <WordmarkC size={28}/>
+              <span style={{
+                fontFamily: COR, fontSize: 18, fontStyle: 'italic',
+                color: Y.ink2, marginTop: 4,
+              }}>« Nous avons un socle commun. »</span>
+            </div>
+            <span style={{
+              position: 'absolute', bottom: 32, right: 48,
+              fontFamily: MONO, fontSize: 10, color: Y.ink3, letterSpacing: '0.1em',
+            }}>v 1.0 · MMXXVI</span>
+          </div>
+        </Tile>
+      </div>
+
+      <div style={{
+        marginTop: 64, padding: '48px 0', borderTop: `1px solid ${Y.line}`,
+        display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 48,
+      }}>
+        <div>
+          <Eyebrow>Symbole retenu</Eyebrow>
+          <p style={{fontFamily: COR, fontSize: 15, lineHeight: 1.6, color: Y.ink2, margin: '12px 0 0'}}>
+            <strong style={{color: Y.ink}}>Sankofa</strong>, inscrit dans un cercle. La forme close évoque le sceau, le cachet d'éditeur, la médaille de bibliothèque. L'œuf, en rouille, perce le tracé comme une marque d'encre.
+          </p>
+        </div>
+        <div>
+          <Eyebrow>Construction</Eyebrow>
+          <p style={{fontFamily: COR, fontSize: 15, lineHeight: 1.6, color: Y.ink2, margin: '12px 0 0'}}>
+            Cercle extérieur de rayon 28 sur grille 64. Oiseau inscrit dans la moitié supérieure, tracé monoline 1.6 unités. L'œuf, à 9h, est tangent au cercle intérieur du tracé. Symétrie verticale conservée pour la base (pattes).
+          </p>
+        </div>
+        <div>
+          <Eyebrow>Espace de protection</Eyebrow>
+          <p style={{fontFamily: COR, fontSize: 15, lineHeight: 1.6, color: Y.ink2, margin: '12px 0 0'}}>
+            Marge égale à 1/4 du diamètre du sceau. Cette zone reste blanche (ivoire), même sur fond coloré. Le wordmark se positionne à au moins 1/2 diamètre sous le sceau, jamais à côté.
+          </p>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+window.DirC = DirC;
+
+
+/* === yk-decision.jsx === */
+// Yeboekun — Decision matrix + footer
+
+
+function Decision() {
+  const rows = [
+    ['Lecture du nom',         'discrète, neutre',       'fondue dans la lettre Y',  'théâtrale, frontale'],
+    ['Reconnaissance Adinkra', 'pour qui sait',          'pour qui regarde de près', 'pour qui s\'arrête'],
+    ['Ton',                    'éditorial · institutionnel', 'contemporain · intime', 'cérémonial · héritage'],
+    ['Échelle minimale',       '24 px',                  '36 px (sinon basculer A)', '32 px'],
+    ['Coût d\'usage',          'faible · stable',        'moyen · police custom',    'moyen · sceau toujours visible'],
+    ['Risque',                 'trop discret',           'illisible si mal rendu',   'trop solennel'],
+  ];
+  return (
+    <Section tone="ivory" style={{padding: '120px 96px'}}>
+      <div style={{display: 'grid', gridTemplateColumns: '320px 1fr', gap: 80}}>
+        <div>
+          <Eyebrow>Synthèse</Eyebrow>
+          <h2 style={{
+            fontFamily: COR, fontStyle: 'italic', fontWeight: 500,
+            fontSize: 56, lineHeight: 0.95, margin: '12px 0 24px',
+            color: Y.ink, letterSpacing: '-0.02em',
+          }}>Comment trancher.</h2>
+          <p style={{fontFamily: COR, fontSize: 16, lineHeight: 1.6, color: Y.ink2, margin: 0, maxWidth: 280}}>
+            Trois partis pris vraiment distincts. Le tableau ci-contre permet de comparer sur les axes qui comptent : reconnaissance, ton, échelle minimale, risque.
+          </p>
+        </div>
+        <div>
+          <div style={{
+            display: 'grid', gridTemplateColumns: '180px 1fr 1fr 1fr',
+            borderTop: `1px solid ${Y.line}`,
+          }}>
+            <div style={{padding: '16px 20px', borderBottom: `1px solid ${Y.line2}`}}/>
+            {[
+              ['A', 'Sankofa éditorial', Y.sepia],
+              ['B', 'Y monogramme',       Y.sepia],
+              ['C', 'Sceau d\'éditeur',   Y.rust],
+            ].map(([l, n, c]) => (
+              <div key={l} style={{
+                padding: '16px 20px', borderBottom: `1px solid ${Y.line2}`,
+                borderLeft: `1px solid ${Y.line2}`,
+              }}>
+                <div style={{display: 'flex', alignItems: 'baseline', gap: 8}}>
+                  <span style={{
+                    fontFamily: COR, fontStyle: 'italic', fontSize: 24,
+                    color: c, fontWeight: 500, lineHeight: 1,
+                  }}>{l}</span>
+                  <span style={{fontFamily: COR, fontStyle: 'italic', fontSize: 17, color: Y.ink, fontWeight: 500}}>{n}</span>
+                </div>
+              </div>
+            ))}
+            {rows.map((r, i) => (
+              <React.Fragment key={i}>
+                <div style={{
+                  padding: '16px 20px', borderBottom: `1px solid ${Y.line2}`,
+                  fontFamily: MONO, fontSize: 10, color: Y.ink3,
+                  letterSpacing: '0.08em', textTransform: 'uppercase',
+                }}>{r[0]}</div>
+                {r.slice(1).map((cell, j) => (
+                  <div key={j} style={{
+                    padding: '16px 20px', borderBottom: `1px solid ${Y.line2}`,
+                    borderLeft: `1px solid ${Y.line2}`,
+                    fontFamily: COR, fontSize: 14.5, color: Y.ink2,
+                    fontStyle: 'italic',
+                  }}>{cell}</div>
+                ))}
+              </React.Fragment>
+            ))}
+          </div>
+
+          <div style={{
+            marginTop: 48, padding: '32px 36px',
+            background: Y.cream, border: `1px solid ${Y.line2}`,
+          }}>
+            <Eyebrow>Recommandation</Eyebrow>
+            <p style={{
+              fontFamily: COR, fontSize: 18, lineHeight: 1.55, color: Y.ink2,
+              margin: '12px 0 0',
+            }}>
+              <strong style={{color: Y.ink}}>Direction A</strong> pour la robustesse — le pictogramme et le wordmark vivent indépendamment et passent toutes les échelles. <strong style={{color: Y.ink}}>Direction B</strong> si la marque doit signer en un seul geste, en pariant sur une exécution typographique soignée. <strong style={{color: Y.ink}}>Direction C</strong> si l'application doit revendiquer son sérieux institutionnel dès la première seconde.
+            </p>
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+function Footer() {
+  return (
+    <Section tone="ink" style={{padding: '64px 96px', color: Y.ivory}}>
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end'}}>
+        <div>
+          <span style={{
+            fontFamily: COR, fontStyle: 'italic', fontSize: 56, fontWeight: 500,
+            color: Y.ivory, letterSpacing: '-0.02em',
+          }}>Yeboekun.</span>
+          <div style={{
+            fontFamily: MONO, fontSize: 11, color: 'rgba(244,239,230,0.55)',
+            letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 12,
+          }}>Identité de marque · spécification v1 · 03 mai 2026</div>
+        </div>
+        <div style={{
+          fontFamily: MONO, fontSize: 10, color: 'rgba(244,239,230,0.45)',
+          letterSpacing: '0.08em', textAlign: 'right', maxWidth: 320, lineHeight: 1.6,
+        }}>
+          Document interne · ne pas diffuser. Toute exécution finale exige la validation typographique (Cormorant Garamond, version sourcée).
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+window.YKDecision = Decision;
+window.YKFooter = Footer;
+
+
+})();
+</script>
+
+<script type="text/babel">
+(() => {
+  const { Hero, Foundations } = window.YK;
+  const { DirA, DirB, DirC, YKDecision, YKFooter } = window;
+  function App() {
+    return (
+      <main>
+        <Hero/>
+        <Foundations/>
+        <DirA/>
+        <DirB/>
+        <DirC/>
+        <YKDecision/>
+        <YKFooter/>
+      </main>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+})();
+</script>
+</body>
+</html>

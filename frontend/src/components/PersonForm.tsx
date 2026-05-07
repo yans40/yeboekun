@@ -1,26 +1,76 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button,
-  Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormControlLabel,
-  Switch,
-  Typography,
-  Chip,
-  Box,
-  Divider,
-  Alert,
-} from '@mui/material';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import TextField from '@mui/material/TextField';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
 import { CreatePersonDto, UpdatePersonDto, Person } from '@/types';
 import { apiService } from '@/services/api';
+import { colors, fonts, radius, spacing } from '@/theme/tokens';
+
+// ─── NativeSelect ─────────────────────────────────────────────────────────────
+interface NativeSelectProps {
+  label: string;
+  value: string | number;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  disabled?: boolean;
+  size?: 'small' | 'medium';
+  children: React.ReactNode;
+}
+const NativeSelect: React.FC<NativeSelectProps> = ({ label, value, onChange, disabled, size = 'medium', children }) => {
+  const isSmall = size === 'small';
+  return (
+    <div style={{ position: 'relative', width: '100%' }}>
+      <label style={{
+        display: 'block',
+        marginBottom: 4,
+        fontFamily: fonts.sans,
+        fontSize: isSmall ? 11 : 12,
+        fontWeight: 500,
+        color: colors.ink3,
+        letterSpacing: '0.03em',
+      }}>
+        {label}
+      </label>
+      <select
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        style={{
+          width: '100%',
+          padding: isSmall ? '5px 28px 5px 8px' : '10px 32px 10px 12px',
+          fontFamily: fonts.sans,
+          fontSize: isSmall ? 13 : 14,
+          color: disabled ? colors.ink4 : colors.ink,
+          backgroundColor: disabled ? colors.paper2 : colors.cream,
+          border: `1px solid ${colors.line}`,
+          borderRadius: radius.sm,
+          appearance: 'none',
+          WebkitAppearance: 'none',
+          cursor: disabled ? 'not-allowed' : 'pointer',
+          outline: 'none',
+          lineHeight: 1.5,
+          boxSizing: 'border-box',
+        }}
+      >
+        {children}
+      </select>
+      {/* Chevron */}
+      <span style={{
+        position: 'absolute',
+        right: isSmall ? 8 : 10,
+        bottom: isSmall ? 6 : 11,
+        pointerEvents: 'none',
+        color: colors.ink3,
+        fontSize: 10,
+        lineHeight: 1,
+      }}>▾</span>
+    </div>
+  );
+};
 
 interface PersonFormProps {
   open: boolean;
@@ -31,6 +81,210 @@ interface PersonFormProps {
   persons?: Person[];   // liste pour les selects père/mère (mode création)
   title?: string;
 }
+
+// ─── NativeButton ─────────────────────────────────────────────────────────────
+
+type BtnVariant = 'contained' | 'outlined' | 'text';
+
+interface NativeBtnProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: BtnVariant;
+  color?: 'primary' | 'error';
+  size?: 'small' | 'medium';
+}
+
+const NativeBtn: React.FC<NativeBtnProps> = ({ variant = 'text', color = 'primary', size = 'medium', style, children, ...rest }) => {
+  const accent = color === 'error' ? colors.rust : colors.ocean;
+  const isSmall = size === 'small';
+
+  const base: React.CSSProperties = {
+    display:        'inline-flex',
+    alignItems:     'center',
+    justifyContent: 'center',
+    padding:        isSmall ? `${spacing[1]}px ${spacing[2]}px` : `${spacing[2]}px ${spacing[4]}px`,
+    fontFamily:     fonts.sans,
+    fontSize:       isSmall ? 12 : 14,
+    fontWeight:     500,
+    borderRadius:   radius.sm,
+    cursor:         'pointer',
+    transition:     'background 150ms ease, opacity 150ms ease',
+    lineHeight:     1.5,
+    whiteSpace:     'nowrap',
+  };
+
+  const variants: Record<BtnVariant, React.CSSProperties> = {
+    contained: { backgroundColor: accent, color: colors.cream, border: 'none' },
+    outlined:  { backgroundColor: 'transparent', color: accent, border: `1px solid ${accent}` },
+    text:      { backgroundColor: 'transparent', color: accent, border: 'none' },
+  };
+
+  const disabledStyle: React.CSSProperties = rest.disabled
+    ? { opacity: 0.45, cursor: 'not-allowed', pointerEvents: 'none' }
+    : {};
+
+  return (
+    <button {...rest} style={{ ...base, ...variants[variant], ...disabledStyle, ...style }}>
+      {children}
+    </button>
+  );
+};
+
+// ─── Sous-composants natifs ───────────────────────────────────────────────────
+
+/** Remplace MUI Alert severity="error" */
+const NativeAlert: React.FC<{ children: React.ReactNode; onClose?: () => void }> = ({ children, onClose }) => (
+  <div
+    role="alert"
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: spacing[2],
+      padding: `${spacing[2]}px ${spacing[3]}px`,
+      backgroundColor: '#fef2f2',
+      border: `1px solid ${colors.rust}`,
+      borderRadius: radius.md,
+      color: colors.rust,
+      fontFamily: fonts.sans,
+      fontSize: 14,
+    }}
+  >
+    <span style={{ fontWeight: 700, flexShrink: 0 }}>✕</span>
+    <span style={{ flex: 1 }}>{children}</span>
+    {onClose && (
+      <button
+        onClick={onClose}
+        aria-label="Fermer"
+        style={{
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          color: colors.rust,
+          fontSize: 18,
+          lineHeight: 1,
+          padding: 0,
+          opacity: 0.7,
+          flexShrink: 0,
+        }}
+      >
+        ×
+      </button>
+    )}
+  </div>
+);
+
+/** Remplace MUI Chip avec onDelete */
+interface NativeChipProps {
+  label: string;
+  onDelete?: () => void;
+  colorVariant?: 'primary' | 'secondary';
+}
+const NativeChip: React.FC<NativeChipProps> = ({ label, onDelete, colorVariant = 'primary' }) => {
+  const borderColor = colorVariant === 'secondary' ? colors.sepiaLt : colors.ocean;
+  const textColor   = colorVariant === 'secondary' ? colors.sepia   : colors.ocean;
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: spacing[1],
+        padding: `2px ${spacing[2]}px`,
+        border: `1px solid ${borderColor}`,
+        borderRadius: radius.pill,
+        fontSize: 12,
+        fontFamily: fonts.sans,
+        color: textColor,
+        backgroundColor: 'transparent',
+        lineHeight: '20px',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {label}
+      {onDelete && (
+        <button
+          onClick={onDelete}
+          aria-label={`Supprimer ${label}`}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: textColor,
+            fontSize: 14,
+            lineHeight: 1,
+            padding: 0,
+            opacity: 0.7,
+          }}
+        >
+          ×
+        </button>
+      )}
+    </span>
+  );
+};
+
+/** Remplace MUI Switch */
+const NativeSwitch: React.FC<{
+  checked: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  id: string;
+  label: string;
+}> = ({ checked, onChange, id, label }) => (
+  <label
+    htmlFor={id}
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: spacing[2],
+      cursor: 'pointer',
+      fontFamily: fonts.sans,
+      fontSize: 14,
+      color: colors.ink2,
+      userSelect: 'none',
+    }}
+  >
+    <span
+      style={{
+        position: 'relative',
+        width: 36,
+        height: 20,
+        display: 'inline-block',
+      }}
+    >
+      <input
+        id={id}
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        style={{ opacity: 0, width: 0, height: 0, position: 'absolute' }}
+      />
+      {/* Track */}
+      <span
+        style={{
+          position: 'absolute',
+          inset: 0,
+          borderRadius: radius.pill,
+          backgroundColor: checked ? colors.ocean : colors.line,
+          transition: 'background-color 200ms ease',
+        }}
+      />
+      {/* Thumb */}
+      <span
+        style={{
+          position: 'absolute',
+          top: 2,
+          left: checked ? 18 : 2,
+          width: 16,
+          height: 16,
+          borderRadius: '50%',
+          backgroundColor: '#fff',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+          transition: 'left 200ms ease',
+        }}
+      />
+    </span>
+    {label}
+  </label>
+);
+
+// ─── PersonForm ───────────────────────────────────────────────────────────────
 
 const PersonForm: React.FC<PersonFormProps> = ({
   open,
@@ -149,7 +403,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -252,9 +506,11 @@ const PersonForm: React.FC<PersonFormProps> = ({
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
-        <Typography variant="h6">{title}</Typography>
+        <h6 style={{ margin: 0, fontFamily: fonts.serif, fontWeight: 600, fontSize: '1.25rem', color: colors.ink }}>
+          {title}
+        </h6>
       </DialogTitle>
-      
+
       <form onSubmit={handleSubmit}>
         <DialogContent>
           <Grid container spacing={2}>
@@ -269,7 +525,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
                 required
               />
             </Grid>
-            
+
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
@@ -292,18 +548,15 @@ const PersonForm: React.FC<PersonFormProps> = ({
             </Grid>
 
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel>Genre</InputLabel>
-                <Select
-                  value={formData.gender}
-                  onChange={handleChange('gender')}
-                  label="Genre"
-                >
-                  <MenuItem value="M">Homme</MenuItem>
-                  <MenuItem value="F">Femme</MenuItem>
-                  <MenuItem value="O">Autre</MenuItem>
-                </Select>
-              </FormControl>
+              <NativeSelect
+                label="Genre"
+                value={formData.gender}
+                onChange={handleChange('gender') as any}
+              >
+                <option value="M">Homme</option>
+                <option value="F">Femme</option>
+                <option value="O">Autre</option>
+              </NativeSelect>
             </Grid>
 
             <Grid item xs={12} sm={6}>
@@ -354,39 +607,33 @@ const PersonForm: React.FC<PersonFormProps> = ({
             {!person && persons.length > 0 && (
               <>
                 <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <InputLabel>Père (optionnel)</InputLabel>
-                    <Select
-                      value={parent1Id}
-                      onChange={(e) => setParent1Id(e.target.value as number | '')}
-                      label="Père (optionnel)"
-                    >
-                      <MenuItem value=""><em>Aucun</em></MenuItem>
-                      {persons
-                        .filter(p => p.gender === 'M' || p.gender === 'O' || p.gender === null)
-                        .map(p => (
-                          <MenuItem key={p.id} value={p.id}>{p.fullName}</MenuItem>
-                        ))}
-                    </Select>
-                  </FormControl>
+                  <NativeSelect
+                    label="Père (optionnel)"
+                    value={parent1Id}
+                    onChange={(e) => setParent1Id(e.target.value === '' ? '' : Number(e.target.value))}
+                  >
+                    <option value="">Aucun</option>
+                    {persons
+                      .filter(p => p.gender === 'M' || p.gender === 'O' || p.gender === null)
+                      .map(p => (
+                        <option key={p.id} value={p.id}>{p.fullName}</option>
+                      ))}
+                  </NativeSelect>
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <InputLabel>Mère (optionnel)</InputLabel>
-                    <Select
-                      value={parent2Id}
-                      onChange={(e) => setParent2Id(e.target.value as number | '')}
-                      label="Mère (optionnel)"
-                    >
-                      <MenuItem value=""><em>Aucune</em></MenuItem>
-                      {persons
-                        .filter(p => p.gender === 'F' || p.gender === 'O' || p.gender === null)
-                        .map(p => (
-                          <MenuItem key={p.id} value={p.id}>{p.fullName}</MenuItem>
-                        ))}
-                    </Select>
-                  </FormControl>
+                  <NativeSelect
+                    label="Mère (optionnel)"
+                    value={parent2Id}
+                    onChange={(e) => setParent2Id(e.target.value === '' ? '' : Number(e.target.value))}
+                  >
+                    <option value="">Aucune</option>
+                    {persons
+                      .filter(p => p.gender === 'F' || p.gender === 'O' || p.gender === null)
+                      .map(p => (
+                        <option key={p.id} value={p.id}>{p.fullName}</option>
+                      ))}
+                  </NativeSelect>
                 </Grid>
               </>
             )}
@@ -414,14 +661,11 @@ const PersonForm: React.FC<PersonFormProps> = ({
             </Grid>
 
             <Grid item xs={12}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={formData.isAlive}
-                    onChange={handleChange('isAlive')}
-                    color="primary"
-                  />
-                }
+              {/* Remplace MUI FormControlLabel + Switch */}
+              <NativeSwitch
+                id="isAlive-switch"
+                checked={formData.isAlive}
+                onChange={handleChange('isAlive')}
                 label="Personne vivante"
               />
             </Grid>
@@ -431,22 +675,40 @@ const PersonForm: React.FC<PersonFormProps> = ({
               <>
                 {relationError && (
                   <Grid item xs={12}>
-                    <Alert severity="error" onClose={() => setRelationError(null)} sx={{ mb: 1 }}>
+                    <NativeAlert onClose={() => setRelationError(null)}>
                       {relationError}
-                    </Alert>
+                    </NativeAlert>
                   </Grid>
                 )}
                 <Grid item xs={12}>
                   <Divider sx={{ my: 1 }} />
-                  <Typography variant="subtitle2" sx={{ mb: 0.5, color: 'text.secondary' }}>
+                  {/* Remplace MUI Typography subtitle2 */}
+                  <p style={{
+                    margin: `0 0 ${spacing[1]}px`,
+                    fontFamily: fonts.sans,
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    color: colors.ink3,
+                  }}>
                     Parents
-                  </Typography>
-                  <Typography variant="caption" color="text.disabled" sx={{ display: 'block', mb: 1 }}>
+                  </p>
+                  {/* Remplace MUI Typography caption */}
+                  <span style={{
+                    display: 'block',
+                    marginBottom: spacing[2],
+                    fontFamily: fonts.sans,
+                    fontSize: '0.75rem',
+                    color: colors.ink4,
+                  }}>
                     Les ajouts et suppressions sont enregistrés immédiatement.
-                  </Typography>
+                  </span>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
                     {currentParents.length === 0 && (
-                      <Typography variant="body2" color="text.disabled">Aucun parent enregistré</Typography>
+                      <span style={{ fontFamily: fonts.sans, fontSize: 14, color: colors.ink4 }}>
+                        Aucun parent enregistré
+                      </span>
                     )}
                     {[...currentParents]
                       .sort((a, b) => {
@@ -456,73 +718,80 @@ const PersonForm: React.FC<PersonFormProps> = ({
                       .map(p => {
                         const parentLabel = p.gender === 'M' ? 'Père' : p.gender === 'F' ? 'Mère' : 'Parent';
                         return (
-                          <Chip
+                          <NativeChip
                             key={p.id}
                             label={`${parentLabel} : ${p.fullName}`}
                             onDelete={() => handleRemoveParent(p.id)}
-                            size="small"
-                            color="primary"
-                            variant="outlined"
+                            colorVariant="primary"
                           />
                         );
                       })}
                   </Box>
-                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                    <FormControl size="small" sx={{ flex: 1 }}>
-                      <InputLabel>Ajouter un parent</InputLabel>
-                      <Select
-                        value={newParentId}
-                        onChange={(e) => setNewParentId(e.target.value as number | '')}
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
+                    <div style={{ flex: 1 }}>
+                      <NativeSelect
                         label="Ajouter un parent"
+                        value={newParentId}
+                        onChange={(e) => setNewParentId(e.target.value === '' ? '' : Number(e.target.value))}
+                        size="small"
                       >
-                        <MenuItem value=""><em>Choisir...</em></MenuItem>
+                        <option value="">Choisir...</option>
                         {persons
                           .filter(p => p.id !== person.id && !currentParents.some(cp => cp.id === p.id))
-                          .map(p => <MenuItem key={p.id} value={p.id}>{p.fullName}</MenuItem>)}
-                      </Select>
-                    </FormControl>
-                    <Button variant="outlined" size="small" onClick={handleAddParent} disabled={newParentId === ''}>
+                          .map(p => <option key={p.id} value={p.id}>{p.fullName}</option>)}
+                      </NativeSelect>
+                    </div>
+                    <NativeBtn variant="outlined" size="small" onClick={handleAddParent} disabled={newParentId === ''}>
                       Ajouter
-                    </Button>
+                    </NativeBtn>
                   </Box>
                 </Grid>
 
                 <Grid item xs={12}>
-                  <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary' }}>
+                  {/* Remplace MUI Typography subtitle2 */}
+                  <p style={{
+                    margin: `0 0 ${spacing[2]}px`,
+                    fontFamily: fonts.sans,
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    color: colors.ink3,
+                  }}>
                     Enfants
-                  </Typography>
+                  </p>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
                     {currentChildren.length === 0 && (
-                      <Typography variant="body2" color="text.disabled">Aucun enfant enregistré</Typography>
+                      <span style={{ fontFamily: fonts.sans, fontSize: 14, color: colors.ink4 }}>
+                        Aucun enfant enregistré
+                      </span>
                     )}
                     {currentChildren.map(c => (
-                      <Chip
+                      <NativeChip
                         key={c.id}
                         label={c.fullName}
                         onDelete={() => handleRemoveChild(c.id)}
-                        size="small"
-                        color="secondary"
-                        variant="outlined"
+                        colorVariant="secondary"
                       />
                     ))}
                   </Box>
-                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                    <FormControl size="small" sx={{ flex: 1 }}>
-                      <InputLabel>Ajouter un enfant</InputLabel>
-                      <Select
-                        value={newChildId}
-                        onChange={(e) => setNewChildId(e.target.value as number | '')}
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
+                    <div style={{ flex: 1 }}>
+                      <NativeSelect
                         label="Ajouter un enfant"
+                        value={newChildId}
+                        onChange={(e) => setNewChildId(e.target.value === '' ? '' : Number(e.target.value))}
+                        size="small"
                       >
-                        <MenuItem value=""><em>Choisir...</em></MenuItem>
+                        <option value="">Choisir...</option>
                         {persons
                           .filter(p => p.id !== person.id && !currentChildren.some(cc => cc.id === p.id))
-                          .map(p => <MenuItem key={p.id} value={p.id}>{p.fullName}</MenuItem>)}
-                      </Select>
-                    </FormControl>
-                    <Button variant="outlined" size="small" onClick={handleAddChild} disabled={newChildId === ''}>
+                          .map(p => <option key={p.id} value={p.id}>{p.fullName}</option>)}
+                      </NativeSelect>
+                    </div>
+                    <NativeBtn variant="outlined" size="small" onClick={handleAddChild} disabled={newChildId === ''}>
                       Ajouter
-                    </Button>
+                    </NativeBtn>
                   </Box>
                 </Grid>
               </>
@@ -534,45 +803,45 @@ const PersonForm: React.FC<PersonFormProps> = ({
           {/* Delete zone — only in edit mode */}
           <div>
             {person && onDelete && !confirmDelete && (
-              <Button
+              <NativeBtn
                 color="error"
                 onClick={() => setConfirmDelete(true)}
                 disabled={loading}
               >
                 Supprimer
-              </Button>
+              </NativeBtn>
             )}
             {person && onDelete && confirmDelete && (
               <>
-                <Button
+                <NativeBtn
                   color="error"
                   variant="contained"
                   onClick={async () => { await onDelete(); onClose(); }}
                   disabled={loading}
-                  sx={{ mr: 1 }}
+                  style={{ marginRight: spacing[1] }}
                 >
                   Confirmer la suppression
-                </Button>
-                <Button onClick={() => setConfirmDelete(false)} disabled={loading}>
+                </NativeBtn>
+                <NativeBtn onClick={() => setConfirmDelete(false)} disabled={loading}>
                   Annuler
-                </Button>
+                </NativeBtn>
               </>
             )}
           </div>
 
           {/* Save / cancel */}
           <div>
-            <Button onClick={onClose} disabled={loading} sx={{ mr: 1 }}>
+            <NativeBtn onClick={onClose} disabled={loading} style={{ marginRight: spacing[1] }}>
               Annuler
-            </Button>
-            <Button
+            </NativeBtn>
+            <NativeBtn
               type="submit"
               variant="contained"
               disabled={loading}
-              sx={{ minWidth: 100 }}
+              style={{ minWidth: 100 }}
             >
               {loading ? 'Enregistrement...' : 'Enregistrer'}
-            </Button>
+            </NativeBtn>
           </div>
         </DialogActions>
       </form>

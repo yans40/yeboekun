@@ -1,0 +1,106 @@
+# QA — Lot 2 : Vue Rivière
+
+> Périmètre : layout horizontal par génération, `PersonChip`, route `/riviere`, feature flag `VUE_RIVIERE_ENABLED`, données mockées jusqu’à branchement API `GET /api/persons/{id}/river-view`.
+> **Responsable QA** : Alma · alignement Claude Code : Iris · Branche de référence : `dev`
+> Baseline perf / bundle : comparer à [BASELINE.md](./BASELINE.md) et aux mesures post–Lot 1 dans [QA_LOT_1_FOUNDATION.md](./QA_LOT_1_FOUNDATION.md) (non-régression raisonnable sur `/`, pas d’objectif chiffré dédié `/riviere` tant que la vue reste mockée).
+
+**État : validé QA Lot 2** — 2026-05-03 · PO (parcours complet checklist).
+
+---
+
+## Contexte livré (à valider)
+
+| Élément | Fichiers / notes |
+|---|---|
+| Vue principale | `frontend/src/views/RiviereView.tsx` — colonnes par `generation`, scroll horizontal + snap, centrage colonne racine au montage |
+| Carte personne | `frontend/src/components/PersonChip.tsx` — 140×56 px, bande genre 4 px (M/F/O) |
+| Flag | `frontend/src/config/featureFlags.ts` — `VUE_RIVIERE_ENABLED` = `import.meta.env.DEV` (**ON** en `npm run dev`, **OFF** en build prod) |
+| Route | `frontend/src/router.tsx` — `/riviere` → `RiviereView` + `riverViewMock` si flag ON, sinon `PlaceholderView` |
+| Types | `RiverViewNode.gender` = **`'M' \| 'F' \| 'O'`** (aligné `Person` / backend) |
+| Tests auto | `frontend/src/__tests__/PersonChip.test.tsx`, `RiviereView.test.tsx` |
+| GenealogyCard | Bande genre **`2px`** (`GenealogyCard.tsx`) — régression visuelle arbre `/` à surveiller |
+
+---
+
+## Checklist Lot 2
+
+Format : `[ ]` à faire · `[x]` fait · `[~]` partiel · `[!]` bloquant
+
+### I. Feature flag & routing
+
+- [x] **riv-flag-1** En **`npm run dev`** : ouvrir `/riviere` → affiche **Vue Rivière** (titre *Vue Rivière*, badge *données mockées*, puces visibles), pas le placeholder *bientôt*.
+- [x] **riv-flag-2** En **`npm run build` + `npm run preview`** (mode prod) : ouvrir `/riviere` → affiche **PlaceholderView** *Rivière* / *bientôt* (flag OFF), pas d’erreur console bloquante. *Confirmé PO en preview (2026-05-03).*
+- [x] **riv-flag-3** Nav TopBar : lien **Rivière** mène à `/riviere` sans 404 (dev et preview selon cas ci-dessus). *Acceptation PO (2026-05-03) : OK en **preview** ; dev déjà couvert par **riv-flag-1**.*
+
+### II. Layout & contenu Vue Rivière
+
+- [x] **riv-layout-1** Une **colonne par génération** présente dans les données ; titres cohérents (ex. *Parents*, *Vous*, *Enfants* sur le jeu minimal mock).
+- [x] **riv-layout-2** **Scroll horizontal** : barre ou gesture accessible ; conteneur `data-testid="riviere-scroll-container"` présent au besoin (tests automatisés OK). *Acceptation PO (2026-05-03) : pas de vérification manuelle du confort de scroll — confiance code + tests, pas de signalement bloquant.*
+- [x] **riv-layout-3** **Snap** : en navigation clavier/souris, le défilement reste utilisable (pas de blocage, pas de double scrollbar verticale intempestive dans le `<main>`). *Même acceptation PO que **riv-layout-2**.*
+- [x] **riv-layout-4** **Conjoints** : deux personnes mariées apparaissent dans la **même colonne** (jeu `riverViewMock` : racine + conjoint gén. 0). *OK PO (2026-05-03).*
+- [x] **riv-layout-5** Badge compteur : **N personnes · M générations** reflète `nodes.length` et l’étendue des générations affichées. *OK PO (2026-05-03).*
+
+### III. PersonChip & légende
+
+- [x] **riv-chip-1** Dimensions perçues **compactes** (~140×56 px), texte lisible (prénom, nom abrégé si long, années / `?` si date manquante).
+- [x] **riv-chip-2** **Bande gauche** : bleu / rouille / brun selon M / F / O (cohérent avec légende pied de page).
+- [x] **riv-chip-3** Personne **décédée** : indication † visible ; **racine** : style distinct + `aria-label` contenant *personne centrale* (cf. tests RTL).
+- [x] **riv-chip-4** **Légende** (*Masculin / Féminin / Autre / Décédé(e)*) affichée et alignée avec les couleurs tokens.
+
+### IV. Accessibilité (vue Rivière)
+
+- [x] **riv-a11y-1** Colonnes : `aria-label` du type **Génération : …** annoncé par lecteur d’écran (ex. *Génération : Vous*). *OK PO + couverture RTL sur structure colonnes (2026-05-03).*
+- [x] **riv-a11y-2** Puces `role="article"` avec **nom accessible** (prénom, nom, dates, état racine/décès comme implémenté). *OK PO + tests RTL `PersonChip` (2026-05-03).*
+- [x] **riv-a11y-3** Si `onPersonClick` est branché plus tard : focus clavier + Entrée/Espace — *au jour J le router ne passe pas `onPersonClick`* : documenter **limitation connue** ou cocher après branchement. *Limitation **acceptée** pour Lot 2 — branchement navigation dans un lot ultérieur.*
+
+### V. Internationalisation (dette connue)
+
+- [x] **riv-i18n-1** Les chaînes de `RiviereView` / `PersonChip` (FR en dur : titres, légende, `generationLabel`, `aria-label`…) sont **inventoriées** ; soit ajoutées à `fr.json` + `t()` dans un **ticket Lot 2bis**, soit acceptées comme **dette** explicite avec date de résolution. *Dette **acceptée** : passage `t()` reporté **Lot 2bis** (ticket backlog).*
+
+### VI. Non-régression arbre vertical (`/`)
+
+- [x] **riv-reg-1** Sur **`/`** : chargement arbre inchangé (pas de régression après modif `GenealogyCard` 2 px). *Acceptation PO (2026-05-03) : pas de régression constatée de ce côté.*
+- [x] **riv-reg-2** **GenealogyCard** : bande genre **2px** visible et correcte sur plusieurs genres (M/F/O) en inspection visuelle ou screenshot comparatif optionnel. *Même acceptation PO.*
+
+### VII. Tests & build automatisés
+
+- [x] **riv-ci-1** `cd frontend && npm run build` — **0 erreur** TypeScript / Vite.
+- [x] **riv-ci-2** `cd frontend && npm test` — au minimum `PersonChip|RiviereView` → **26/26** verts ; suite complète **`npm test`** → **75/75** (2026-05-03).
+- [x] **riv-ci-3** Pas de **`console.error`** non traité sur `/riviere` en dev (hors warnings React/jsdom connus du shell). *OK PO (2026-05-03).*
+
+### VIII. Performance & réseau (optionnel mais recommandé)
+
+- [x] **riv-perf-1** Chunk **`RiviereView`** chargé **lazy** (route déjà en `React.lazy`) — vérifier dans Network que le JS n’est pas téléchargé tant que la route n’est pas visitée **sur une session où le flag expose la vue** (en prod preview, placeholder ne charge pas le chunk Riviere — comportement attendu). *OK PO — lazy confirmé ; preview sans chunk Rivière (2026-05-03).*
+- [x] **riv-perf-2** Si Lighthouse sur `/riviere` en dev : **Accessibility** ≥ seuil Lot 1 (**≥ 95**) ou documenter écart + cause. *Pas de run Lighthouse formel — acceptation PO Lot 2 ; mesure possible en Lot 3.*
+
+### IX. Backend / contrat API (préparation)
+
+- [x] **riv-api-1** Quand l’endpoint **`GET /api/persons/{id}/river-view`** existe : valider que le JSON respecte **`RiverViewData`** (`frontend/src/types/index.ts`) et **`gender`** en **`M` / `F` / `O`** uniquement. *Reporté : endpoint **absent** à date — critère exécuté au **branchement backend** ; types front déjà alignés `O`.*
+- [x] **riv-api-2** Remplacer **`riverViewMock`** par données réelles + gestion erreurs (chargement / vide) — **hors merge Lot 2** si API pas prête ; le cas échéant, ouvrir ticket et laiser flag + mock documentés. *Hors merge Lot 2 — mock conservé ; ticket suivi branchement API.*
+
+---
+
+## Critères de validation du Lot 2
+
+Le Lot 2 est **validé QA** si :
+
+1. Tous les items **sans suffixe optionnel** des sections **I à VII** sont cochés **ou** explicitement reportés avec ticket (API, i18n).
+2. **riv-ci-1** et **riv-ci-2** verts sur la branche mergée.
+3. **riv-reg-1** validé : aucune régression bloquante sur `/`.
+4. Comportement **feature flag** conforme (**dev** = vue réelle, **prod build** = placeholder).
+
+---
+
+## Journal de passage QA
+
+| Date | Agent | Branche / commit | Résultat | Notes |
+|---|---|---|---|---|
+| 2026-05-03 | Alma (automatisé) | `dev` · HEAD local au moment du run | **riv-ci-1** OK · **riv-ci-2** OK (26+75) | Pass build + Jest. Correctif **EditModeModal** : `type="button"` sur *Annuler* (évitait un submit implicite → `onLogin('')`) — aligne la suite sur 75/75. Reste : items manuels I–VI, VIII–IX. |
+| 2026-05-03 | PO humain | `dev` | **riv-layout-2**, **riv-layout-3** OK par dérogation | Scroll / snap non testés au navigateur ; validation explicitement confiée au code + absence de retour bloquant. |
+| 2026-05-03 | PO humain | `dev` | **riv-reg-1**, **riv-reg-2** OK | Non-régression **arbre `/`** + **GenealogyCard** 2px — OK de ce côté (pas de régression signalée). |
+| 2026-05-03 | PO humain | `dev` | **riv-flag-2**, **riv-flag-3** OK | **Preview** : `/riviere` → placeholder + pas d’erreur console bloquante ; lien TopBar **Rivière** → `/riviere` OK. |
+| 2026-05-03 | PO humain | `dev` | **Validation QA Lot 2 — CLOS** | Parcours checklist **100 %** ; dettes : **i18n Lot 2bis**, **API river-view** au branchement, **`onPersonClick`** lot ultérieur. |
+
+---
+
+_Dernière mise à jour : 2026-05-03 — PO : **Lot 2 QA validé** (checklist complète + dettes documentées)_

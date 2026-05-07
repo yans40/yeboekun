@@ -1,5 +1,7 @@
 import React from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import { colors, fonts, spacing } from '../theme/tokens';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -45,12 +47,28 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
           gap={2}
           p={4}
         >
-          <Typography variant="h6" color="error">
+          {/* Remplace MUI Typography variant="h6" color="error" */}
+          <p style={{
+            margin: 0,
+            fontFamily: fonts.serif,
+            fontSize: '1.25rem',
+            fontWeight: 600,
+            color: colors.rust,
+            textAlign: 'center',
+          }}>
             Une erreur inattendue s'est produite.
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
+          </p>
+          {/* Remplace MUI Typography variant="body2" color="text.secondary" */}
+          <p style={{
+            margin: 0,
+            fontFamily: fonts.sans,
+            fontSize: 14,
+            color: colors.ink3,
+            textAlign: 'center',
+            maxWidth: spacing[16] * 5,
+          }}>
             {this.state.error?.message ?? 'Erreur inconnue'}
-          </Typography>
+          </p>
           <Button variant="contained" onClick={this.handleReset}>
             Réessayer
           </Button>
