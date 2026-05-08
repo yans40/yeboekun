@@ -9,3 +9,6 @@
 
 /** Vue Rivière (Lot 2) — layout horizontal par génération. */
 export const VUE_RIVIERE_ENABLED: boolean = import.meta.env.DEV;
+
+/** Vue Contemplation (Lot 3) — éventail SVG ascendants/descendants. */
+export const VUE_CONTEMPLATION_ENABLED: boolean = import.meta.env.DEV;
