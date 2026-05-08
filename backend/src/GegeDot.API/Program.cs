@@ -1,3 +1,5 @@
+using GegeDot.API.Configuration;
+using GegeDot.API.Middleware;
 using GegeDot.Core.Interfaces;
 using GegeDot.Infrastructure.Data;
 using GegeDot.Infrastructure.Repositories;
@@ -7,6 +9,10 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDataProtection();
+builder.Services.Configure<FamilyAccessOptions>(
+    builder.Configuration.GetSection(FamilyAccessOptions.SectionName));
 
 // Add services to the container.
 builder.Services.AddControllers()
@@ -46,25 +52,28 @@ builder.Services.AddScoped<IStatsService, StatsService>();
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(GegeDot.Services.Mappings.MappingProfile));
 
-// CORS
+// CORS — WithCredentials exige des origines explicites (cookies d'accès familial).
+var corsOrigins = builder.Configuration["Cors:Origins"]?.Split(
+    ',',
+    StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+if (corsOrigins is not { Length: > 0 })
+{
+    corsOrigins =
+    [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ];
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        if (builder.Environment.IsDevelopment())
-        {
-            // En développement, autoriser toutes les origines pour faciliter les tests
-            policy.AllowAnyOrigin()
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        }
-        else
-        {
-            // En production, restreindre aux origines spécifiques
-            policy.WithOrigins("http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://localhost:3003", "http://localhost:3004", "http://localhost:3005")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        }
+        policy.WithOrigins(corsOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
@@ -88,7 +97,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowReactApp");
-
+app.UseMiddleware<FamilyAccessMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();

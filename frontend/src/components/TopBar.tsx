@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import Drawer from '@mui/material/Drawer';
 import { colors, fonts } from '../theme/tokens';
 import { useFamilyTreeContext } from '../context/FamilyTreeContext';
+import { logoutFamilyAccess, fetchAccessStatus } from '../services/familyAccess';
 import { VUE_RIVIERE_ENABLED } from '../config/featureFlags';
 import type { Person } from '../types';
 
@@ -159,6 +160,11 @@ export default function TopBar() {
   const [selectorOpen, setSelectorOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [gateEnabled, setGateEnabled] = useState(false);
+
+  useEffect(() => {
+    fetchAccessStatus().then(s => setGateEnabled(s.gateEnabled)).catch(() => {});
+  }, []);
 
   const isMobile     = useMediaQuery('(max-width: 767px)');  // M1 : hamburger
   const isNarrow     = useMediaQuery('(max-width: 599px)');  // M2 : masquer search
@@ -190,12 +196,24 @@ export default function TopBar() {
     onClick: () => handlePersonPick(p),
   }));
 
+  const handleFamilyLogout = useCallback(() => {
+    setAvatarOpen(false);
+    void logoutFamilyAccess().finally(() => {
+      window.location.reload();
+    });
+  }, []);
+
   const avatarItems: DropdownItem[] = [
     {
       key: 'edit-mode',
       label: t('topbar.edit_mode'),
       onClick: handleEditMode,
     },
+    ...(gateEnabled ? [{
+      key: 'family-logout',
+      label: t('topbar.family_logout'),
+      onClick: handleFamilyLogout,
+    }] : []),
   ];
 
   return (
