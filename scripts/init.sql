@@ -54,14 +54,14 @@ CREATE TABLE IF NOT EXISTS Trees (
     FOREIGN KEY (RootPersonId) REFERENCES Persons(Id) ON DELETE SET NULL
 );
 
-CREATE INDEX IF NOT EXISTS IX_Persons_LastName ON Persons(LastName);
-CREATE INDEX IF NOT EXISTS IX_Persons_BirthDate ON Persons(BirthDate);
-CREATE INDEX IF NOT EXISTS IX_Persons_FullName ON Persons(FirstName, LastName);
+CREATE INDEX IX_Persons_LastName ON Persons(LastName);
+CREATE INDEX IX_Persons_BirthDate ON Persons(BirthDate);
+CREATE INDEX IX_Persons_FullName ON Persons(FirstName, LastName);
 
-CREATE INDEX IF NOT EXISTS IX_Relationships_Person1 ON Relationships(Person1Id);
-CREATE INDEX IF NOT EXISTS IX_Relationships_Person2 ON Relationships(Person2Id);
-CREATE INDEX IF NOT EXISTS IX_Relationships_Type ON Relationships(RelationshipType);
-CREATE INDEX IF NOT EXISTS IX_Relationships_Person1_Type ON Relationships(Person1Id, RelationshipType);
-CREATE INDEX IF NOT EXISTS IX_Relationships_Person2_Type ON Relationships(Person2Id, RelationshipType);
+CREATE INDEX IX_Relationships_Person1 ON Relationships(Person1Id);
+CREATE INDEX IX_Relationships_Person2 ON Relationships(Person2Id);
+CREATE INDEX IX_Relationships_Type ON Relationships(RelationshipType);
+CREATE INDEX IX_Relationships_Person1_Type ON Relationships(Person1Id, RelationshipType);
+CREATE INDEX IX_Relationships_Person2_Type ON Relationships(Person2Id, RelationshipType);
 
-CREATE INDEX IF NOT EXISTS IX_Trees_RootPerson ON Trees(RootPersonId);
+CREATE INDEX IX_Trees_RootPerson ON Trees(RootPersonId);

@@ -74,5 +74,22 @@
     "close": "Fermer",
     "confirm": "Confirmer",
     "back": "Retour"
+  },
+  "contemplation": {
+    "aria_label": "Éventail généalogique centré sur {{name}}",
+    "eyebrow": "MODE CONTEMPLATION",
+    "header_line1": "Ce qui nous précède,",
+    "header_line2": "ce qui nous suit.",
+    "chip_up": "↑ {{count}} génération(s) ascendantes",
+    "chip_down": "↓ {{count}} génération(s) descendantes",
+    "axis_up": "↑ Ascendants · {{count}} génération(s)",
+    "axis_down": "↓ Descendants · {{count}} génération(s)",
+    "legend_up": "ASCENDANTS",
+    "legend_down": "DESCENDANTS",
+    "legend_unknown": "À RECHERCHER",
+    "meta": "{{total}} personnes · {{pct}}% connues",
+    "no_selection": "Choisissez une personne pour contempler son arbre.",
+    "no_selection_hint": "Utilisez la barre de recherche ou la liste pour sélectionner une personne.",
+    "error_load": "Impossible de charger l'arbre généalogique."
   }
 }

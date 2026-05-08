@@ -505,7 +505,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>
+      <DialogTitle component="div">
         <h6 style={{ margin: 0, fontFamily: fonts.serif, fontWeight: 600, fontSize: '1.25rem', color: colors.ink }}>
           {title}
         </h6>

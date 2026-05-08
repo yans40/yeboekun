@@ -20,11 +20,11 @@ jobs:
 
     - name: Build images
       run: |
-        docker-compose -f docker-compose.yml build
+        docker compose -f docker-compose.yml build
 
     - name: Start services
       run: |
-        docker-compose -f docker-compose.yml up -d
+        docker compose -f docker-compose.yml up -d
         sleep 30
 
     - name: Wait for services to be ready
@@ -33,7 +33,7 @@ jobs:
         timeout 60 bash -c 'until docker exec gegeDot-mysql mysqladmin ping -h"localhost" --silent; do sleep 2; done'
         
         # Attendre que l'API soit prête
-        timeout 60 bash -c 'until curl -f http://localhost:5000/swagger; do sleep 2; done'
+        timeout 60 bash -c 'until curl -f http://localhost:5001/api/persons; do sleep 2; done'
         
         # Attendre que le frontend soit prêt
         timeout 60 bash -c 'until curl -f http://localhost:3000; do sleep 2; done'
@@ -41,10 +41,10 @@ jobs:
     - name: Test API endpoints
       run: |
         # Test de l'endpoint des personnes
-        curl -f http://localhost:5000/api/persons || exit 1
+        curl -f http://localhost:5001/api/persons || exit 1
         
         # Test de création d'une personne
-        curl -X POST http://localhost:5000/api/persons \
+        curl -X POST http://localhost:5001/api/persons \
           -H "Content-Type: application/json" \
           -d '{"firstName":"Test","lastName":"User","gender":"M"}' || exit 1
 
@@ -66,5 +66,5 @@ jobs:
     - name: Cleanup
       if: always()
       run: |
-        docker-compose -f docker-compose.yml down -v
+        docker compose -f docker-compose.yml down -v
         docker system prune -f

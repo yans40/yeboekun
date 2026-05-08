@@ -20,6 +20,7 @@ public class PersonsControllerTests
     private readonly Mock<IPersonRepository> _personsRepo = new();
     private readonly Mock<IRelationshipRepository> _relRepo = new();
     private readonly Mock<IMapper> _mapper = new();
+    private readonly Mock<ITreeTraversalService> _treeService = new();
     private readonly PersonsController _controller;
 
     public PersonsControllerTests()
@@ -32,7 +33,8 @@ public class PersonsControllerTests
             _duplicateService.Object,
             _uow.Object,
             _mapper.Object,
-            NullLogger<PersonsController>.Instance);
+            NullLogger<PersonsController>.Instance,
+            _treeService.Object);
     }
 
     // ── GET ─────────────────────────────────────────────────────────────────

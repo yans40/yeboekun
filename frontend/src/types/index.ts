@@ -208,6 +208,32 @@ export interface PersonWithRelations extends Person {
   parent2Id?: number;
 }
 
+// ─── Vue Contemplation types (endpoint GET /api/persons/{id}/tree?up=N&down=N) ──
+
+/**
+ * Nœud retourné par GET /api/persons/{id}/tree.
+ * Les dates sont au format "yyyy-MM-dd" — ne pas instancier en Date, utiliser .slice(0,4).
+ */
+export interface PersonTreeNodeDto {
+  id: number;
+  firstName: string | null;
+  lastName: string | null;
+  /** Format ISO "yyyy-MM-dd". Afficher tel quel ou .slice(0,4) pour l'année. */
+  birthDate: string | null;
+  deathDate: string | null;
+  gender: 'M' | 'F' | 'O';
+  photoUrl: string | null;
+  /** 0=ego, -1=parents, -2=gparents, +1=enfants, +2=petits-enfants, etc. */
+  generation: number;
+  parentIds: number[];
+  childIds: number[];
+}
+
+export interface PersonTreeDto {
+  rootId: number;
+  nodes: PersonTreeNodeDto[];
+}
+
 // ─── Vue Rivière types (endpoint GET /api/persons/{id}/river-view) ─────────────
 
 export interface RiverViewNode {

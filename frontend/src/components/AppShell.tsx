@@ -17,7 +17,29 @@ export default function AppShell() {
   const { canEdit, enterEditMode, exitEditMode } = useEditMode();
 
   useEffect(() => {
-    apiService.getPersons().then(setPersons).catch(() => {});
+    let cancelled = false;
+    let idleId: number | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    const loadPersons = () => {
+      apiService.getPersons().then((result) => {
+        if (!cancelled) setPersons(result);
+      }).catch(() => {});
+    };
+
+    // Defer non-critical fetch to keep first paint responsive.
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(loadPersons, { timeout: 1200 });
+    } else {
+      timeoutId = globalThis.setTimeout(loadPersons, 250);
+    }
+
+    return () => {
+      cancelled = true;
+      if (typeof window !== 'undefined' && 'cancelIdleCallback' in window && idleId !== null) {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== null) globalThis.clearTimeout(timeoutId);
+    };
   }, []);
 
   const handlePersonSelect = (id: number | null) => setSelectedPersonId(id);

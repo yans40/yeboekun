@@ -16,19 +16,22 @@ public class PersonsController : ControllerBase
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<PersonsController> _logger;
+    private readonly ITreeTraversalService _treeTraversalService;
 
     public PersonsController(
-        IPersonService personService, 
+        IPersonService personService,
         IDuplicateDetectionService duplicateDetectionService,
         IUnitOfWork unitOfWork,
         IMapper mapper,
-        ILogger<PersonsController> logger)
+        ILogger<PersonsController> logger,
+        ITreeTraversalService treeTraversalService)
     {
         _personService = personService;
         _duplicateDetectionService = duplicateDetectionService;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _logger = logger;
+        _treeTraversalService = treeTraversalService;
     }
 
     /// <summary>
@@ -618,6 +621,45 @@ public class PersonsController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erreur lors de la suppression de la relation parent-enfant");
+            return StatusCode(500, "Erreur interne du serveur");
+        }
+    }
+
+    /// <summary>
+    /// Retourne l'arbre généalogique centré sur une personne.
+    /// Convention génération : 0 = racine, -1 = parents, -2 = grands-parents, +1 = enfants, +2 = petits-enfants.
+    /// </summary>
+    /// <param name="id">ID de la personne racine.</param>
+    /// <param name="up">Générations d'ascendants (défaut 4, max 8).</param>
+    /// <param name="down">Générations de descendants (défaut 2, max 4).</param>
+    [HttpGet("{id}/tree")]
+    [ProducesResponseType(typeof(PersonTreeDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<PersonTreeDto>> GetTree(
+        int id,
+        [FromQuery] int up = 4,
+        [FromQuery] int down = 2,
+        CancellationToken cancellationToken = default)
+    {
+        // Clamp des paramètres : on accepte silencieusement les valeurs hors-bornes
+        up   = Math.Clamp(up,   0, 8);
+        down = Math.Clamp(down, 0, 4);
+
+        try
+        {
+            var tree = await _treeTraversalService.BuildTreeAsync(id, up, down, cancellationToken);
+            if (tree is null)
+                return NotFound($"Personne avec l'ID {id} non trouvée");
+
+            _logger.LogInformation(
+                "Arbre construit pour la personne {PersonId} — {NodeCount} nœuds (up={Up}, down={Down})",
+                id, tree.Nodes.Count, up, down);
+
+            return Ok(tree);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur lors de la construction de l'arbre pour la personne {PersonId}", id);
             return StatusCode(500, "Erreur interne du serveur");
         }
     }

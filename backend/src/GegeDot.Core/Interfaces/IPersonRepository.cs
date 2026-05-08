@@ -15,4 +15,31 @@ public interface IPersonRepository
     Task<Person> UpdateAsync(Person person);
     Task<bool> DeleteAsync(int id);
     Task<bool> ExistsAsync(int id);
+
+    // --- Méthodes batch pour la traversée d'arbre (BFS niveau par niveau) ---
+
+    /// <summary>
+    /// Pour chaque ID dans <paramref name="personIds"/>, retourne la liste de ses parents
+    /// (Person1Id quand Type=Parent et Person2Id est dans la liste).
+    /// Une seule requête SQL avec WHERE Person2Id IN (...).
+    /// </summary>
+    Task<Dictionary<int, List<int>>> GetParentIdsBatchAsync(
+        IEnumerable<int> personIds,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Pour chaque ID dans <paramref name="personIds"/>, retourne la liste de ses enfants
+    /// (Person2Id quand Type=Parent et Person1Id est dans la liste).
+    /// Une seule requête SQL avec WHERE Person1Id IN (...).
+    /// </summary>
+    Task<Dictionary<int, List<int>>> GetChildIdsBatchAsync(
+        IEnumerable<int> personIds,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Charge les personnes dont l'ID est dans <paramref name="ids"/> en une seule requête.
+    /// </summary>
+    Task<List<Person>> GetPersonsByIdsAsync(
+        IEnumerable<int> ids,
+        CancellationToken cancellationToken = default);
 }
