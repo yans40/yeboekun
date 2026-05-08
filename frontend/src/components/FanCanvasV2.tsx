@@ -413,7 +413,15 @@ export default function FanCanvasV2({ data }: FanCanvasV2Props) {
   return (
     <div
       data-testid="fan-canvas-v2"
-      style={{ position: 'relative', width: '100%', height: '100%' }}
+      style={{
+        position: 'relative',
+        width: '100%',
+        // M5 : dvh avec fallback vh pour navigateurs sans support dvh
+        height: '100dvh',
+        // Fallback via @supports manquant en inline — on surcharge via minHeight
+        minHeight: '100vh',
+        touchAction: 'none',
+      }}
       role="img"
       aria-label={t('contemplation.aria_label', { name: egoName })}
     >
