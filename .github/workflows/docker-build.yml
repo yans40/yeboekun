@@ -33,7 +33,7 @@ jobs:
         timeout 60 bash -c 'until docker exec gegeDot-mysql mysqladmin ping -h"localhost" --silent; do sleep 2; done'
         
         # Attendre que l'API soit prête
-        timeout 60 bash -c 'until curl -f http://localhost:5001/swagger; do sleep 2; done'
+        timeout 60 bash -c 'until curl -f http://localhost:5001/api/persons; do sleep 2; done'
         
         # Attendre que le frontend soit prêt
         timeout 60 bash -c 'until curl -f http://localhost:3000; do sleep 2; done'
