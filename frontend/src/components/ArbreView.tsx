@@ -1,5 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
-import FanCanvas from './FanCanvas';
+import { lazy, Suspense, useEffect, useState, useRef } from 'react';
 import PersonForm from './PersonForm';
 import { useFamilyTree } from '../hooks/useFamilyTree';
 import { useFamilyTreeContext } from '../context/FamilyTreeContext';
@@ -8,6 +7,7 @@ import apiService from '../services/api';
 import { colors, fonts, radius, shadows, spacing } from '../theme/tokens';
 
 type SnackSeverity = 'success' | 'error' | 'info' | 'warning';
+const FanCanvas = lazy(() => import('./FanCanvas'));
 
 const severityStyles: Record<SnackSeverity, { bg: string; border: string; color: string; icon: string }> = {
   success: { bg: '#f0fdf4', border: colors.forest,  color: colors.forest,  icon: '✓' },
@@ -105,13 +105,15 @@ export default function ArbreView() {
 
   return (
     <>
-      <FanCanvas
-        familyData={familyData}
-        layout={layout}
-        loading={loading}
-        onPersonSelect={id => onPersonSelect(id)}
-        onPersonEdit={canEdit ? handlePersonEdit : undefined}
-      />
+      <Suspense fallback={<div style={{ width: '100%', height: '100%', backgroundColor: colors.paper }} />}>
+        <FanCanvas
+          familyData={familyData}
+          layout={layout}
+          loading={loading}
+          onPersonSelect={id => onPersonSelect(id)}
+          onPersonEdit={canEdit ? handlePersonEdit : undefined}
+        />
+      </Suspense>
 
       <PersonForm
         open={formOpen}
