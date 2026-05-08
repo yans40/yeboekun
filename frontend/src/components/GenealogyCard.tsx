@@ -51,7 +51,7 @@ export const GenealogyCard: React.FC<GenealogyCardProps> = ({
   const dateLabel = birthYear
     ? deathYear
       ? `${birthYear} — ${deathYear}`
-      : `${birthYear} — ${person.isAlive ? 'vivant(e)' : '†'}`
+      : person.isAlive ? birthYear : `${birthYear} — †`
     : null;
 
   const cardStyle: React.CSSProperties = {

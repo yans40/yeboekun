@@ -27,6 +27,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=mysql;Database=gegeDot;Uid=gegedot;Pwd=password;Port=3306;
+      # Garde-fou familial désactivé dans ce compose (CI + dev docker). Pour activer : false + FamilyAccess__Password.
+      - FamilyAccess__Disabled=true
     ports:
       - "5001:5000"
     depends_on:

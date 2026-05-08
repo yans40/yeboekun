@@ -55,7 +55,7 @@ export default function AppShell() {
     }}>
       <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', backgroundColor: colors.paper }}>
         <TopBar />
-        <main style={{ flex: 1, overflow: 'hidden' }}>
+        <main style={{ flex: 1, overflow: 'hidden', paddingBottom: 'env(safe-area-inset-bottom)' }}>
           <ErrorBoundary>
             <Suspense fallback={null}>
               <Outlet />

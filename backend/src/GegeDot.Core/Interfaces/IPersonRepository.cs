@@ -42,4 +42,23 @@ public interface IPersonRepository
     Task<List<Person>> GetPersonsByIdsAsync(
         IEnumerable<int> ids,
         CancellationToken cancellationToken = default);
+
+    // --- Agrégats statistiques (COUNT SQL — aucun chargement en mémoire) ---
+
+    /// <summary>
+    /// Retourne les compteurs globaux de la table Persons en une passe SQL par compteur.
+    /// Aucun enregistrement n'est chargé en mémoire.
+    /// </summary>
+    Task<PersonStatsAggregate> GetStatsAggregateAsync(CancellationToken cancellationToken = default);
 }
+
+/// <summary>
+/// Résultat des compteurs agrégés sur la table Persons.
+/// Calculé côté SQL via des COUNT indexés.
+/// </summary>
+public sealed record PersonStatsAggregate(
+    int PersonCount,
+    int LivingCount,
+    int DeceasedCount,
+    int CompleteCount
+);

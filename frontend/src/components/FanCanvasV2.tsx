@@ -79,12 +79,12 @@ function year(date: string | null): string | null {
   return date ? date.slice(0, 4) : null;
 }
 
-/** Formate "1948–2019", "1952–" (vivant si deathDate null), ou "" si aucune date. */
+/** Formate "1948–2019", "1952" (vivant si deathDate null), ou "" si aucune date. */
 function lifeSpan(birthDate: string | null, deathDate: string | null): string {
   const b = year(birthDate);
   const d = year(deathDate);
   if (!b) return '';
-  return d ? `${b}–${d}` : `${b}–`;
+  return d ? `${b}–${d}` : `${b}`;
 }
 
 // ── Helpers label ────────────────────────────────────────────────────────────
@@ -413,7 +413,15 @@ export default function FanCanvasV2({ data }: FanCanvasV2Props) {
   return (
     <div
       data-testid="fan-canvas-v2"
-      style={{ position: 'relative', width: '100%', height: '100%' }}
+      style={{
+        position: 'relative',
+        width: '100%',
+        // M5 : dvh avec fallback vh pour navigateurs sans support dvh
+        height: '100dvh',
+        // Fallback via @supports manquant en inline — on surcharge via minHeight
+        minHeight: '100vh',
+        touchAction: 'none',
+      }}
       role="img"
       aria-label={t('contemplation.aria_label', { name: egoName })}
     >
