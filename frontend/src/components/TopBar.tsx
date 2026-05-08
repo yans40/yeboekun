@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import Drawer from '@mui/material/Drawer';
 import { colors, fonts } from '../theme/tokens';
 import { useFamilyTreeContext } from '../context/FamilyTreeContext';
+import { logoutFamilyAccess } from '../services/familyAccess';
 import { VUE_RIVIERE_ENABLED } from '../config/featureFlags';
 import type { Person } from '../types';
 
@@ -190,11 +191,23 @@ export default function TopBar() {
     onClick: () => handlePersonPick(p),
   }));
 
+  const handleFamilyLogout = useCallback(() => {
+    setAvatarOpen(false);
+    void logoutFamilyAccess().finally(() => {
+      window.location.reload();
+    });
+  }, []);
+
   const avatarItems: DropdownItem[] = [
     {
       key: 'edit-mode',
       label: t('topbar.edit_mode'),
       onClick: handleEditMode,
+    },
+    {
+      key: 'family-logout',
+      label: t('topbar.family_logout'),
+      onClick: handleFamilyLogout,
     },
   ];
 

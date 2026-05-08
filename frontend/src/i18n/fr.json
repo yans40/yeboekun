@@ -17,7 +17,16 @@
     "select_person": "Choisir une personne",
     "no_person": "Aucune sélection",
     "edit_mode": "Mode édition",
-    "user_menu": "Menu utilisateur"
+    "user_menu": "Menu utilisateur",
+    "family_logout": "Quitter l'accès famille"
+  },
+  "family_access": {
+    "title": "Bienvenue",
+    "subtitle": "Cet arbre est réservé à la famille. Saisissez le mot de passe qui vous a été communiqué.",
+    "password_label": "Mot de passe",
+    "submit": "Entrer",
+    "submitting": "Vérification…",
+    "wrong_password": "Mot de passe incorrect."
   },
   "placeholder": {
     "coming_soon": "Bientôt disponible",
