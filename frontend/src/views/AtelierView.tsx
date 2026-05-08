@@ -17,6 +17,19 @@ import PersonForm from '../components/PersonForm';
 import { colors, fonts, spacing } from '../theme/tokens';
 import type { CreatePersonDto, Person, UpdatePersonDto } from '../types';
 
+// ── Détection viewport mobile (< 768 px) ──────────────────────────────────────
+// Même pattern que TopBar — hook local, pas de dépendance MUI useMediaQuery.
+function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 767px)');
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
+  return isMobile;
+}
+
 // ── Largeur du panneau gauche ─────────────────────────────────────────────────
 const LEFT_PANEL_WIDTH = 260;
 
@@ -92,35 +105,36 @@ const PersonList: React.FC<PersonListProps> = ({ persons, selectedId, onSelect, 
       </div>
 
       {/* Liste défilable */}
-      <div style={{ overflowY: 'auto', flex: 1 }}>
+      <ul role="list" style={{ overflowY: 'auto', flex: 1, listStyle: 'none', margin: 0, padding: 0 }}>
         {sorted.map(p => {
           const isActive = p.id === selectedId;
           return (
-            <button
-              key={p.id}
-              onClick={() => onSelect(p.id)}
-              aria-current={isActive ? 'true' : undefined}
-              style={{
-                display: 'block',
-                width: '100%',
-                textAlign: 'left',
-                padding: `10px ${spacing[4]}px`,
-                fontFamily: fonts.sans,
-                fontSize: 14,
-                color: isActive ? colors.ink : colors.ink2,
-                backgroundColor: isActive ? colors.paper2 : 'transparent',
-                border: 'none',
-                borderLeft: `3px solid ${isActive ? colors.ink : 'transparent'}`,
-                cursor: 'pointer',
-                lineHeight: 1.4,
-                transition: 'background-color 120ms ease',
-              }}
-            >
-              {p.firstName} {p.lastName}
-            </button>
+            <li key={p.id}>
+              <button
+                onClick={() => onSelect(p.id)}
+                aria-current={isActive ? 'true' : undefined}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  textAlign: 'left',
+                  padding: `10px ${spacing[4]}px`,
+                  fontFamily: fonts.sans,
+                  fontSize: 14,
+                  color: isActive ? colors.ink : colors.ink2,
+                  backgroundColor: isActive ? colors.paper2 : 'transparent',
+                  border: 'none',
+                  borderLeft: `3px solid ${isActive ? colors.ink : 'transparent'}`,
+                  cursor: 'pointer',
+                  lineHeight: 1.4,
+                  transition: 'background-color 120ms ease',
+                }}
+              >
+                {p.firstName} {p.lastName}
+              </button>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </div>
   );
 };
@@ -131,12 +145,15 @@ const PersonList: React.FC<PersonListProps> = ({ persons, selectedId, onSelect, 
 
 export default function AtelierView() {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
 
   // ── State local (indépendant de FamilyTreeContext) ─────────────────────────
   const [persons, setPersons] = useState<Person[]>([]);
   const [loadingList, setLoadingList] = useState(true);
   const [localSelectedId, setLocalSelectedId] = useState<number | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  // Onglet actif sur mobile : 'list' | 'form'
+  const [mobileTab, setMobileTab] = useState<'list' | 'form'>('list');
 
   // ── Chargement initial de la liste ─────────────────────────────────────────
   useEffect(() => {
@@ -189,16 +206,164 @@ export default function AtelierView() {
   const handleSelect = (id: number) => {
     setIsCreating(false);
     setLocalSelectedId(id);
+    // Sur mobile, basculer vers l'onglet formulaire après sélection
+    if (isMobile) setMobileTab('form');
   };
 
   // ── Bouton "+ Nouvelle personne" ───────────────────────────────────────────
   const handleNew = () => {
     setLocalSelectedId(null);
     setIsCreating(true);
+    // Sur mobile, basculer vers l'onglet formulaire
+    if (isMobile) setMobileTab('form');
   };
+
+  // ── Contenu du panneau droit (partagé desktop/mobile) ─────────────────────
+  const rightPanel = (
+    <div style={{
+      flex: 1,
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      backgroundColor: colors.paper,
+    }}>
+      {/* Aucune sélection, pas en mode création */}
+      {!isCreating && localSelectedId === null && (
+        <div
+          data-testid="atelier-no-selection"
+          style={{
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 12,
+          }}
+        >
+          <span style={{
+            fontFamily: fonts.serif,
+            fontStyle: 'italic',
+            fontSize: 22,
+            color: colors.ink3,
+          }}>
+            {t('atelier.no_selection')}
+          </span>
+          <span style={{
+            fontFamily: fonts.mono,
+            fontSize: 11,
+            color: colors.ink4,
+          }}>
+            {t('atelier.no_selection_hint')}
+          </span>
+        </div>
+      )}
+
+      {/* Formulaire d'édition */}
+      {!isCreating && selectedPerson !== null && (
+        <PersonForm
+          inline
+          open={true}
+          person={selectedPerson}
+          persons={persons}
+          onSubmit={handleUpdate}
+          onDelete={handleDelete}
+          onClose={() => setLocalSelectedId(null)}
+          onSaved={() => { /* no-op : rester sur la personne éditée après save */ }}
+          title={`${selectedPerson.firstName} ${selectedPerson.lastName}`}
+        />
+      )}
+
+      {/* Formulaire de création */}
+      {isCreating && (
+        <PersonForm
+          inline
+          open={true}
+          persons={persons}
+          onSubmit={handleCreate}
+          onClose={() => setIsCreating(false)}
+          title={t('atelier.title') + ' — ' + t('atelier.new_person').replace('+ ', '')}
+        />
+      )}
+    </div>
+  );
+
+  // ── Contenu du panneau gauche (partagé desktop/mobile) ────────────────────
+  const leftPanel = loadingList ? (
+    <div style={{
+      padding: spacing[4],
+      fontFamily: fonts.mono,
+      fontSize: 12,
+      color: colors.ink4,
+    }}>
+      {t('common.loading')}
+    </div>
+  ) : (
+    <PersonList
+      persons={persons}
+      selectedId={isCreating ? null : localSelectedId}
+      onSelect={handleSelect}
+      onNew={handleNew}
+    />
+  );
 
   // ── Rendu ──────────────────────────────────────────────────────────────────
 
+  // Layout mobile : barre d'onglets + contenu plein écran
+  if (isMobile) {
+    return (
+      <div
+        data-testid="atelier-view"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Barre d'onglets native */}
+        <div
+          role="tablist"
+          style={{
+            display: 'flex',
+            borderBottom: `1px solid ${colors.line2}`,
+            backgroundColor: colors.cream,
+            flexShrink: 0,
+          }}
+        >
+          {(['list', 'form'] as const).map(tab => (
+            <button
+              key={tab}
+              role="tab"
+              aria-selected={mobileTab === tab}
+              onClick={() => setMobileTab(tab)}
+              style={{
+                flex: 1,
+                padding: '12px 0',
+                fontFamily: fonts.sans,
+                fontSize: 13,
+                fontWeight: mobileTab === tab ? 500 : 400,
+                color: mobileTab === tab ? colors.ink : colors.ink3,
+                background: 'transparent',
+                border: 'none',
+                borderBottom: mobileTab === tab ? `2px solid ${colors.ink}` : '2px solid transparent',
+                cursor: 'pointer',
+              }}
+            >
+              {tab === 'list' ? t('atelier.tab_list') : t('atelier.tab_form')}
+            </button>
+          ))}
+        </div>
+
+        {/* Contenu plein écran selon l'onglet actif */}
+        <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', backgroundColor: colors.cream }}>
+          {mobileTab === 'list' && leftPanel}
+          {mobileTab === 'form' && rightPanel}
+        </div>
+      </div>
+    );
+  }
+
+  // Layout desktop : split horizontal
   return (
     <div
       data-testid="atelier-view"
@@ -219,90 +384,11 @@ export default function AtelierView() {
         display: 'flex',
         flexDirection: 'column',
       }}>
-        {loadingList ? (
-          <div style={{
-            padding: spacing[4],
-            fontFamily: fonts.mono,
-            fontSize: 12,
-            color: colors.ink4,
-          }}>
-            {t('common.loading')}
-          </div>
-        ) : (
-          <PersonList
-            persons={persons}
-            selectedId={isCreating ? null : localSelectedId}
-            onSelect={handleSelect}
-            onNew={handleNew}
-          />
-        )}
+        {leftPanel}
       </div>
 
       {/* ── Panneau droit ──────────────────────────────────────────────────── */}
-      <div style={{
-        flex: 1,
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: colors.paper,
-      }}>
-        {/* Aucune sélection, pas en mode création */}
-        {!isCreating && localSelectedId === null && (
-          <div
-            data-testid="atelier-no-selection"
-            style={{
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 12,
-            }}
-          >
-            <span style={{
-              fontFamily: fonts.serif,
-              fontStyle: 'italic',
-              fontSize: 22,
-              color: colors.ink3,
-            }}>
-              {t('atelier.no_selection')}
-            </span>
-            <span style={{
-              fontFamily: fonts.mono,
-              fontSize: 11,
-              color: colors.ink4,
-            }}>
-              {t('atelier.no_selection_hint')}
-            </span>
-          </div>
-        )}
-
-        {/* Formulaire d'édition */}
-        {!isCreating && selectedPerson !== null && (
-          <PersonForm
-            inline
-            open={true}
-            person={selectedPerson}
-            persons={persons}
-            onSubmit={handleUpdate}
-            onDelete={handleDelete}
-            onClose={() => setLocalSelectedId(null)}
-            title={`${selectedPerson.firstName} ${selectedPerson.lastName}`}
-          />
-        )}
-
-        {/* Formulaire de création */}
-        {isCreating && (
-          <PersonForm
-            inline
-            open={true}
-            persons={persons}
-            onSubmit={handleCreate}
-            onClose={() => setIsCreating(false)}
-            title={t('atelier.title') + ' — ' + t('atelier.new_person').replace('+ ', '')}
-          />
-        )}
-      </div>
+      {rightPanel}
     </div>
   );
 }

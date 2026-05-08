@@ -79,7 +79,9 @@
     "no_selection": "Sélectionnez une personne dans la liste",
     "no_selection_hint": "ou créez-en une nouvelle",
     "new_person": "+ Nouvelle personne",
-    "title": "Atelier"
+    "title": "Atelier",
+    "tab_list": "Liste",
+    "tab_form": "Formulaire"
   },
   "contemplation": {
     "aria_label": "Éventail généalogique centré sur {{name}}",

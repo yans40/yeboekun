@@ -86,6 +86,14 @@ interface PersonFormProps {
    * Défaut : false — comportement modale inchangé.
    */
   inline?: boolean;
+  /**
+   * Callback appelé après une sauvegarde réussie, en remplacement de onClose.
+   * Permet au parent de distinguer "l'utilisateur annule" (onClose) de
+   * "la sauvegarde a réussi" (onSaved) — utile en mode inline pour ne pas
+   * fermer le panneau d'édition après save.
+   * Si absent, onClose est appelé après save (comportement rétro-compatible).
+   */
+  onSaved?: () => void;
 }
 
 // ─── NativeButton ─────────────────────────────────────────────────────────────
@@ -301,6 +309,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
   persons = [],
   title = 'Ajouter une personne',
   inline = false,
+  onSaved,
 }) => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [parent1Id, setParent1Id] = useState<number | ''>('');
@@ -436,7 +445,13 @@ const PersonForm: React.FC<PersonFormProps> = ({
         if (parent2Id !== '') parentIds.push(parent2Id as number);
       }
       await onSubmit(submitData, parentIds.length > 0 ? parentIds : undefined);
-      onClose();
+      // Si onSaved est fourni, l'appeler à la place de onClose (ex : mode édition inline
+      // où on veut rester sur la personne éditée après sauvegarde).
+      if (onSaved !== undefined) {
+        onSaved();
+      } else {
+        onClose();
+      }
     } catch (error) {
       console.error('Erreur lors de la soumission:', error);
     } finally {
