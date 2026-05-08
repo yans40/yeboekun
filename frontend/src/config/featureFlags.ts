@@ -12,3 +12,6 @@ export const VUE_RIVIERE_ENABLED: boolean = import.meta.env.DEV;
 
 /** Vue Contemplation (Lot 3) — éventail SVG ascendants/descendants. */
 export const VUE_CONTEMPLATION_ENABLED: boolean = import.meta.env.DEV;
+
+/** Vue Atelier (Lot 4) — split layout édition de personnes. */
+export const VUE_ATELIER_ENABLED: boolean = import.meta.env.DEV;

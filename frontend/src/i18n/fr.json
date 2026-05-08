@@ -75,6 +75,12 @@
     "confirm": "Confirmer",
     "back": "Retour"
   },
+  "atelier": {
+    "no_selection": "Sélectionnez une personne dans la liste",
+    "no_selection_hint": "ou créez-en une nouvelle",
+    "new_person": "+ Nouvelle personne",
+    "title": "Atelier"
+  },
   "contemplation": {
     "aria_label": "Éventail généalogique centré sur {{name}}",
     "eyebrow": "MODE CONTEMPLATION",

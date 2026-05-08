@@ -80,6 +80,12 @@ interface PersonFormProps {
   person?: Person | null;
   persons?: Person[];   // liste pour les selects père/mère (mode création)
   title?: string;
+  /**
+   * Mode inline : remplace le Dialog MUI par un div transparent.
+   * Utile quand le formulaire est intégré dans un panneau existant (AtelierView).
+   * Défaut : false — comportement modale inchangé.
+   */
+  inline?: boolean;
 }
 
 // ─── NativeButton ─────────────────────────────────────────────────────────────
@@ -294,6 +300,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
   person,
   persons = [],
   title = 'Ajouter une personne',
+  inline = false,
 }) => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [parent1Id, setParent1Id] = useState<number | ''>('');
@@ -503,18 +510,11 @@ const PersonForm: React.FC<PersonFormProps> = ({
     }
   };
 
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle component="div">
-        <h6 style={{ margin: 0, fontFamily: fonts.serif, fontWeight: 600, fontSize: '1.25rem', color: colors.ink }}>
-          {title}
-        </h6>
-      </DialogTitle>
+  // ── Contenu partagé (identique en mode Dialog et en mode inline) ─────────────
 
-      <form onSubmit={handleSubmit}>
-        <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+  const formContent = (
+    <Grid container spacing={2}>
+      <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
                 label="Prénom *"
@@ -797,52 +797,103 @@ const PersonForm: React.FC<PersonFormProps> = ({
               </>
             )}
           </Grid>
+  );
+
+  const actionsContent = (
+    <>
+      {/* Delete zone — only in edit mode */}
+      <div>
+        {person && onDelete && !confirmDelete && (
+          <NativeBtn
+            color="error"
+            onClick={() => setConfirmDelete(true)}
+            disabled={loading}
+          >
+            Supprimer
+          </NativeBtn>
+        )}
+        {person && onDelete && confirmDelete && (
+          <>
+            <NativeBtn
+              color="error"
+              variant="contained"
+              onClick={async () => { await onDelete(); onClose(); }}
+              disabled={loading}
+              style={{ marginRight: spacing[1] }}
+            >
+              Confirmer la suppression
+            </NativeBtn>
+            <NativeBtn onClick={() => setConfirmDelete(false)} disabled={loading}>
+              Annuler
+            </NativeBtn>
+          </>
+        )}
+      </div>
+
+      {/* Save / cancel */}
+      <div>
+        <NativeBtn onClick={onClose} disabled={loading} style={{ marginRight: spacing[1] }}>
+          Annuler
+        </NativeBtn>
+        <NativeBtn
+          type="submit"
+          variant="contained"
+          disabled={loading}
+          style={{ minWidth: 100 }}
+        >
+          {loading ? 'Enregistrement...' : 'Enregistrer'}
+        </NativeBtn>
+      </div>
+    </>
+  );
+
+  // ── Mode inline — wrapper div transparent, pas de Dialog ─────────────────────
+  if (inline) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <div style={{
+          padding: `${spacing[3]}px ${spacing[4]}px ${spacing[2]}px`,
+          borderBottom: `1px solid ${colors.line2}`,
+          flexShrink: 0,
+        }}>
+          <h6 style={{ margin: 0, fontFamily: fonts.serif, fontWeight: 600, fontSize: '1.25rem', color: colors.ink }}>
+            {title}
+          </h6>
+        </div>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+          <div style={{ padding: '16px 0', overflowY: 'auto', flex: 1 }}>
+            {formContent}
+          </div>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            padding: '12px 0',
+            borderTop: `1px solid ${colors.line2}`,
+            flexShrink: 0,
+          }}>
+            {actionsContent}
+          </div>
+        </form>
+      </div>
+    );
+  }
+
+  // ── Mode Dialog (défaut) — comportement inchangé ──────────────────────────────
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle component="div">
+        <h6 style={{ margin: 0, fontFamily: fonts.serif, fontWeight: 600, fontSize: '1.25rem', color: colors.ink }}>
+          {title}
+        </h6>
+      </DialogTitle>
+
+      <form onSubmit={handleSubmit}>
+        <DialogContent>
+          {formContent}
         </DialogContent>
 
         <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
-          {/* Delete zone — only in edit mode */}
-          <div>
-            {person && onDelete && !confirmDelete && (
-              <NativeBtn
-                color="error"
-                onClick={() => setConfirmDelete(true)}
-                disabled={loading}
-              >
-                Supprimer
-              </NativeBtn>
-            )}
-            {person && onDelete && confirmDelete && (
-              <>
-                <NativeBtn
-                  color="error"
-                  variant="contained"
-                  onClick={async () => { await onDelete(); onClose(); }}
-                  disabled={loading}
-                  style={{ marginRight: spacing[1] }}
-                >
-                  Confirmer la suppression
-                </NativeBtn>
-                <NativeBtn onClick={() => setConfirmDelete(false)} disabled={loading}>
-                  Annuler
-                </NativeBtn>
-              </>
-            )}
-          </div>
-
-          {/* Save / cancel */}
-          <div>
-            <NativeBtn onClick={onClose} disabled={loading} style={{ marginRight: spacing[1] }}>
-              Annuler
-            </NativeBtn>
-            <NativeBtn
-              type="submit"
-              variant="contained"
-              disabled={loading}
-              style={{ minWidth: 100 }}
-            >
-              {loading ? 'Enregistrement...' : 'Enregistrer'}
-            </NativeBtn>
-          </div>
+          {actionsContent}
         </DialogActions>
       </form>
     </Dialog>
