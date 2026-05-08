@@ -83,6 +83,17 @@
     "tab_list": "Liste",
     "tab_form": "Formulaire"
   },
+  "tableau": {
+    "title": "Tableau de bord",
+    "stat_persons": "Personnes",
+    "stat_living": "Vivantes",
+    "stat_generations": "Générations",
+    "stat_completeness": "Complétude",
+    "recent_title": "Consultées récemment",
+    "recent_empty": "Aucune consultation récente",
+    "duplicate_alert": "{{count}} doublon(s) potentiel(s) détecté(s)",
+    "duplicate_cta": "Consulter l'Atelier"
+  },
   "contemplation": {
     "aria_label": "Éventail généalogique centré sur {{name}}",
     "eyebrow": "MODE CONTEMPLATION",
