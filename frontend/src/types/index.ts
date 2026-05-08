@@ -266,3 +266,27 @@ export interface RiverViewData {
   edges: RiverViewEdge[];
   generationRange: { min: number; max: number };
 }
+
+// ─── Vue Tableau types (endpoint GET /api/stats) ───────────────────────────────
+
+/**
+ * Réponse de GET /api/stats.
+ * completenessPercent : 0–100.
+ * generationSpan et duplicateSuggestionCount peuvent être null si non calculables.
+ */
+export interface StatsDto {
+  personCount: number;
+  generationSpan: number | null;
+  livingCount: number;
+  deceasedCount: number;
+  completenessPercent: number;
+  duplicateSuggestionCount: number | null;
+}
+
+/** Une entrée dans l'historique des personnes récemment consultées (localStorage). */
+export interface RecentPerson {
+  id: number;
+  firstName: string;
+  lastName: string;
+  timestamp: number;
+}
