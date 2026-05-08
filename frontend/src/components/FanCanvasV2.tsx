@@ -79,12 +79,12 @@ function year(date: string | null): string | null {
   return date ? date.slice(0, 4) : null;
 }
 
-/** Formate "1948–2019", "1952–" (vivant si deathDate null), ou "" si aucune date. */
+/** Formate "1948–2019", "1952" (vivant si deathDate null), ou "" si aucune date. */
 function lifeSpan(birthDate: string | null, deathDate: string | null): string {
   const b = year(birthDate);
   const d = year(deathDate);
   if (!b) return '';
-  return d ? `${b}–${d}` : `${b}–`;
+  return d ? `${b}–${d}` : `${b}`;
 }
 
 // ── Helpers label ────────────────────────────────────────────────────────────
