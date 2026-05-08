@@ -2,13 +2,14 @@ import { lazy } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import AppShell from './components/AppShell';
 import PlaceholderView from './components/PlaceholderView';
-import { VUE_RIVIERE_ENABLED, VUE_CONTEMPLATION_ENABLED } from './config/featureFlags';
+import { VUE_RIVIERE_ENABLED, VUE_CONTEMPLATION_ENABLED, VUE_ATELIER_ENABLED } from './config/featureFlags';
 import { riverViewMock } from './mocks/riverViewMock';
 
-const ArbreView        = lazy(() => import('./components/ArbreView'));
-const AdminPage        = lazy(() => import('./components/AdminPage'));
-const RiviereView      = lazy(() => import('./views/RiviereView'));
+const ArbreView         = lazy(() => import('./components/ArbreView'));
+const AdminPage         = lazy(() => import('./components/AdminPage'));
+const RiviereView       = lazy(() => import('./views/RiviereView'));
 const ContemplationView = lazy(() => import('./views/ContemplationView'));
+const AtelierView       = lazy(() => import('./views/AtelierView'));
 
 export const router = createBrowserRouter([
   {
@@ -29,7 +30,12 @@ export const router = createBrowserRouter([
           ? <RiviereView data={riverViewMock} />
           : <PlaceholderView name="Rivière" />,
       },
-      { path: '/atelier/:id',element: <PlaceholderView name="Atelier" /> },
+      {
+        path: '/atelier',
+        element: VUE_ATELIER_ENABLED
+          ? <AtelierView />
+          : <PlaceholderView name="Atelier" />,
+      },
       { path: '/admin',      element: <AdminPage /> },
     ],
   },
