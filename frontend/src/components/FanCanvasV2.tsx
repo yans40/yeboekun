@@ -29,7 +29,7 @@ import { colors, fonts } from '../theme/tokens';
 const VB_W  = 1240;
 const VB_H  = 840;
 const CX    = 620;
-const CY    = 420;
+const CY    = 470;
 const R0    = 58;   // rayon ego
 const STEP_UP  = 64; // épaisseur d'un anneau ascendant
 const STEP_DN  = 80; // épaisseur d'un anneau descendant
@@ -171,7 +171,7 @@ function buildDescendantSectors(
   const spanPerChild = 180 / gen1Nodes.length;
 
   gen1Nodes.forEach((child, idx) => {
-    const a0 = idx * spanPerChild;
+    const a0 = 90 + idx * spanPerChild;
     const a1 = a0 + spanPerChild;
     sectors.push({ node: child, a0, a1, gen: 1 });
 
@@ -209,7 +209,7 @@ interface AncestorSectorProps {
 function AncestorSector({ gen, pos, node }: AncestorSectorProps) {
   const totalSectors = Math.pow(2, gen);
   const spanDeg      = 180 / totalSectors;
-  const a0           = -180 + pos * spanDeg;
+  const a0           = -90 + pos * spanDeg;
   const a1           = a0 + spanDeg;
   const midAngle     = (a0 + a1) / 2;
 
@@ -269,41 +269,39 @@ function AncestorSector({ gen, pos, node }: AncestorSectorProps) {
         );
       })()}
 
-      {/* Label nom */}
-      {showLabel && (
-        <text
-          x={lx}
-          y={ly}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize={fontSize}
-          fontFamily={fonts.serif}
-          fontStyle="italic"
-          fontWeight={500}
-          fill={colors.cream}
-          transform={`rotate(${textRotation}, ${lx}, ${ly})`}
-          aria-hidden="true" // contenu accessible via aria-label du path
-        >
-          {name}
-        </text>
-      )}
-
-      {/* Date sous le nom */}
-      {showDate && span && (
-        <text
-          x={lx}
-          y={ly + fontSize * 0.9}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize={dateFontSize}
-          fontFamily={fonts.mono}
-          fill={colors.cream}
-          opacity={0.75}
-          transform={`rotate(${textRotation}, ${lx}, ${ly + fontSize * 0.9})`}
-          aria-hidden="true"
-        >
-          {span}
-        </text>
+      {/* Labels dans un repère commun pour éviter le chevauchement */}
+      {(showLabel || (showDate && span)) && (
+        <g transform={`translate(${lx} ${ly}) rotate(${textRotation})`} aria-hidden="true">
+          {showLabel && (
+            <text
+              x={0}
+              y={showDate && span ? -dateFontSize * 0.8 : 0}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={fontSize}
+              fontFamily={fonts.serif}
+              fontStyle="italic"
+              fontWeight={500}
+              fill={colors.cream}
+            >
+              {name}
+            </text>
+          )}
+          {showDate && span && (
+            <text
+              x={0}
+              y={showLabel ? fontSize * 0.7 : 0}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={dateFontSize}
+              fontFamily={fonts.mono}
+              fill={colors.cream}
+              opacity={0.75}
+            >
+              {span}
+            </text>
+          )}
+        </g>
       )}
     </g>
   );
@@ -326,7 +324,7 @@ function DescendantSectorSVG({ sector }: DescendantSectorSVGProps) {
 
   const d = arcPath(r_inner, r_outer, a0, a1);
   const [lx, ly] = polar(r_label, midAngle);
-  const textRotation = midAngle <= 90 ? midAngle - 90 : midAngle + 90;
+  const textRotation = midAngle <= 180 ? midAngle - 90 : midAngle + 90;
 
   const name = displayName(node);
   const span = lifeSpan(node.birthDate, node.deathDate);
@@ -340,37 +338,35 @@ function DescendantSectorSVG({ sector }: DescendantSectorSVGProps) {
         strokeWidth={0.8}
         aria-label={`${name} — descendant génération ${gen}`}
       />
-      <text
-        x={lx}
-        y={ly}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontSize={fontSize}
-        fontFamily={fonts.serif}
-        fontStyle="italic"
-        fontWeight={500}
-        fill={colors.cream}
-        transform={`rotate(${textRotation}, ${lx}, ${ly})`}
-        aria-hidden="true"
-      >
-        {name}
-      </text>
-      {span && (
+      <g transform={`translate(${lx} ${ly}) rotate(${textRotation})`} aria-hidden="true">
         <text
-          x={lx}
-          y={ly + fontSize * 0.9}
+          x={0}
+          y={span ? -dateFontSize * 0.8 : 0}
           textAnchor="middle"
           dominantBaseline="central"
-          fontSize={dateFontSize}
-          fontFamily={fonts.mono}
+          fontSize={fontSize}
+          fontFamily={fonts.serif}
+          fontStyle="italic"
+          fontWeight={500}
           fill={colors.cream}
-          opacity={0.75}
-          transform={`rotate(${textRotation}, ${lx}, ${ly + fontSize * 0.9})`}
-          aria-hidden="true"
         >
-          {span}
+          {name}
         </text>
-      )}
+        {span && (
+          <text
+            x={0}
+            y={fontSize * 0.7}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontSize={dateFontSize}
+            fontFamily={fonts.mono}
+            fill={colors.cream}
+            opacity={0.75}
+          >
+            {span}
+          </text>
+        )}
+      </g>
     </g>
   );
 }
@@ -532,13 +528,13 @@ export default function FanCanvasV2({ data }: FanCanvasV2Props) {
           <text x={40} y={110} fontSize={34} fontFamily={fonts.serif} fontStyle="italic" fill={colors.ink}>
             {t('contemplation.header_line2')}
           </text>
-          {/* Chips ascendants / descendants */}
-          <rect x={40} y={122} width={110} height={18} rx={4} fill={colors.sepia} opacity={0.15} />
-          <text x={96} y={134} textAnchor="middle" fontSize={9} fontFamily={fonts.mono} fill={colors.sepia}>
+          {/* Chips ascendants / descendants — empilés verticalement */}
+          <rect x={40} y={122} width={200} height={18} rx={4} fill={colors.sepia} opacity={0.15} />
+          <text x={140} y={134} textAnchor="middle" fontSize={9} fontFamily={fonts.mono} fill={colors.sepia}>
             {t('contemplation.chip_up', { count: genUpCount })}
           </text>
-          <rect x={158} y={122} width={120} height={18} rx={4} fill={colors.olive} opacity={0.15} />
-          <text x={218} y={134} textAnchor="middle" fontSize={9} fontFamily={fonts.mono} fill={colors.olive}>
+          <rect x={40} y={146} width={200} height={18} rx={4} fill={colors.olive} opacity={0.15} />
+          <text x={140} y={158} textAnchor="middle" fontSize={9} fontFamily={fonts.mono} fill={colors.olive}>
             {t('contemplation.chip_down', { count: genDnCount })}
           </text>
         </g>

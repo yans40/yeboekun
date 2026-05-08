@@ -28,6 +28,11 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 
+// featureFlags : VUE_CONTEMPLATION_ENABLED=false pour simuler le comportement prod.
+jest.mock('../config/featureFlags', () => ({
+  VUE_CONTEMPLATION_ENABLED: false,
+}));
+
 // usePersonTree : contrôlé par chaque test via mockReturnValue.
 jest.mock('../hooks/usePersonTree', () => ({
   usePersonTree: jest.fn(),
