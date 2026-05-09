@@ -161,31 +161,34 @@ export default function WelcomeView({ onEnter }: WelcomeViewProps) {
         {/* Nuage scrollable */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '8px 16px 16px' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 10px', justifyContent: 'center' }}>
-            {nameItems.map(({ person, size }, i) => {
-              const opacity = 0.35 + ((i * 7 + 3) % 10) * 0.065;
-              const fontSize = size;
-              return (
-                <button
-                  key={person.id}
-                  onClick={e => handleNameClick(person, e)}
-                  style={{
-                    fontFamily: fonts.serif,
-                    fontStyle: 'italic',
-                    fontSize,
-                    color: colors.ink4,
-                    opacity,
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '3px 5px',
-                    lineHeight: 1.3,
-                    WebkitTapHighlightColor: 'transparent',
-                  }}
-                >
-                  {person.firstName} {person.lastName}
-                </button>
-              );
-            })}
+            {Array.from({ length: 4 }, (_, rep) =>
+              nameItems.map(({ person, size }, i) => {
+                const idx = rep * nameItems.length + i;
+                const opacity = 0.25 + ((idx * 7 + 3) % 13) * 0.058;
+                const fontSize = 11 + ((idx * 3 + rep * 5) % 8);
+                return (
+                  <button
+                    key={`${person.id}-${rep}`}
+                    onClick={e => handleNameClick(person, e)}
+                    style={{
+                      fontFamily: fonts.serif,
+                      fontStyle: 'italic',
+                      fontSize,
+                      color: colors.ink4,
+                      opacity,
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '3px 5px',
+                      lineHeight: 1.3,
+                      WebkitTapHighlightColor: 'transparent',
+                    }}
+                  >
+                    {person.firstName} {person.lastName}
+                  </button>
+                );
+              })
+            )}
           </div>
         </div>
 
