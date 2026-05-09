@@ -21,12 +21,19 @@
     "family_logout": "Quitter l'accès famille"
   },
   "family_access": {
-    "title": "Bienvenue",
-    "subtitle": "Cet arbre est réservé à la famille. Saisissez le mot de passe qui vous a été communiqué.",
-    "password_label": "Mot de passe",
-    "submit": "Entrer",
+    "tagline": "La mémoire des liens",
+    "title": "Cet arbre vous attend",
+    "password_label": "Mot de passe familial",
+    "submit": "Continuer",
     "submitting": "Vérification…",
-    "wrong_password": "Mot de passe incorrect."
+    "password_required": "Saisissez le mot de passe.",
+    "wrong_password": "Mot de passe incorrect.",
+    "network_error": "Connexion impossible. Réessayez.",
+    "generic_error": "Erreur. Réessayez.",
+    "help_link": "? Besoin du mot de passe",
+    "help_title": "Obtenir le mot de passe",
+    "help_body": "Demandez-le au gardien du temple — il sait à qui il peut le confier.",
+    "loading_status": "Vérification de l'accès…"
   },
   "placeholder": {
     "coming_soon": "Bientôt disponible",
@@ -102,6 +109,16 @@
     "recent_empty": "Aucune consultation récente",
     "duplicate_alert": "{{count}} doublon(s) potentiel(s) détecté(s)",
     "duplicate_cta": "Consulter l'Atelier"
+  },
+  "welcome": {
+    "title": "Qui voulez-vous retrouver ?",
+    "hint_move": "Promenez le regard pour reconnaître les visages",
+    "action_its_me": "C'est moi",
+    "action_see_tree": "Le voir dans l'arbre",
+    "skip": "Je préfère explorer librement",
+    "relation_ancestor": "un ancêtre ?",
+    "relation_child": "un enfant ?",
+    "relation_relative": "un proche ?"
   },
   "contemplation": {
     "aria_label": "Éventail généalogique centré sur {{name}}",
