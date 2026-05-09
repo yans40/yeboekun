@@ -106,7 +106,7 @@ export default function App() {
       <WelcomeView
         onEnter={(personId) => {
           if (personId !== null) {
-            sessionStorage.setItem('yeboekun_welcome_selection', String(personId));
+            try { sessionStorage.setItem('yeboekun_welcome_selection', String(personId)); } catch { /* storage blocked */ }
           }
           setPhase('app');
         }}
