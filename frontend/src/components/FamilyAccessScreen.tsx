@@ -2,24 +2,30 @@ import { useEffect, useId, useRef, useState, FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { classifyVerifyPasswordError, verifyFamilyPassword } from '../services/familyAccess';
-import { colors, fonts } from '../theme/tokens';
+import { colors, fonts, radius } from '../theme/tokens';
 
 interface FamilyAccessScreenProps {
   onSuccess: () => void;
 }
 
+/** Gate d'entrée : seuil minimal (5 blocs visibles). L'explication longue vit dans le lien d'aide, pas ici. */
 export default function FamilyAccessScreen({ onSuccess }: FamilyAccessScreenProps) {
   const { t } = useTranslation();
   const titleId = useId();
-  const subtitleId = useId();
   const passwordInputId = useId();
   const passwordRef = useRef<HTMLInputElement>(null);
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   useEffect(() => {
     if (error) {
@@ -30,7 +36,7 @@ export default function FamilyAccessScreen({ onSuccess }: FamilyAccessScreenProp
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!password.trim()) {
-      setError(t('family_access.wrong_password'));
+      setError(t('family_access.password_required'));
       return;
     }
     setError(null);
@@ -97,25 +103,10 @@ export default function FamilyAccessScreen({ onSuccess }: FamilyAccessScreenProp
           color: colors.ink,
           textAlign: 'center',
           maxWidth: 420,
-          mb: 1.5,
+          mb: 3,
         }}
       >
         {t('family_access.title')}
-      </Typography>
-      <Typography
-        id={subtitleId}
-        component="p"
-        sx={{
-          fontFamily: fonts.sans,
-          fontSize: 14,
-          color: colors.ink3,
-          textAlign: 'center',
-          maxWidth: 440,
-          mb: 3,
-          lineHeight: 1.55,
-        }}
-      >
-        {t('family_access.subtitle')}
       </Typography>
 
       <Box
@@ -146,7 +137,7 @@ export default function FamilyAccessScreen({ onSuccess }: FamilyAccessScreenProp
           disabled={submitting}
           inputProps={{
             'aria-invalid': Boolean(error),
-            'aria-describedby': error ? `${subtitleId} ${passwordInputId}-helper-text` : subtitleId,
+            'aria-describedby': error ? `${passwordInputId}-helper-text` : titleId,
           }}
           FormHelperTextProps={
             error
@@ -162,20 +153,50 @@ export default function FamilyAccessScreen({ onSuccess }: FamilyAccessScreenProp
         </Button>
       </Box>
 
-      <Typography
-        component="p"
+      <Link
+        component="button"
+        type="button"
+        underline="hover"
+        onClick={() => setHelpOpen(true)}
         sx={{
           mt: 3,
-          maxWidth: 360,
           fontFamily: fonts.sans,
           fontSize: 12,
-          color: colors.ink3,
-          textAlign: 'center',
-          lineHeight: 1.45,
+          color: colors.ink4,
+          cursor: 'pointer',
+          border: 'none',
+          background: 'none',
+          padding: 0,
         }}
       >
-        {t('family_access.hint_footer')}
-      </Typography>
+        {t('family_access.help_link')}
+      </Link>
+
+      <Dialog
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+        aria-labelledby="family-access-help-title"
+        PaperProps={{
+          sx: {
+            borderRadius: radius.lg,
+            backgroundColor: colors.paper,
+          },
+        }}
+      >
+        <DialogTitle id="family-access-help-title" sx={{ fontFamily: fonts.serif }}>
+          {t('family_access.help_title')}
+        </DialogTitle>
+        <DialogContent>
+          <Typography sx={{ fontFamily: fonts.sans, fontSize: 14, color: colors.ink2, lineHeight: 1.55 }}>
+            {t('family_access.help_body')}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={() => setHelpOpen(false)} color="primary">
+            {t('common.close')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
