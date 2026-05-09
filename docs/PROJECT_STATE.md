@@ -1,7 +1,7 @@
 # PROJECT_STATE — GegeDot / Yeboekun
 
 > Source de vérité du projet — pilotée par Émile (Claude Code)
-> Dernière mise à jour : 2026-05-08 par Émile
+> Dernière mise à jour : 2026-05-09 — priorisation Gate vs nuage + densité nuage (PO)
 
 ---
 
@@ -28,6 +28,7 @@
 
 - **Lot 4** — Vue Atelier (PersonForm en page dédiée `/atelier`)
 - **Lot 5** — Vue Tableau (dashboard)
+- **Lot 6** — **Accueil + ancrage + nuage** (à planifier) : gate déjà posé (hors scope Lot 6) ; Lot 6 regroupe **nuage de noms interactif** post-auth, **qui es-tu / trois portes**, fallback non identifié, persistance ancrage — spec `docs/ideas/IDEA_ANCRAGE_UTILISATEUR.md`. **Ne pas** retarder Lots 1–5 pour le nuage.
 
 ---
 
@@ -41,6 +42,7 @@
 - Migration repo hors iCloud = faite (`~/Code/gegeDot-claude/`)
 - auto-assign-reviewers.yml = désactivé (renommé `.disabled`) jusqu'à création d'une org GitHub
 - **Collaboration Cursor/Victor = abandonnée** — projet piloté uniquement via Claude Code
+- **Gate vs nuage (2026-05-09)** : gate **sobre livré tôt** (~3 j max seuil) ; **nuage interactif** (Framer ou CSS+mouse, A11y, mobile grille/touch) → **Lot 6** dédié — pas de mega-lot tout-en-un qui bâclerait le nuage
 
 ---
 
@@ -58,7 +60,10 @@
 
 - `.github/workflows/docker-build.yml` : remplacé `docker-compose` par `docker compose` sur build/up/down pour compatibilité runner GitHub (check `docker-test` PR #39).
 - PR `#39` (Lot 3 Contemplation) : échecs observés = `check-label` (label `qa-validated` manquant), `checklist` (cases PR non cochées), `docker-test` (commande compose), `lighthouse` (Perf 85 < 90 ; A11y 100, BP 96, SEO 92).
+- `docs/ideas/IDEA_ANCRAGE_UTILISATEUR.md` : ancrage + non identifié ; **2026-05-09** = priorisation **Option B** (gate tôt, nuage Lot 6) ; nuage **densité renforcée** (PO) → typo plus petite, strates, culling/virtualisation par défaut au-delà du confort ; mobile grille/liste si besoin.
+- `docs/architecture/FAMILY_ACCESS.md` : mot de passe familial partagé — activation (`FamilyAccess__*` / `Cors:Origins`), endpoints `/api/access/*`, front (`FamilyAccessScreen`, credentials), docker CI `Disabled`, distinction `VITE_EDIT_PASSWORD`. Voir aussi `README.md` § Accès lecture.
+- `docs/architecture/AGENTS_SCHEMA.md` : gates CI mis à jour (`docker-build.yml`, note `auto-assign` optionnel), lien vers FAMILY_ACCESS.
 
 ---
 
-*Mis à jour par Victor — 2026-05-08*
+*Mis à jour — 2026-05-09*

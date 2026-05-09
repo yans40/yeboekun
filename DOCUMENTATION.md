@@ -702,6 +702,10 @@ Les **migrations EF Core** sont versionnées, réversibles (`migrations remove`)
 | URL API (frontend) | `/api` (proxy Vite) | `src/services/api.ts` |
 | Cible proxy Vite | `http://localhost:5001` | `vite.config.ts` |
 
+### Accès famille (lecture protégée)
+
+Un **mot de passe partagé** peut être configuré côté API (`FamilyAccess`) pour exiger un cookie avant d’appeler les endpoints métier. Ce n’est pas le même mécanisme que le mot de passe « mode édition » du front (`VITE_EDIT_PASSWORD`). Détail : **[docs/architecture/FAMILY_ACCESS.md](docs/architecture/FAMILY_ACCESS.md)**.
+
 ### Commandes utiles
 
 ```bash

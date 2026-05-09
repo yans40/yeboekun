@@ -1,7 +1,126 @@
 # Idée à développer — Ancrage de l'utilisateur dans l'arbre
 
-**Statut** : brainstorm posé le 2026-05-03, à reprendre.
-**Pour le repo** : à déplacer dans `docs/ideas/IDEA_ANCRAGE_UTILISATEUR.md` puis ajouter au backlog.
+**Statut** : cadrage produit — brainstorm 2026-05-03, **cadrage 2026-05-08**, **flux d’entrée acté 2026-05-09**, **priorisation Gate vs nuage actée 2026-05-09**, **densité nuage renforcée (PO) 2026-05-09**.
+**Emplacement** : `docs/ideas/IDEA_ANCRAGE_UTILISATEUR.md` (source de vérité idée).
+**Suite** : après validation PO — ajouter **Lot 6 — Ancrage et identité** dans `docs/roadmap/IMPLEMENTATION_ROADMAP.md` (après Lot 5), puis ticket GitHub / QA Lot 6.
+
+---
+
+## Décision produit — Flux d’entrée (2026-05-09) — **actée**
+
+Le **gate** (mot de passe famille / seuil technique) est **court** : pas de paragraphes sur la page pour les **retours** (~90 % du trafic avec cookie valide — ils ne revoient pas l’écran). Le **discours** d’invitation (« demande à un proche », etc.) appartient à **l’onboarding hors ligne** (SMS, mail, conversation), pas au mur de la page d’entrée.
+
+### Gate — 5 éléments visibles
+
+1. Wordmark Yeboekun (Y Sankofa)  
+2. Tagline : *La mémoire des liens*  
+3. Headline unique : *Cet arbre vous attend* (seul ton narratif court sur cette vue)  
+4. Champ *Mot de passe familial*  
+5. Bouton *Continuer*  
+
+En bas : lien **très discret** (`ink4`) *« ? Besoin du mot de passe »* → ouvre une **couche d’aide** (dialog) pour les **rares** premiers visiteurs — sans polluer la lecture courante.
+
+### Après auth OK (parcours à construire — Lot 6 / onboarding in-app)
+
+Ce n’est **pas** sur le gate : écran d’accueil *« Qui es-tu ? »*, **trois portes** (te rattacher, te présenter, explorer visiteur), mini-galerie, copy type *« Cet arbre attend ta place »*. **Skip** si utilisateur déjà identifié (retour).
+
+Schéma cible :
+
+```
+Gate (5 éléments) → Auth OK → Accueil ancrage (qui es-tu ? / 3 portes) → Vue principale ancrée
+                                      ↑
+                         skip si retour + déjà identifié
+```
+
+### Technique vs UX
+
+Le choix **mot de passe partagé** vs **auth nominative** (Ada / backend) **ne bloque pas** cette spec UX : le gate reste un **seuil** ; la narration riche vit **après** le seuil.
+
+---
+
+## Priorisation Gate vs nuage interactif (2026-05-09) — **actée**
+
+**Décision PO** : prioriser la **deuxième option** — livrer le **gate sobre** tôt (enveloppe **~3 jours max** pour la couche seuil ; déjà engagé côté produit), continuer **Lots 1–5** normalement sans bloquer la roadmap UI ; le **nuage de noms** (interaction riche post-auth) est **Lot 6** avec le temps qu’il mérite.
+
+**Alternative non retenue pour l’instant** : un seul mega-lot « tout-en-un » (gate + nuage + ancrage + fallback non identifié) — **cohérent narrativement** mais **risque de qualité** sur le nuage sous pression.
+
+---
+
+## Nuage de noms interactif — note technique & UX (cible **Lot 6**)
+
+Interaction **post-seuil**, distincte du gate. Mérite une enveloppe dédiée ; ne pas la fusionner précipitamment avec Foundation.
+
+### Faisabilité technique
+
+- **Stack** : React + **Framer Motion** (compatible MUI) **ou** variante plus légère : CSS + **custom properties** `--mouse-x` / `--mouse-y` mises à jour en JS ; chaque nom réagit via proximité (`calc`, distance).
+- **Perf** : acceptable jusqu’à **~100** noms en **rendu naïf** ; au-delà → **virtualisation** ou **culling** (n’afficher que les plus proches d’un ego putatif). Voir **densité** ci-dessous : la cible produit peut **forcer** ces techniques plus tôt.
+
+### Densité des noms — préférence PO (**plus dense**, 2026-05-09)
+
+Le nuage post-auth ne doit **pas** rester clairsemé : il faut **davantage de noms visibles en même temps** pour que la scène paraisse vivante et « famille », pas trois étiquettes isolées.
+
+**Conséquences Lot 6 (à budget dans l’enveloppe)** :
+
+| Levier | Détail |
+|--------|--------|
+| **Visuel** | Tailles de base **plus petites**, **chevauchements légers** acceptés (la lecture se fait par **illumination au curseur** / focus), éventuellement **strates** (profondeur, flou, opacité décroissante) pour **tasser** sans bouillir la carte. |
+| **Perf** | Dès que le nombre de candidats dépasse la zone confortable en brute force, **culling + virtualisation** = **chemin par défaut** (viewport + marge, anneaux autour de l’ego putatif, ou fenêtre glissante). |
+| **Qualité** | Éviter la bouillie : hiérarchie (proches plus nets), **pas** multiplication aveugle si ça casse la lisibilité — la densité est un **objectif**, pas une overdose au pixel près. |
+| **Mobile** | Si la densité desktop ne tient pas : **grille** plus fournie, ou **liste complémentaire** au nuage pour ne pas sacrifier le touch. |
+
+### Trois risques à anticiper
+
+| Risque | Mitigation |
+|--------|------------|
+| **Discoverabilité** (sans mouvement souris, rien ne bouge) | Hint subtil sous le titre du type *« Promenez le regard pour reconnaître les visages »*, ou **drift ambient** ultra-lent signalant que la scène est « vivante ». |
+| **Accessibilité** (hover = exclusion) | Navigation **Tab** (focus nom à nom), respect **`prefers-reduced-motion`**, pas seulement la souris. |
+| **Mobile** (pas de hover) | **Grille calme** ou **spotlight au touch** (le doigt comme curseur). |
+
+### Direction Yeboekun (ton)
+
+- Noms en **Cormorant Italic**, **opacity** base ~**0.4** (`ink4`), tailles **variées** (hiérarchie + **densité** : les plus petits permettent de **remplir** la toile sans tout égaler).
+- **Drift ambient** très lent (ordre **1–2 px/s**), opacity qui oscille doucement — *poussières d’étoiles*, pas confettis.
+- **Titre fixe** au centre : *« Qui voulez-vous retrouver ? »* en serif large.
+- **Proximité curseur** (&lt; **100 px**) : le nom **s’illumine** (opacity **1**, `ink`), **micro-italique** à côté (*« votre tante ? »*, *« votre cousin germain ? »* — relation dérivée d’un ego putatif).
+- **Clic** sur un nom → mini-menu : *« C’est moi »* / *« Le voir dans l’arbre »* / *« Je le connais, ancrez-moi près de lui »*.
+- **Skip** discret en bas : *« Je préfère explorer librement »*.
+
+---
+
+## Cadrage proposé (2026-05-08) — à valider par le PO
+
+Objectif : donner des **défauts** pour débloquer l’écriture du Lot 6 sans rouvrir les décisions déjà actées (ex. shell-14 = sélecteur personne dans la TopBar).
+
+### Prérequis backend (état repo au 2026-05-08)
+
+- Aucune couche **auth utilisateur** (ASP.NET Identity / `User` métier) repérée dans le backend actuel.
+- **Conséquence** : l’ancrage **V1** doit reposer sur **persistance navigateur** (`localStorage` ou `sessionStorage`) + éventuel **mode « cette session seulement »** pour poste partagé. Le lien **User ↔ Person** reste un **V2** dépendant d’un chantier auth.
+
+### Décisions recommandées (proposition)
+
+| Thème | Proposition | Notes |
+|--------|-------------|--------|
+| **Identification** | **A** en V1 (liste / sélecteur existant), **B** en V1.5 ou V2 (recherche + autocomplete), **C** (« créer / se présenter ») en **sous-lot** après file admin + notifications | A réutilise shell-14 ; C aligné sur la section « utilisateur non identifié » |
+| **Persistance** | `localStorage` pour ancrage stable + entrée **« oublier sur cet appareil »** + option **session seulement** | Jusqu’à auth serveur |
+| **Vue par défaut une fois ancré** | **Arbre vertical** centré sur la personne ancrée (Lots 1–2) ; **éventail** centré sur l’utilisateur en **Lot 3+** quand la perf / API le permettent | Cohérent avec la roadmap actuelle |
+| **Point d’entrée produit** | Écran **Tableau** (`/tableau`) ou **première visite** globale : question *« Qui es-tu dans cette famille ? »* | Tableau = accueil naturel (déjà noté dans l’idée initiale) |
+| **Mode visiteur + sortie** | Conserver les principes déjà rédigés : *« ce n’est pas moi »*, *vue libre*, ancrage réversible | Pas une identité système |
+
+### Critères d’acceptation Lot 6 (brouillon)
+
+1. **Nuage** : **densité élevée** de noms simultanés (cf. *Densité des noms*) — rendu **peuplé** sur desktop, pas un nuage à trois étiquettes.
+2. **Première visite** : si aucun ancrage stocké, l’utilisateur voit un flux d’accueil (pas un message d’échec) menant à la sélection d’une personne ou aux trois portes (voir section *non identifié*).
+3. **Visite suivante** : restauration de l’ancrage depuis le stockage choisi ; possibilité de **changer** / **effacer** l’ancrage.
+4. **Utilisateur absent de l’arbre** : copy **« pas encore »** ; les trois portes accessibles ; aucun libellé type *introuvable* / *non identifié*.
+5. **Non-régression** : navigation existante (shell, arbre, admin) inchangée pour qui ignore l’ancrage ou choisit *vue libre*.
+6. **Auth V2** (hors scope Lot 6 minimal si non prêt) : synchronisation serveur du lien User ↔ Person documentée en dette / Lot futur.
+
+### Ordre de travail suggéré (quand le Lot 6 sera planifié)
+
+1. UX + copy : flux première visite + trois portes + mini-galerie.
+2. Front : persistance clé(s), intégration sélecteur / routing « personne par défaut ».
+3. Back (si **Te présenter**) : file de demandes + notification admin — **sous-PR** si trop lourd.
+4. Heuristique « personne d’entrée » pour explorateur sans ancrage (stats / profondeur / récence — à trancher avec les données disponibles).
 
 ---
 
