@@ -18,3 +18,6 @@ export const VUE_ATELIER_ENABLED: boolean = import.meta.env.DEV;
 
 /** Vue Tableau (Lot 5) — dashboard chiffres clés de l'arbre. */
 export const VUE_TABLEAU_ENABLED: boolean = import.meta.env.DEV;
+
+/** Vue Welcome (Lot 6) — nuage de noms interactif post-authentification. */
+export const WELCOME_ENABLED: boolean = import.meta.env.DEV;

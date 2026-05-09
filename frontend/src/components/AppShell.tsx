@@ -15,13 +15,13 @@ export default function AppShell() {
 
   const { canEdit, enterEditMode, exitEditMode } = useEditMode();
 
-  const storedId = sessionStorage.getItem('yeboekun_welcome_selection');
+  const storedId = (() => { try { return sessionStorage.getItem('yeboekun_welcome_selection'); } catch { return null; } })();
   const [selectedPersonId, setSelectedPersonId] = useState<number | null>(
     storedId ? Number(storedId) : null
   );
 
   useEffect(() => {
-    sessionStorage.removeItem('yeboekun_welcome_selection');
+    try { sessionStorage.removeItem('yeboekun_welcome_selection'); } catch { /* storage blocked */ }
   }, []);
 
   useEffect(() => {

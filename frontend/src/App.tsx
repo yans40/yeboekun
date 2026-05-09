@@ -10,6 +10,7 @@ import FamilyAccessScreen from './components/FamilyAccessScreen';
 import WelcomeView from './views/WelcomeView';
 import { router } from './router';
 import { fetchAccessStatus } from './services/familyAccess';
+import { WELCOME_ENABLED } from './config/featureFlags';
 import { colors, fonts, radius } from './theme/tokens';
 
 const theme = createTheme({
@@ -99,7 +100,7 @@ export default function App() {
       </Box>
     );
   } else if (phase === 'gate') {
-    content = <FamilyAccessScreen onSuccess={() => setPhase('welcome')} />;
+    content = <FamilyAccessScreen onSuccess={() => setPhase(WELCOME_ENABLED ? 'welcome' : 'app')} />;
   } else if (phase === 'welcome') {
     content = (
       <WelcomeView

@@ -16,9 +16,9 @@ interface NameItem {
 }
 
 function getRelationHint(person: Person, t: (k: string) => string): string {
-  if (person.deathDate) return t('welcome.relation_ancestor');
   const birthYear = person.birthDate ? new Date(person.birthDate).getFullYear() : null;
   if (birthYear && birthYear > 2000) return t('welcome.relation_child');
+  if (!person.isAlive) return t('welcome.relation_ancestor');
   return t('welcome.relation_relative');
 }
 
@@ -115,7 +115,7 @@ export default function WelcomeView({ onEnter }: WelcomeViewProps) {
 
         el.style.transform = `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px)`;
         el.style.opacity = clampedOpacity.toFixed(2);
-        el.style.color = proximity > 0.45 ? colors.ink : colors.ink4;
+        el.style.color = proximity > 0.45 ? colors.ink : colors.ink3;
         el.style.fontWeight = proximity > 0.45 ? '500' : '400';
       });
 
@@ -162,20 +162,19 @@ export default function WelcomeView({ onEnter }: WelcomeViewProps) {
         <div style={{ flex: 1, overflowY: 'auto', padding: '8px 16px 16px' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 10px', justifyContent: 'center' }}>
             {Array.from({ length: 8 }, (_, rep) =>
-              nameItems.map(({ person, size }, i) => {
+              nameItems.map(({ person }, i) => {
                 const idx = rep * nameItems.length + i;
-                const opacity = 0.25 + ((idx * 7 + 3) % 13) * 0.058;
                 const fontSize = 10 + ((idx * 3 + rep * 5) % 10);
                 return (
                   <button
                     key={`${person.id}-${rep}`}
+                    tabIndex={rep === 0 ? 0 : -1}
                     onClick={e => handleNameClick(person, e)}
                     style={{
                       fontFamily: fonts.serif,
                       fontStyle: 'italic',
                       fontSize,
-                      color: colors.ink4,
-                      opacity,
+                      color: colors.ink3,
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
@@ -196,7 +195,7 @@ export default function WelcomeView({ onEnter }: WelcomeViewProps) {
         <div style={{ padding: '16px 24px 32px', textAlign: 'center', flexShrink: 0 }}>
           <button
             onClick={() => onEnter(null)}
-            style={{ fontFamily: fonts.sans, fontSize: 12, color: colors.ink4, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+            style={{ fontFamily: fonts.sans, fontSize: 12, color: colors.ink3, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
           >
             {t('welcome.skip')}
           </button>
@@ -231,14 +230,21 @@ export default function WelcomeView({ onEnter }: WelcomeViewProps) {
           tabIndex={0}
           aria-label={`${person.firstName} ${person.lastName}`}
           onClick={e => handleNameClick(person, e)}
-          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleNameClick(person, e as unknown as React.MouseEvent); } }}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+              setActivePerson(person);
+              setMenuPos({ x: rect.left, y: rect.bottom });
+            }
+          }}
           style={{
             position: 'absolute',
             transform: `translate(${initX}px, ${initY}px)`,
             fontFamily: fonts.serif,
             fontStyle: 'italic',
             fontSize: size,
-            color: colors.ink4,
+            color: colors.ink3,
             opacity: 0.22,
             cursor: 'pointer',
             userSelect: 'none',
@@ -285,7 +291,7 @@ export default function WelcomeView({ onEnter }: WelcomeViewProps) {
           transform: 'translateX(-50%)',
           fontFamily: fonts.sans,
           fontSize: 12,
-          color: colors.ink4,
+          color: colors.ink3,
           background: 'none',
           border: 'none',
           cursor: 'pointer',
@@ -325,6 +331,9 @@ function MiniMenu({ person, pos, relationHint, onAction, onClose, t }: MiniMenuP
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const firstBtn = menuRef.current?.querySelector<HTMLButtonElement>('[role="menuitem"]');
+    firstBtn?.focus();
+
     const handler = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) onClose();
     };
@@ -356,7 +365,7 @@ function MiniMenu({ person, pos, relationHint, onAction, onClose, t }: MiniMenuP
         minWidth: 200,
       }}
     >
-      <div style={{ padding: '6px 14px 6px', fontFamily: fonts.mono, fontSize: 10, color: colors.ink4, letterSpacing: '0.04em', display: 'flex', alignItems: 'baseline', gap: 6 }}>
+      <div style={{ padding: '6px 14px 6px', fontFamily: fonts.mono, fontSize: 10, color: colors.ink3, letterSpacing: '0.04em', display: 'flex', alignItems: 'baseline', gap: 6 }}>
         <span>{person.firstName} {person.lastName}</span>
         <span style={{ fontFamily: fonts.serif, fontStyle: 'italic', fontSize: 11, color: colors.ink3 }}>{relationHint}</span>
       </div>
