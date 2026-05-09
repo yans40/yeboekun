@@ -7,6 +7,7 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import { RouterProvider } from 'react-router-dom';
 import FamilyAccessScreen from './components/FamilyAccessScreen';
+import WelcomeView from './views/WelcomeView';
 import { router } from './router';
 import { fetchAccessStatus } from './services/familyAccess';
 import { colors, fonts, radius } from './theme/tokens';
@@ -52,7 +53,7 @@ const theme = createTheme({
   },
 });
 
-type AccessPhase = 'loading' | 'gate' | 'app';
+type AccessPhase = 'loading' | 'gate' | 'welcome' | 'app';
 
 export default function App() {
   const { t } = useTranslation();
@@ -98,7 +99,18 @@ export default function App() {
       </Box>
     );
   } else if (phase === 'gate') {
-    content = <FamilyAccessScreen onSuccess={() => setPhase('app')} />;
+    content = <FamilyAccessScreen onSuccess={() => setPhase('welcome')} />;
+  } else if (phase === 'welcome') {
+    content = (
+      <WelcomeView
+        onEnter={(personId) => {
+          if (personId !== null) {
+            sessionStorage.setItem('yeboekun_welcome_selection', String(personId));
+          }
+          setPhase('app');
+        }}
+      />
+    );
   } else {
     content = <RouterProvider router={router} />;
   }
