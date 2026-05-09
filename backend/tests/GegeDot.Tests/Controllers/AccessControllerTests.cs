@@ -127,6 +127,16 @@ public class AccessControllerTests
     }
 
     [Fact]
+    public void Verify_WhenGateActiveAndEmptyStringPassword_ReturnsUnauthorized()
+    {
+        var controller = CreateController(new FamilyAccessOptions { Disabled = false, Password = "good" }, out _);
+
+        var result = controller.Verify(new AccessController.VerifyAccessRequest(""));
+
+        result.Should().BeOfType<UnauthorizedResult>();
+    }
+
+    [Fact]
     public void Verify_WhenGateActiveAndPasswordCorrect_ReturnsOkAndSetsCookie()
     {
         var controller = CreateController(new FamilyAccessOptions { Disabled = false, Password = "good" }, out var ctx);

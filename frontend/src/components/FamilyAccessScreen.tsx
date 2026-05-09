@@ -29,6 +29,10 @@ export default function FamilyAccessScreen({ onSuccess }: FamilyAccessScreenProp
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!password.trim()) {
+      setError(t('family_access.wrong_password'));
+      return;
+    }
     setError(null);
     setSubmitting(true);
     try {
@@ -165,7 +169,7 @@ export default function FamilyAccessScreen({ onSuccess }: FamilyAccessScreenProp
           maxWidth: 360,
           fontFamily: fonts.sans,
           fontSize: 12,
-          color: colors.ink4,
+          color: colors.ink3,
           textAlign: 'center',
           lineHeight: 1.45,
         }}
