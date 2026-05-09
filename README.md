@@ -53,6 +53,14 @@ VITE_EDIT_PASSWORD=ton_mot_de_passe
 # Note : ancienne variable VITE_ADMIN_PASSWORD dépréciée — mettre à jour les déploiements existants
 ```
 
+### Accès lecture (famille)
+
+Un **mot de passe partagé** peut protéger **toute l’API** (cookie HttpOnly après saisie sur un écran d’accueil). Configuration : section `FamilyAccess` dans l’API, variables `FamilyAccess__Password` / `FamilyAccess__Disabled`, CORS avec origines explicites.
+
+**Documentation détaillée** : [docs/architecture/FAMILY_ACCESS.md](docs/architecture/FAMILY_ACCESS.md).
+
+En développement local, le garde-fou est en général **désactivé** via `appsettings.Development.json` (fichier non versionné) ; pour **prévisualiser** l’écran mot de passe, y mettre `"Disabled": false` et un mot de passe de test.
+
 ## Démarrage rapide
 
 ### Prérequis
@@ -76,6 +84,14 @@ docker-compose up -d
 | phpMyAdmin | http://localhost:8080 |
 
 ## API — Endpoints principaux
+
+Accès famille (si le garde-fou est actif) :
+
+```
+GET    /api/access/status        Statut du garde-fou et du cookie
+POST   /api/access/verify        Vérification du mot de passe (pose le cookie)
+POST   /api/access/logout        Suppression du cookie
+```
 
 ```
 GET    /api/persons              Liste des personnes
@@ -193,6 +209,8 @@ Le workflow `.github/workflows/ci.yml` lance les deux suites sur `push` et `pull
 ## Documentation
 
 - [DOCUMENTATION.md](DOCUMENTATION.md) — guide pédagogique (architecture, cas pratiques, décisions techniques)
+- [docs/architecture/FAMILY_ACCESS.md](docs/architecture/FAMILY_ACCESS.md) — accès lecture par mot de passe familial (API + front)
+- [docs/architecture/AGENTS_SCHEMA.md](docs/architecture/AGENTS_SCHEMA.md) — coordination agents IA / squads
 - [docs/deploiement.md](docs/deploiement.md) — plan de déploiement sur Render
 
 ## Licence

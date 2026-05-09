@@ -11,10 +11,18 @@ import { colors } from '../theme/tokens';
 
 export default function AppShell() {
   const [persons, setPersons] = useState<Person[]>([]);
-  const [selectedPersonId, setSelectedPersonId] = useState<number | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
 
   const { canEdit, enterEditMode, exitEditMode } = useEditMode();
+
+  const storedId = (() => { try { return sessionStorage.getItem('yeboekun_welcome_selection'); } catch { return null; } })();
+  const [selectedPersonId, setSelectedPersonId] = useState<number | null>(
+    storedId ? Number(storedId) : null
+  );
+
+  useEffect(() => {
+    try { sessionStorage.removeItem('yeboekun_welcome_selection'); } catch { /* storage blocked */ }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
