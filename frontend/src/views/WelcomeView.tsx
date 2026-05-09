@@ -161,11 +161,11 @@ export default function WelcomeView({ onEnter }: WelcomeViewProps) {
         {/* Nuage scrollable */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '8px 16px 16px' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 10px', justifyContent: 'center' }}>
-            {Array.from({ length: 4 }, (_, rep) =>
+            {Array.from({ length: 8 }, (_, rep) =>
               nameItems.map(({ person, size }, i) => {
                 const idx = rep * nameItems.length + i;
                 const opacity = 0.25 + ((idx * 7 + 3) % 13) * 0.058;
-                const fontSize = 11 + ((idx * 3 + rep * 5) % 8);
+                const fontSize = 10 + ((idx * 3 + rep * 5) % 10);
                 return (
                   <button
                     key={`${person.id}-${rep}`}
