@@ -21,12 +21,17 @@
     "family_logout": "Quitter l'accès famille"
   },
   "family_access": {
-    "title": "Bienvenue",
-    "subtitle": "Cet arbre est réservé à la famille. Saisissez le mot de passe qui vous a été communiqué.",
-    "password_label": "Mot de passe",
-    "submit": "Entrer",
+    "tagline": "La mémoire des liens",
+    "title": "Cet arbre vous attend",
+    "subtitle": "Un mot de passe commun protège ce lieu partagé par la famille. Saisissez-le pour entrer — ce n'est pas une erreur si vous ne l'avez pas encore : demandez-le à quelqu'un qui y a accès.",
+    "password_label": "Mot de passe familial",
+    "submit": "Continuer",
     "submitting": "Vérification…",
-    "wrong_password": "Mot de passe incorrect."
+    "wrong_password": "Ce mot de passe ne correspond pas. Vérifiez votre saisie ou demandez le bon mot de passe à la personne qui gère l'arbre.",
+    "network_error": "Connexion au serveur impossible. Vérifiez votre réseau et réessayez dans un instant.",
+    "generic_error": "Une erreur s'est produite. Réessayez.",
+    "hint_footer": "Le mot de passe vous est communiqué hors ligne par un proche.",
+    "loading_status": "Vérification de l'accès…"
   },
   "placeholder": {
     "coming_soon": "Bientôt disponible",

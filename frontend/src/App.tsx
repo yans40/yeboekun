@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import ThemeProvider from '@mui/material/styles/ThemeProvider';
 import createTheme from '@mui/material/styles/createTheme';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -54,6 +55,7 @@ const theme = createTheme({
 type AccessPhase = 'loading' | 'gate' | 'app';
 
 export default function App() {
+  const { t } = useTranslation();
   const [phase, setPhase] = useState<AccessPhase>('loading');
 
   useEffect(() => {
@@ -88,7 +90,11 @@ export default function App() {
           bgcolor: colors.paper,
         }}
       >
-        <CircularProgress sx={{ color: colors.sepia }} aria-label="Loading" />
+        <CircularProgress
+          sx={{ color: colors.sepia }}
+          aria-label={t('family_access.loading_status')}
+          role="status"
+        />
       </Box>
     );
   } else if (phase === 'gate') {
