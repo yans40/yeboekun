@@ -144,33 +144,60 @@ export default function WelcomeView({ onEnter }: WelcomeViewProps) {
     onEnter(personId);
   }, [onEnter]);
 
-  // Mobile: calm grid
+  // Mobile: dense tag-cloud grid
   if (noHover) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.paper, padding: '40px 20px' }}>
-        <p style={{ fontFamily: fonts.serif, fontSize: '1.35rem', fontWeight: 500, color: colors.ink, textAlign: 'center', marginBottom: 8 }}>
-          {t('welcome.title')}
-        </p>
-        <p style={{ fontFamily: fonts.sans, fontSize: 12, color: colors.ink3, textAlign: 'center', marginBottom: 32 }}>
-          {t('welcome.hint_move')}
-        </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 16px', justifyContent: 'center', maxWidth: 440, marginBottom: 48 }}>
-          {nameItems.slice(0, 30).map(({ person }) => (
-            <button
-              key={person.id}
-              onClick={e => handleNameClick(person, e)}
-              style={{ fontFamily: fonts.serif, fontStyle: 'italic', fontSize: 14, color: colors.ink3, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px' }}
-            >
-              {person.firstName} {person.lastName}
-            </button>
-          ))}
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: colors.paper }}>
+        {/* Header fixe */}
+        <div style={{ padding: '48px 24px 24px', textAlign: 'center', flexShrink: 0 }}>
+          <p style={{ fontFamily: fonts.serif, fontSize: '1.4rem', fontWeight: 500, color: colors.ink, margin: '0 0 6px' }}>
+            {t('welcome.title')}
+          </p>
+          <p style={{ fontFamily: fonts.sans, fontSize: 12, color: colors.ink3, margin: 0 }}>
+            {t('welcome.hint_move')}
+          </p>
         </div>
-        <button
-          onClick={() => onEnter(null)}
-          style={{ fontFamily: fonts.sans, fontSize: 12, color: colors.ink4, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
-        >
-          {t('welcome.skip')}
-        </button>
+
+        {/* Nuage scrollable */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '8px 16px 16px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 10px', justifyContent: 'center' }}>
+            {nameItems.map(({ person, size }, i) => {
+              const opacity = 0.35 + ((i * 7 + 3) % 10) * 0.065;
+              const fontSize = size;
+              return (
+                <button
+                  key={person.id}
+                  onClick={e => handleNameClick(person, e)}
+                  style={{
+                    fontFamily: fonts.serif,
+                    fontStyle: 'italic',
+                    fontSize,
+                    color: colors.ink4,
+                    opacity,
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '3px 5px',
+                    lineHeight: 1.3,
+                    WebkitTapHighlightColor: 'transparent',
+                  }}
+                >
+                  {person.firstName} {person.lastName}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Skip fixe en bas */}
+        <div style={{ padding: '16px 24px 32px', textAlign: 'center', flexShrink: 0 }}>
+          <button
+            onClick={() => onEnter(null)}
+            style={{ fontFamily: fonts.sans, fontSize: 12, color: colors.ink4, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+          >
+            {t('welcome.skip')}
+          </button>
+        </div>
 
         {activePerson && menuPos && (
           <MiniMenu
