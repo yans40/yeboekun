@@ -90,4 +90,22 @@ public class RelationshipRepository : IRelationshipRepository
                            (r.Person1Id == person2Id && r.Person2Id == person1Id)) &&
                           r.RelationshipType == type);
     }
+
+    public async Task<List<Relationship>> GetSpousesInSetAsync(
+        IEnumerable<int> personIds,
+        CancellationToken cancellationToken = default)
+    {
+        // Matérialiser en HashSet pour que EF Core génère un IN (...) efficace
+        var idSet = personIds.ToHashSet();
+
+        // On retourne les Spouse dont les DEUX extrémités sont dans l'ensemble.
+        // Pas d'Include des entités Person : le controller/service n'en a pas besoin,
+        // seuls les IDs scalaires sont utilisés.
+        return await _context.Relationships
+            .AsNoTracking()
+            .Where(r => r.RelationshipType == RelationshipType.Spouse
+                        && idSet.Contains(r.Person1Id)
+                        && idSet.Contains(r.Person2Id))
+            .ToListAsync(cancellationToken);
+    }
 }

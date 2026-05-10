@@ -3,7 +3,6 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import AppShell from './components/AppShell';
 import PlaceholderView from './components/PlaceholderView';
 import { VUE_RIVIERE_ENABLED, VUE_CONTEMPLATION_ENABLED, VUE_ATELIER_ENABLED, VUE_TABLEAU_ENABLED } from './config/featureFlags';
-import { riverViewMock } from './mocks/riverViewMock';
 
 const ArbreView         = lazy(() => import('./components/ArbreView'));
 const AdminPage         = lazy(() => import('./components/AdminPage'));
@@ -33,7 +32,7 @@ export const router = createBrowserRouter([
       {
         path: '/riviere',
         element: VUE_RIVIERE_ENABLED
-          ? <RiviereView data={riverViewMock} />
+          ? <RiviereView />
           : <PlaceholderView name="Rivière" />,
       },
       {

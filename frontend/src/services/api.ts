@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { Person, CreatePersonDto, UpdatePersonDto, Relationship, CreateRelationshipDto, Tree, CreateTreeDto, FamilyData, SpouseInfo } from '@/types';
+import { Person, CreatePersonDto, UpdatePersonDto, Relationship, CreateRelationshipDto, Tree, CreateTreeDto, FamilyData, SpouseInfo, RiverViewData } from '@/types';
 
 class ApiService {
   private api: AxiosInstance;
@@ -114,6 +114,14 @@ class ApiService {
     return response.data;
   }
 
+  // River view API
+  async getRiverView(id: number, depth = 3): Promise<RiverViewData> {
+    const response = await this.api.get<RiverViewData>(`/persons/${id}/river-view`, {
+      params: { depth },
+    });
+    return response.data;
+  }
+
   // Tree API (pour plus tard)
   async getTrees(): Promise<Tree[]> {
     const response = await this.api.get<Tree[]>('/trees');
@@ -132,4 +140,5 @@ export const apiService = new ApiService();
 export default apiService;
 
 // Export direct pour les tests
-export const fetchPersons = apiService.getPersons.bind(apiService);
+export const fetchPersons   = apiService.getPersons.bind(apiService);
+export const fetchRiverView = (id: number, depth = 3) => apiService.getRiverView(id, depth);
