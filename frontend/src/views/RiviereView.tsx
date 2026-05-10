@@ -9,8 +9,7 @@
  *   - Pas de D3 : layout CSS pur (flexbox horizontal).
  *
  * Données : branchée sur GET /api/persons/{id}/river-view via useRiverView.
- * En DEV sans personne sélectionnée → fallback mock local pour prévisualisation.
- * Remplace le PlaceholderView sur /riviere quand VUE_RIVIERE_ENABLED=true.
+ * Remplace le PlaceholderView sur /riviere quand VUE_RIVIERE_ENABLED=true (feature flag DEV).
  */
 
 import React, { useEffect, useRef, type RefObject } from 'react';
@@ -19,48 +18,7 @@ import { colors, fonts, radius, spacing } from '../theme/tokens';
 import PersonChip from '../components/PersonChip';
 import { useFamilyTreeContext } from '../context/FamilyTreeContext';
 import { useRiverView } from '../hooks/useRiverView';
-import { VUE_RIVIERE_ENABLED } from '../config/featureFlags';
 import type { RiverViewData, RiverViewNode, RiverViewEdge } from '../types';
-
-// ── Mock DEV (fallback local sans backend ni personne sélectionnée) ────────────
-//
-// Arbre centré sur Marie FONTAINE (id 10, generation 0).
-// Branches intentionnellement asymétriques pour tester le rendu.
-const RIVER_MOCK: RiverViewData = {
-  rootId: 10,
-  depth: 3,
-  generationRange: { min: -2, max: 1 },
-  nodes: [
-    { id: 1,  firstName: 'Édouard', lastName: 'Fontaine', birthDate: '1890-03-14', deathDate: '1968-11-02', isAlive: false, gender: 'M', photoUrl: null, generation: -2 },
-    { id: 2,  firstName: 'Hortense', lastName: 'Marchand', birthDate: '1895-07-22', deathDate: '1972-04-18', isAlive: false, gender: 'F', photoUrl: null, generation: -2 },
-    { id: 3,  firstName: 'Robert',   lastName: 'Fontaine', birthDate: '1920-05-10', deathDate: '1995-08-30', isAlive: false, gender: 'M', photoUrl: null, generation: -1 },
-    { id: 4,  firstName: 'Suzanne',  lastName: 'Leroy',    birthDate: '1923-01-15', deathDate: '2001-12-05', isAlive: false, gender: 'F', photoUrl: null, generation: -1 },
-    { id: 5,  firstName: 'Henri',    lastName: 'Morel',    birthDate: '1918-09-03', deathDate: '1980-02-14', isAlive: false, gender: 'M', photoUrl: null, generation: -1 },
-    { id: 6,  firstName: 'Jeanne',   lastName: 'Petit',    birthDate: '1921-11-28', deathDate: null,         isAlive: true,  gender: 'F', photoUrl: null, generation: -1 },
-    { id: 10, firstName: 'Marie',    lastName: 'Fontaine', birthDate: '1972-06-15', deathDate: null,         isAlive: true,  gender: 'F', photoUrl: null, generation: 0  },
-    { id: 11, firstName: 'Thomas',   lastName: 'Dumont',   birthDate: '1970-03-22', deathDate: null,         isAlive: true,  gender: 'M', photoUrl: null, generation: 0  },
-    { id: 12, firstName: 'Claire',   lastName: 'Fontaine', birthDate: '1975-09-08', deathDate: null,         isAlive: true,  gender: 'F', photoUrl: null, generation: 0  },
-    { id: 20, firstName: 'Lucas',    lastName: 'Dumont',   birthDate: '2000-04-12', deathDate: null,         isAlive: true,  gender: 'M', photoUrl: null, generation: 1  },
-    { id: 21, firstName: 'Camille',  lastName: 'Dumont',   birthDate: '2003-07-19', deathDate: null,         isAlive: true,  gender: 'F', photoUrl: null, generation: 1  },
-  ],
-  edges: [
-    { sourceId: 1,  targetId: 2,  type: 'Spouse',  startDate: '1917-06-10', endDate: null, isActive: true },
-    { sourceId: 1,  targetId: 3,  type: 'Parent',  startDate: null,         endDate: null, isActive: true },
-    { sourceId: 2,  targetId: 3,  type: 'Parent',  startDate: null,         endDate: null, isActive: true },
-    { sourceId: 3,  targetId: 4,  type: 'Spouse',  startDate: '1948-05-20', endDate: null, isActive: true },
-    { sourceId: 5,  targetId: 6,  type: 'Spouse',  startDate: '1945-09-15', endDate: null, isActive: true },
-    { sourceId: 3,  targetId: 10, type: 'Parent',  startDate: null,         endDate: null, isActive: true },
-    { sourceId: 4,  targetId: 10, type: 'Parent',  startDate: null,         endDate: null, isActive: true },
-    { sourceId: 5,  targetId: 12, type: 'Parent',  startDate: null,         endDate: null, isActive: true },
-    { sourceId: 6,  targetId: 12, type: 'Parent',  startDate: null,         endDate: null, isActive: true },
-    { sourceId: 10, targetId: 12, type: 'Sibling', startDate: null,         endDate: null, isActive: true },
-    { sourceId: 10, targetId: 11, type: 'Spouse',  startDate: '1998-09-05', endDate: null, isActive: true },
-    { sourceId: 10, targetId: 20, type: 'Parent',  startDate: null,         endDate: null, isActive: true },
-    { sourceId: 11, targetId: 20, type: 'Parent',  startDate: null,         endDate: null, isActive: true },
-    { sourceId: 10, targetId: 21, type: 'Parent',  startDate: null,         endDate: null, isActive: true },
-    { sourceId: 11, targetId: 21, type: 'Parent',  startDate: null,         endDate: null, isActive: true },
-  ],
-};
 
 // ── Types internes ─────────────────────────────────────────────────────────────
 
@@ -267,9 +225,7 @@ export default function RiviereView() {
   const rootColumnRef = useRef<HTMLDivElement | null>(null);
   const containerRef  = useRef<HTMLDivElement | null>(null);
 
-  // En DEV sans personne sélectionnée → prévisualisation avec le mock local
-  const isMockFallback = VUE_RIVIERE_ENABLED && selectedPersonId === null && fetchedData === null;
-  const data: RiverViewData | null = fetchedData ?? (isMockFallback ? RIVER_MOCK : null);
+  const data: RiverViewData | null = fetchedData;
 
   // Générations et groupes calculés seulement quand data est disponible (sinon vides)
   const generationMap   = data ? buildGenerationGroups(data.nodes, data.edges) : new Map<number, SpouseGroup[]>();
@@ -300,8 +256,8 @@ export default function RiviereView() {
     }
   }, [data]);
 
-  // ── Aucune personne sélectionnée (hors DEV) ─────────────────────────────────
-  if (selectedPersonId === null && !VUE_RIVIERE_ENABLED) {
+  // ── Aucune personne sélectionnée ────────────────────────────────────────────
+  if (selectedPersonId === null) {
     return (
       <div
         data-testid="riviere-no-selection"
@@ -407,18 +363,6 @@ export default function RiviereView() {
         }}>
           {nodes.length} personnes · {generationRange.max - generationRange.min + 1} générations
         </span>
-        {/* Badge visible uniquement quand les données viennent du mock local */}
-        {isMockFallback && (
-          <span style={{
-            fontFamily: fonts.mono,
-            fontSize: 9,
-            color: colors.rust,
-            letterSpacing: '0.04em',
-            marginLeft: spacing[2],
-          }}>
-            {t('riviere.mock_badge', 'données mockées')}
-          </span>
-        )}
       </div>
 
       {/* Zone de scroll horizontal */}
