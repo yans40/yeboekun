@@ -17,6 +17,7 @@ public class PersonsController : ControllerBase
     private readonly IMapper _mapper;
     private readonly ILogger<PersonsController> _logger;
     private readonly ITreeTraversalService _treeTraversalService;
+    private readonly IRiverViewService _riverViewService;
 
     public PersonsController(
         IPersonService personService,
@@ -24,7 +25,8 @@ public class PersonsController : ControllerBase
         IUnitOfWork unitOfWork,
         IMapper mapper,
         ILogger<PersonsController> logger,
-        ITreeTraversalService treeTraversalService)
+        ITreeTraversalService treeTraversalService,
+        IRiverViewService riverViewService)
     {
         _personService = personService;
         _duplicateDetectionService = duplicateDetectionService;
@@ -32,6 +34,7 @@ public class PersonsController : ControllerBase
         _mapper = mapper;
         _logger = logger;
         _treeTraversalService = treeTraversalService;
+        _riverViewService = riverViewService;
     }
 
     /// <summary>
@@ -660,6 +663,44 @@ public class PersonsController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erreur lors de la construction de l'arbre pour la personne {PersonId}", id);
+            return StatusCode(500, "Erreur interne du serveur");
+        }
+    }
+
+    /// <summary>
+    /// Retourne les données de la Vue Rivière centrée sur une personne.
+    /// Inclut nœuds (avec IsAlive, Gender, PhotoUrl), arêtes Parent et Spouse,
+    /// et la plage de générations présentes dans le sous-arbre.
+    /// </summary>
+    /// <param name="id">ID de la personne racine.</param>
+    /// <param name="depth">
+    /// Profondeur symétrique (ancêtres et descendants). Défaut 3, max 5.
+    /// </param>
+    [HttpGet("{id}/river-view")]
+    [ProducesResponseType(typeof(RiverViewDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<RiverViewDto>> GetRiverView(
+        int id,
+        [FromQuery] int depth = 3,
+        CancellationToken cancellationToken = default)
+    {
+        depth = Math.Clamp(depth, 1, 5);
+
+        try
+        {
+            var riverView = await _riverViewService.BuildRiverViewAsync(id, depth, cancellationToken);
+            if (riverView is null)
+                return NotFound($"Personne avec l'ID {id} non trouvée");
+
+            _logger.LogInformation(
+                "Vue Rivière construite pour la personne {PersonId} — {NodeCount} nœuds, {EdgeCount} arêtes (depth={Depth})",
+                id, riverView.Nodes.Count, riverView.Edges.Count, depth);
+
+            return Ok(riverView);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur lors de la construction de la Vue Rivière pour la personne {PersonId}", id);
             return StatusCode(500, "Erreur interne du serveur");
         }
     }
