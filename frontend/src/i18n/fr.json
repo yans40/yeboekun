@@ -120,6 +120,16 @@
     "relation_child": "un enfant ?",
     "relation_relative": "un proche ?"
   },
+  "riviere": {
+    "no_selection": "Sélectionnez une personne pour explorer sa rivière",
+    "no_selection_hint": "Utilisez la barre de recherche en haut de page",
+    "mock_badge": "données mockées",
+    "legend": "LÉGENDE",
+    "legend_male": "Masculin",
+    "legend_female": "Féminin",
+    "legend_other": "Autre",
+    "legend_deceased": "Décédé(e)"
+  },
   "contemplation": {
     "aria_label": "Éventail généalogique centré sur {{name}}",
     "eyebrow": "MODE CONTEMPLATION",
