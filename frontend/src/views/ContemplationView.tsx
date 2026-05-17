@@ -94,7 +94,7 @@ export default function ContemplationView() {
       panel.querySelectorAll<HTMLElement>(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       )
-    ).filter(el => !el.disabled && el.offsetParent !== null);
+    ).filter(el => !(el as HTMLInputElement).disabled && el.offsetParent !== null);
     if (focusable.length === 0) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
