@@ -1,14 +1,14 @@
 # PROJECT_STATE — GegeDot / Yeboekun
 
 > Source de vérité du projet — pilotée par Émile (Claude Code)
-> Dernière mise à jour : 2026-05-13 — validation spec Contemplation v4 hybride (PO) — Émile
+> Dernière mise à jour : 2026-05-17 — FanCanvasV2 v5 qa-validated, PR #50 prête pour merge main — Émile
 
 ---
 
-## Lot en cours : **Lot 4 — Vue Atelier**
+## Lot en cours : **FanCanvasV2 v5 — prêt pour merge main**
 
-- **Branche active** : `dev` (prêt pour nouvelle feature branch)
-- **Statut** : démarrage — Lot 3 + mobile shell mergés.
+- **Branche active** : `dev`
+- **Statut** : PR #50 `qa-validated` — merge main en attente d'approbation PO.
 
 ---
 
@@ -20,6 +20,7 @@
 | Lot 1 — Foundation (tokens, shell, i18n, routing) | ✅ mergé | #33 + #35 |
 | Lot 2 — Vue Rivière + Brand | ✅ mergé | #38 |
 | Lot 3 — Vue Contemplation (FanCanvasV2 + usePersonTree) | ✅ mergé | #39 |
+| FanCanvasV2 v5 (texte horizontal, adaptName, a11y, i18n) | 🟡 qa-validated, merge en attente | #50 |
 | Mobile Shell Pass (M1–M5 : hamburger, Drawer, safe-area, dvh, touch) | ✅ mergé dans dev | #40 |
 
 ---
@@ -68,4 +69,4 @@
 
 ---
 
-*Mis à jour — 2026-05-09*
+*Mis à jour — 2026-05-17*
