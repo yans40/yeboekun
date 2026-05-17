@@ -7,7 +7,7 @@
  * Spec visuelle : viewBox 0 0 1240 840, centre ego cx=620 cy=420.
  *   - Ascendants : demi-cercle supérieur (-180° à 0°), jusqu'à 5 générations.
  *   - Descendants : demi-cercle inférieur (0° à 180°), jusqu'à 2 générations.
- *   - Secteurs vides : fill transparent, strokeDasharray, + rouille.
+ *   - Secteurs vides : fill transparent, strokeDasharray, + croix rouille.
  *
  * Algorithme de placement :
  *   - Ascendants : arbre binaire positionnel. Gen g → 2^g secteurs de 180/2^g degrés chacun.
@@ -16,10 +16,17 @@
  *   - Descendants : les enfants de l'ego répartis équitablement sur 180°.
  *     Les enfants des enfants répartis proportionnellement dans le secteur de leur parent.
  *
+ * v5 — Texte horizontal partout :
+ *   - Aucune rotation sur les labels (suppression de textRotation + <g transform rotate>).
+ *   - adaptName() : cascade d'abréviation avec gestion des particules et noms composés.
+ *   - Mesure de corde réelle via canvas hors-écran (measureText après fonts.ready).
+ *   - Secteur muet si adaptName retourne null : petit cercle cream + <title> tooltip.
+ *   - clipPath par secteur comme filet de sécurité anti-débordement.
+ *
  * Contrainte : pas de new Date() — extraction d'année via string.slice(0,4).
  */
 
-import React from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { PersonTreeDto, PersonTreeNodeDto } from '../types';
 import { colors, fonts } from '../theme/tokens';
@@ -36,20 +43,381 @@ const STEP_DN  = 80; // épaisseur d'un anneau descendant
 const MAX_GEN_UP   = 5;
 const MAX_GEN_DOWN = 2;
 
-// Palettes par génération
-const COLORS_UP: readonly string[] = ['#7d5a36', '#8a6741', '#9d7a4f', '#b3926a', '#cbac88'];
-const COLORS_DN: readonly string[] = ['#6a7242', '#8a8f5a'];
-const RUST = '#b87333';
+// Palettes par génération — issues des tokens v4 (tokens.ts colors.ascN / colors.descN)
+const COLORS_UP: readonly string[] = [
+  colors.asc1,  // génération 1
+  colors.asc2,  // génération 2
+  colors.asc3,  // génération 3
+  colors.asc4,  // génération 4
+  colors.asc5,  // génération 5
+];
+const COLORS_DN: readonly string[] = [
+  colors.desc1, // génération 1
+  colors.desc2, // génération 2
+];
+const RUST = colors.rust;
+
+// ── Canvas hors-écran pour mesure de texte ───────────────────────────────────
+
+/**
+ * Accès lazy au contexte 2D du canvas de mesure.
+ * Le canvas est créé uniquement au premier appel pour éviter le warning jsdom
+ * lors de l'import du module en environnement de test (jest-environment-jsdom
+ * lève un "not implemented" sur getContext au moment de l'initialisation
+ * module-level si on n'est pas sous canvas npm).
+ *
+ * En pratique : retourne null en test (avail=0 → adaptName retourne le nom complet),
+ * et un contexte 2D valide en navigateur.
+ */
+let _mctx: CanvasRenderingContext2D | null | false = false; // false = "pas encore tenté"
+
+function getMeasureCtx(): CanvasRenderingContext2D | null {
+  if (_mctx !== false) return _mctx;
+  try {
+    if (typeof document === 'undefined') { _mctx = null; return null; }
+    const mc = document.createElement('canvas');
+    _mctx = mc.getContext('2d'); // peut retourner null en jsdom sans canvas npm
+  } catch {
+    _mctx = null;
+  }
+  return _mctx;
+}
+
+/**
+ * Mesure la largeur d'un texte dans Cormorant Garamond Italic 500.
+ * Retourne 0 si le canvas n'est pas disponible (SSR ou test).
+ */
+function measureText(text: string, fs: number): number {
+  const ctx = getMeasureCtx();
+  if (!ctx) return 0;
+  ctx.font = `italic 500 ${fs}px "Cormorant Garamond", Georgia, serif`;
+  return ctx.measureText(text).width;
+}
+
+// ── Particules de nom ────────────────────────────────────────────────────────
+
+/**
+ * Ensemble des particules nobiliaires / prépositions à ne jamais initialiser
+ * (elles restent collées à leur composant jusqu'au tier 5 de la cascade).
+ *
+ * Règle : comparaison insensible à la casse, sans l'apostrophe trailing
+ * (d' est normalisé en d avant comparaison).
+ */
+const PARTICLES = new Set([
+  'de','du','des','d','da','dal','del','della','di',
+  'la','le','van','von','ten','ter','af','el','al',
+  'ben','bin','mac','mc','o',
+]);
+
+function isParticle(word: string): boolean {
+  return PARTICLES.has(word.toLowerCase().replace(/[''']$/, ''));
+}
+
+// ── Parsing du nom de famille ─────────────────────────────────────────────────
+
+/**
+ * Segment du nom de famille.
+ *   - isParticle : true si c'est une particule (de, van, von, etc.)
+ *   - parts : pour un composé "Roux-Beaumarchais" → ["Roux", "Beaumarchais"]
+ *             pour un simple "Moreau" → ["Moreau"]
+ */
+interface SurnameSegment {
+  isParticle: boolean;
+  /** Les morceaux séparés par des traits d'union (toujours au moins 1). */
+  parts: string[];
+  /** La chaîne d'origine, incluant traits d'union. */
+  raw: string;
+}
+
+/**
+ * Décompose un nom de famille en segments : particules et composants (simples ou composés).
+ *
+ * Exemple : "de Saint-Maurice" → [
+ *   { isParticle:true, parts:["de"], raw:"de" },
+ *   { isParticle:false, parts:["Saint","Maurice"], raw:"Saint-Maurice" }
+ * ]
+ *
+ * Les apostrophes en fin de particule sont conservées dans raw mais normalisées
+ * pour le test isParticle (d' → "d").
+ */
+function parseSurname(lastName: string): SurnameSegment[] {
+  if (!lastName) return [];
+  // On split sur les espaces, mais on recolle ce qui est lié par trait d'union
+  // à l'intérieur d'un token.
+  const tokens = lastName.split(/\s+/).filter(Boolean);
+  return tokens.map(token => {
+    const parts = token.split('-').filter(Boolean);
+    return {
+      isParticle: parts.length === 1 && isParticle(parts[0]),
+      parts,
+      raw: token,
+    };
+  });
+}
+
+/**
+ * Reconstruit une chaîne depuis les segments.
+ * Chaque segment est joint avec des espaces, les parts d'un segment sont rejoints
+ * avec des traits d'union.
+ */
+function joinSegments(segs: SurnameSegment[]): string {
+  return segs.map(s => s.parts.join('-')).join(' ');
+}
+
+// ── Abréviations ────────────────────────────────────────────────────────────
+
+/** Abrège un mot simple : "Maurice" → "M." */
+function abbrWord(word: string): string {
+  if (!word) return '';
+  return `${word[0].toUpperCase()}.`;
+}
+
+/**
+ * Abrège un segment composé depuis la queue.
+ * Tiers d'abréviation :
+ *   - tier 1 : "Roux-Beaumarchais" → "Roux-B."   (dernier composant abrégé)
+ *   - tier 2 : "Roux-Beaumarchais" → "R.-B."      (tous composants abrégés)
+ *
+ * Retourne les deux tiers sous forme de string[].
+ */
+function abbrSegment(seg: SurnameSegment): [string, string] {
+  if (seg.isParticle) {
+    return [seg.raw, seg.raw]; // les particules ne sont jamais abrégées
+  }
+  if (seg.parts.length === 1) {
+    const abbr = abbrWord(seg.parts[0]);
+    return [abbr, abbr]; // simple → une seule forme
+  }
+  // Composé : tier 1 = dernier mot abrégé
+  const tier1Parts = [...seg.parts.slice(0, -1), abbrWord(seg.parts[seg.parts.length - 1])];
+  const tier1 = tier1Parts.join('-');
+  // Composé : tier 2 = tout abrégé
+  const tier2Parts = seg.parts.map(abbrWord);
+  const tier2 = tier2Parts.join('-');
+  return [tier1, tier2];
+}
+
+// ── adaptName : cœur de la spec v5 ──────────────────────────────────────────
+
+/**
+ * Retourne le texte le plus long qui tient dans `avail` pixels, ou `null`
+ * si même la forme la plus courte ne tient pas (→ secteur muet).
+ *
+ * Cascade (du plus long au plus court) :
+ *   1. "Prénom Nom-Composé"                       (tout)
+ *   2. "P. Nom-Composé"                           (initiale prénom)
+ *   3. "P. Nom-C." ou "P. Saint-M."               (dernier composant des segments abrégé)
+ *   4. "P. R.-B." ou "P. S.-M."                   (tous composants abrégés, particules conservées)
+ *   5. "P. R.-B." sans particule (particule abandonnée en dernier recours)
+ *   null → secteur muet
+ *
+ * @param firstName - prénom complet
+ * @param lastName  - nom de famille (peut contenir particules + composants)
+ * @param avail     - largeur disponible en px (issue de la corde réelle)
+ * @param fs        - font-size en px
+ */
+function adaptName(
+  firstName: string,
+  lastName: string,
+  avail: number,
+  fs: number,
+): string | null {
+  // Si avail est 0 (canvas non dispo, ex: tests Jest), on retourne toujours le nom complet
+  // pour ne pas rendre les tests dépendants de la disponibilité du canvas.
+  if (avail <= 0) {
+    const full = [firstName, lastName].filter(Boolean).join(' ');
+    return full || null;
+  }
+
+  const fn = (firstName || '').trim();
+  const ln = (lastName || '').trim();
+
+  // Si aucun des deux → null
+  if (!fn && !ln) return null;
+
+  // Cas où l'un est absent
+  if (!ln) {
+    return measureText(fn, fs) <= avail ? fn : null;
+  }
+  if (!fn) {
+    return measureText(ln, fs) <= avail ? ln : null;
+  }
+
+  const fnInit = `${fn[0].toUpperCase()}.`;
+  const segs = parseSurname(ln);
+
+  function fits(text: string): boolean {
+    return measureText(text, fs) <= avail;
+  }
+
+  // — Tier 1 : "Prénom Nom"
+  const t1 = `${fn} ${joinSegments(segs)}`;
+  if (fits(t1)) return t1;
+
+  // — Tier 2 : "P. Nom" (initiale prénom)
+  const t2 = `${fnInit} ${joinSegments(segs)}`;
+  if (fits(t2)) return t2;
+
+  // — Tier 3 : "P. Nom-C." — chaque segment non-particule : dernier composant abrégé
+  {
+    const segs3 = segs.map(s => {
+      if (s.isParticle) return { ...s };
+      const [tier1Abbr] = abbrSegment(s);
+      return { ...s, parts: tier1Abbr.split('-') };
+    });
+    const t3 = `${fnInit} ${joinSegments(segs3)}`;
+    if (fits(t3)) return t3;
+  }
+
+  // — Tier 4 : "P. R.-B." — tous composants abrégés, particules conservées
+  {
+    const segs4 = segs.map(s => {
+      if (s.isParticle) return { ...s };
+      const [, tier2Abbr] = abbrSegment(s);
+      return { ...s, parts: tier2Abbr.split('-') };
+    });
+    const t4 = `${fnInit} ${joinSegments(segs4)}`;
+    if (fits(t4)) return t4;
+  }
+
+  // — Tier 5 : abandon des particules
+  {
+    const segs5 = segs.filter(s => !s.isParticle).map(s => {
+      const [, tier2Abbr] = abbrSegment(s);
+      return { ...s, parts: tier2Abbr.split('-') };
+    });
+    if (segs5.length > 0) {
+      const t5 = `${fnInit} ${joinSegments(segs5)}`;
+      if (fits(t5)) return t5;
+    }
+  }
+
+  // — Null : secteur muet
+  return null;
+}
+
+// ── Mesure de corde réelle ────────────────────────────────────────────────────
+
+/**
+ * Vérifie si le point (x,y) est à l'intérieur du secteur annulaire défini par
+ * (cx,cy,rIn,rOut,a1Deg,a2Deg). Convention : angles en degrés standard (0°=droite, CCW),
+ * cohérente avec Math.atan2.
+ *
+ * On tolère ±0.5px sur les rayons et ±0.5° sur les angles pour éviter les exclusions
+ * dues aux arrondis flottants.
+ */
+function insideSector(
+  x: number, y: number,
+  cx: number, cy: number,
+  rIn: number, rOut: number,
+  a1Deg: number, a2Deg: number,
+): boolean {
+  const dx = x - cx;
+  const dy = y - cy;
+  const r = Math.sqrt(dx * dx + dy * dy);
+  if (r < rIn - 0.5 || r > rOut + 0.5) return false;
+  let a = Math.atan2(dy, dx) * (180 / Math.PI);
+  // Normaliser a dans [a1Deg - 0.5, +∞) pour gérer les secteurs qui croisent 0°
+  while (a < a1Deg - 0.5) a += 360;
+  return a <= a2Deg + 0.5;
+}
+
+/**
+ * Calcule la largeur de corde disponible pour un texte horizontal placé en (tx, ty)
+ * au centre d'un secteur annulaire (cx, cy, rIn, rOut, a1Deg, a2Deg).
+ *
+ * Algorithme spec v5 §4.5 :
+ *   1. On échantillonne 3 hauteurs de y autour du texte (ty - fs, ty, ty + fs).
+ *   2. Pour chaque y, on calcule la corde horizontale maximale qui tient DANS le secteur
+ *      en testant des candidats x par dichotomie depuis le centre vers les bords.
+ *   3. On prend l'enveloppe minimale des 3 cordes (cas le plus contraint).
+ *   4. avail = enveloppe.width × 0.86 (marge de sécurité).
+ *
+ * Les angles a1Deg/a2Deg sont exprimés dans la convention "0°=droite, CCW" (standard Math).
+ *
+ * Retourne 0 si le centre n'est pas dans le secteur (erreur de calcul).
+ */
+function realChordWidth(
+  cx: number, cy: number,
+  rIn: number, rOut: number,
+  a1Deg: number, a2Deg: number,
+  tx: number, ty: number,
+  fs: number,
+): number {
+  const STEPS = 128; // résolution de la dichotomie
+  const safetyFactor = 0.86;
+
+  // Pour chaque y, balaye x de tx vers les bords gauche et droit
+  function chordAt(y: number): { xLeft: number; xRight: number } | null {
+    // Limite physique : bounding box du cercle extérieur
+    const xMin = cx - rOut - 1;
+    const xMax = cx + rOut + 1;
+    const xRange = xMax - xMin;
+
+    // Cherche la frontière gauche : le x le plus à gauche de tx qui est encore dans le secteur
+    let xLeft = tx;
+    {
+      const step = (tx - xMin) / STEPS;
+      for (let i = 1; i <= STEPS; i++) {
+        const xCand = tx - i * step;
+        if (!insideSector(xCand, y, cx, cy, rIn, rOut, a1Deg, a2Deg)) {
+          xLeft = tx - (i - 1) * step;
+          break;
+        }
+        if (i === STEPS) xLeft = xMin; // toute la gauche est dans le secteur (rare)
+      }
+    }
+
+    // Cherche la frontière droite
+    let xRight = tx;
+    {
+      const step = (xMax - tx) / STEPS;
+      for (let i = 1; i <= STEPS; i++) {
+        const xCand = tx + i * step;
+        if (!insideSector(xCand, y, cx, cy, rIn, rOut, a1Deg, a2Deg)) {
+          xRight = tx + (i - 1) * step;
+          break;
+        }
+        if (i === STEPS) xRight = xMax;
+      }
+    }
+
+    if (xRight <= xLeft) return null;
+    return { xLeft, xRight };
+  }
+
+  const ySamples = [ty - fs, ty, ty + fs];
+  let minWidth = Infinity;
+
+  for (const y of ySamples) {
+    const chord = chordAt(y);
+    if (!chord) return 0; // texte sort du secteur sur cette ligne
+    const w = chord.xRight - chord.xLeft;
+    if (w < minWidth) minWidth = w;
+  }
+
+  if (!isFinite(minWidth) || minWidth <= 0) return 0;
+  return minWidth * safetyFactor;
+}
 
 // ── Helpers géométriques ─────────────────────────────────────────────────────
 
 /**
  * Convertit des coordonnées polaires (rayon, angle en degrés) en cartésien SVG.
- * 0° = haut (12h), sens horaire.
+ * Convention interne FanCanvasV2 : 0°=haut (12h), sens horaire.
+ * → on soustrait 90° pour mapper sur la convention trigonométrique standard.
  */
 function polar(r: number, deg: number): [number, number] {
   const rad = ((deg - 90) * Math.PI) / 180;
   return [CX + r * Math.cos(rad), CY + r * Math.sin(rad)];
+}
+
+/**
+ * Convertit un angle FanCanvasV2 (0°=haut, CW) en degrés standard Math (0°=droite, CCW).
+ * Utilisé pour passer les angles à insideSector / realChordWidth.
+ */
+function toMathDeg(fanDeg: number): number {
+  return fanDeg - 90;
 }
 
 /**
@@ -114,7 +482,6 @@ function buildAncestorMap(
 ): Map<number, Map<number, PersonTreeNodeDto>> {
   const result = new Map<number, Map<number, PersonTreeNodeDto>>();
 
-  // File BFS : (genLevel, positionIndex, nœud)
   type QueueItem = { gen: number; pos: number; node: PersonTreeNodeDto };
   const queue: QueueItem[] = [{ gen: 0, pos: 0, node: ego }];
 
@@ -175,7 +542,6 @@ function buildDescendantSectors(
     const a1 = a0 + spanPerChild;
     sectors.push({ node: child, a0, a1, gen: 1 });
 
-    // Gen 2
     const gen2Nodes = child.childIds
       .map(cid => nodeMap.get(cid))
       .filter((n): n is PersonTreeNodeDto => n !== undefined);
@@ -196,6 +562,106 @@ function buildDescendantSectors(
   return sectors;
 }
 
+// ── font-sizes par génération ────────────────────────────────────────────────
+
+const ASC_FONT_SIZES: readonly number[] = [17, 13.5, 11, 10, 9.5];
+const DESC_FONT_SIZES: readonly number[] = [15, 12];
+
+// ── Sous-composant : label horizontal v5 ────────────────────────────────────
+
+interface SectorLabelProps {
+  /** Prénom. */
+  firstName: string;
+  /** Nom de famille. */
+  lastName: string;
+  /** Date span (ex "1920–1998"). Vide si aucune date. */
+  span: string;
+  /** Position x du centre du secteur (milieu radial + milieu angulaire). */
+  tx: number;
+  /** Position y du centre du secteur. */
+  ty: number;
+  /** Font-size en px. */
+  fs: number;
+  /** Largeur disponible (corde réelle × 0.86) en px. */
+  avail: number;
+  /** Id du clipPath SVG à appliquer (filet de sécurité anti-débordement). */
+  clipPathId: string;
+}
+
+/**
+ * Rendu d'un label horizontal v5.
+ *
+ * - Appelle adaptName() pour obtenir le texte abrégé (ou null → secteur muet).
+ * - Si null : cercle cream r=1.6 au centre + <title> pour le tooltip natif.
+ * - Si texte : <text> horizontal (pas de rotation), avec tspan pour les dates.
+ *
+ * La police dates passe en Geist Mono, taille fs-2 (min 7.5px), opacity 0.70.
+ */
+function SectorLabel({
+  firstName, lastName, span,
+  tx, ty, fs, avail, clipPathId,
+}: SectorLabelProps) {
+  const name = adaptName(firstName, lastName, avail, fs);
+  const fullName = [firstName, lastName].filter(Boolean).join(' ') || '?';
+
+  if (name === null) {
+    // Secteur muet : point cream + tooltip
+    return (
+      <g aria-hidden="true" clipPath={`url(#${clipPathId})`}>
+        <title>{fullName}</title>
+        <circle
+          cx={tx}
+          cy={ty}
+          r={1.6}
+          fill={colors.cream}
+          opacity={0.7}
+        />
+      </g>
+    );
+  }
+
+  const dateFs = Math.max(7.5, fs - 2);
+
+  // Quand on a un nom + des dates, on décale légèrement le nom vers le haut
+  // pour centrer visuellement l'ensemble.
+  const nameY = span ? ty - dateFs * 0.5 : ty;
+  const dateY = ty + fs * 0.45;
+
+  return (
+    <g aria-hidden="true" clipPath={`url(#${clipPathId})`}>
+      <title>{fullName}{span ? ` · ${span}` : ''}</title>
+      <text
+        x={tx}
+        y={nameY}
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize={fs}
+        fontFamily={fonts.serif}
+        fontStyle="italic"
+        fontWeight={500}
+        fill={colors.cream}
+      >
+        {name}
+      </text>
+      {span && (
+        <text
+          x={tx}
+          y={dateY}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize={dateFs}
+          fontFamily={fonts.mono}
+          fontStyle="normal"
+          fill={colors.cream}
+          opacity={0.70}
+        >
+          {span}
+        </text>
+      )}
+    </g>
+  );
+}
+
 // ── Sous-composants SVG ──────────────────────────────────────────────────────
 
 interface AncestorSectorProps {
@@ -204,49 +670,67 @@ interface AncestorSectorProps {
   /** position 0..2^gen-1 */
   pos: number;
   node: PersonTreeNodeDto | undefined;
+  onSectorClick?: (node: PersonTreeNodeDto) => void;
+  selectedNodeId?: number;
+  /** Id unique de clipPath à créer dans <defs>. */
+  clipId: string;
 }
 
-function AncestorSector({ gen, pos, node }: AncestorSectorProps) {
+function AncestorSector({ gen, pos, node, onSectorClick, selectedNodeId, clipId }: AncestorSectorProps) {
   const totalSectors = Math.pow(2, gen);
   const spanDeg      = 180 / totalSectors;
+  // Convention : ascendants dans le demi-cercle supérieur, -90° à +90°
   const a0           = -90 + pos * spanDeg;
   const a1           = a0 + spanDeg;
   const midAngle     = (a0 + a1) / 2;
 
   const r_inner = R0 + (gen - 1) * STEP_UP;
   const r_outer = R0 + gen * STEP_UP;
-  const r_label = r_inner + (r_outer - r_inner) * 0.5;
+  // Gen 1 : label décalé vers l'extérieur (0.68), autres générations : centré (0.50)
+  const rOffset = gen === 1 ? 0.68 : 0.50;
+  const r_label = r_inner + (r_outer - r_inner) * rOffset;
 
-  const fill   = node ? COLORS_UP[gen - 1] : 'transparent';
-  const stroke = node ? COLORS_UP[gen - 1] : RUST;
+  const fill    = node ? COLORS_UP[gen - 1] : 'transparent';
   const opacity = node ? 1 : 0.45;
+
+  const isSelected = node !== undefined && selectedNodeId === node.id;
+  const stroke      = isSelected ? colors.rust : (node ? colors.line2 : RUST);
+  const strokeWidth = isSelected ? 2.4 : 0.8;
 
   const d = arcPath(r_inner, r_outer, a0, a1);
 
-  // Label si gen <= 2 et nœud présent
-  const showLabel = node && gen <= 2;
-  const showDate  = node && gen <= 3;
-  const fontSize  = gen === 1 ? 17 : gen === 2 ? 13.5 : 11;
-  const dateFontSize = gen === 1 ? 9 : 8;
+  // Position du label (texte horizontal, pas de rotation)
+  const [tx, ty] = polar(r_label, midAngle);
 
-  // Calcul du point de label : milieu radial, rotation radiale
-  const [lx, ly] = polar(r_label, midAngle);
-  // Pour la rotation du texte, on tourne de midAngle - 90 degrés
-  // (le texte suit la tangente de l'arc)
-  const textRotation = midAngle <= 0 ? midAngle + 90 : midAngle - 90;
+  // Mesure de corde réelle — angles convertis en convention Math standard
+  const a1Math = toMathDeg(a0);
+  const a2Math = toMathDeg(a1);
+  const fs = ASC_FONT_SIZES[gen - 1];
+  const avail = node ? realChordWidth(CX, CY, r_inner, r_outer, a1Math, a2Math, tx, ty, fs) : 0;
 
   const name = node ? displayName(node) : '';
   const span = node ? lifeSpan(node.birthDate, node.deathDate) : '';
+  // Dates : affiché jusqu'à gen 3
+  const showDate = node && gen <= 3;
 
   return (
     <g>
+      {/* clipPath pour le filet de sécurité anti-débordement */}
+      <defs>
+        <clipPath id={clipId}>
+          <path d={d} />
+        </clipPath>
+      </defs>
+
       <path
         d={d}
         fill={fill}
         stroke={stroke}
-        strokeWidth={0.8}
+        strokeWidth={strokeWidth}
         opacity={opacity}
         strokeDasharray={node ? undefined : '3 4'}
+        style={node ? { cursor: 'pointer' } : undefined}
+        onClick={node && onSectorClick ? () => onSectorClick(node) : undefined}
         aria-label={node ? `${name} — génération ${gen}` : `Ancêtre inconnu — génération ${gen}, position ${pos}`}
       />
 
@@ -269,39 +753,18 @@ function AncestorSector({ gen, pos, node }: AncestorSectorProps) {
         );
       })()}
 
-      {/* Labels dans un repère commun pour éviter le chevauchement */}
-      {(showLabel || (showDate && span)) && (
-        <g transform={`translate(${lx} ${ly}) rotate(${textRotation})`} aria-hidden="true">
-          {showLabel && (
-            <text
-              x={0}
-              y={showDate && span ? -dateFontSize * 0.8 : 0}
-              textAnchor="middle"
-              dominantBaseline="central"
-              fontSize={fontSize}
-              fontFamily={fonts.serif}
-              fontStyle="italic"
-              fontWeight={500}
-              fill={colors.cream}
-            >
-              {name}
-            </text>
-          )}
-          {showDate && span && (
-            <text
-              x={0}
-              y={showLabel ? fontSize * 0.7 : 0}
-              textAnchor="middle"
-              dominantBaseline="central"
-              fontSize={dateFontSize}
-              fontFamily={fonts.mono}
-              fill={colors.cream}
-              opacity={0.75}
-            >
-              {span}
-            </text>
-          )}
-        </g>
+      {/* Label horizontal v5 — toutes générations */}
+      {node && (
+        <SectorLabel
+          firstName={node.firstName ?? ''}
+          lastName={node.lastName ?? ''}
+          span={showDate ? span : ''}
+          tx={tx}
+          ty={ty}
+          fs={fs}
+          avail={avail}
+          clipPathId={clipId}
+        />
       )}
     </g>
   );
@@ -309,9 +772,12 @@ function AncestorSector({ gen, pos, node }: AncestorSectorProps) {
 
 interface DescendantSectorSVGProps {
   sector: DescendantSector;
+  onSectorClick?: (node: PersonTreeNodeDto) => void;
+  selectedNodeId?: number;
+  clipId: string;
 }
 
-function DescendantSectorSVG({ sector }: DescendantSectorSVGProps) {
+function DescendantSectorSVG({ sector, onSectorClick, selectedNodeId, clipId }: DescendantSectorSVGProps) {
   const { node, a0, a1, gen } = sector;
   const r_inner = R0 + (gen - 1) * STEP_DN;
   const r_outer = R0 + gen * STEP_DN;
@@ -319,54 +785,51 @@ function DescendantSectorSVG({ sector }: DescendantSectorSVGProps) {
   const midAngle = (a0 + a1) / 2;
 
   const fill  = COLORS_DN[gen - 1];
-  const fontSize = gen === 1 ? 15 : 12;
-  const dateFontSize = gen === 1 ? 9 : 8;
+  const fs = DESC_FONT_SIZES[gen - 1];
+
+  const isSelected = selectedNodeId === node.id;
+  const stroke      = isSelected ? colors.rust : fill;
+  const strokeWidth = isSelected ? 2.4 : 0.8;
 
   const d = arcPath(r_inner, r_outer, a0, a1);
-  const [lx, ly] = polar(r_label, midAngle);
-  const textRotation = midAngle <= 180 ? midAngle - 90 : midAngle + 90;
+  const [tx, ty] = polar(r_label, midAngle);
+
+  // Mesure de corde réelle — angles en convention Math standard
+  const a1Math = toMathDeg(a0);
+  const a2Math = toMathDeg(a1);
+  const avail = realChordWidth(CX, CY, r_inner, r_outer, a1Math, a2Math, tx, ty, fs);
 
   const name = displayName(node);
   const span = lifeSpan(node.birthDate, node.deathDate);
 
   return (
     <g>
+      <defs>
+        <clipPath id={clipId}>
+          <path d={d} />
+        </clipPath>
+      </defs>
+
       <path
         d={d}
         fill={fill}
-        stroke={fill}
-        strokeWidth={0.8}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+        style={{ cursor: 'pointer' }}
+        onClick={onSectorClick ? () => onSectorClick(node) : undefined}
         aria-label={`${name} — descendant génération ${gen}`}
       />
-      <g transform={`translate(${lx} ${ly}) rotate(${textRotation})`} aria-hidden="true">
-        <text
-          x={0}
-          y={span ? -dateFontSize * 0.8 : 0}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize={fontSize}
-          fontFamily={fonts.serif}
-          fontStyle="italic"
-          fontWeight={500}
-          fill={colors.cream}
-        >
-          {name}
-        </text>
-        {span && (
-          <text
-            x={0}
-            y={fontSize * 0.7}
-            textAnchor="middle"
-            dominantBaseline="central"
-            fontSize={dateFontSize}
-            fontFamily={fonts.mono}
-            fill={colors.cream}
-            opacity={0.75}
-          >
-            {span}
-          </text>
-        )}
-      </g>
+
+      <SectorLabel
+        firstName={node.firstName ?? ''}
+        lastName={node.lastName ?? ''}
+        span={span}
+        tx={tx}
+        ty={ty}
+        fs={fs}
+        avail={avail}
+        clipPathId={clipId}
+      />
     </g>
   );
 }
@@ -375,14 +838,51 @@ function DescendantSectorSVG({ sector }: DescendantSectorSVGProps) {
 
 export interface FanCanvasV2Props {
   data: PersonTreeDto;
+  /** Appelé quand l'utilisateur clique sur un secteur non-vide. */
+  onSectorClick?: (node: PersonTreeNodeDto) => void;
+  /** Id du nœud actuellement sélectionné — affiche le stroke rust sur ce secteur. */
+  selectedNodeId?: number;
 }
 
-export default function FanCanvasV2({ data }: FanCanvasV2Props) {
+export default function FanCanvasV2({ data, onSectorClick, selectedNodeId }: FanCanvasV2Props) {
   const { t } = useTranslation();
 
+  /**
+   * fontsReady : passe à true après document.fonts.ready + chargement explicite
+   * de Cormorant Garamond dans les tailles utilisées. Déclenche un re-render
+   * pour que measureText() soit fiable dès le premier rendu visible.
+   *
+   * En environnement de test (document.fonts absent), on part directement sur true
+   * pour éviter un état vide.
+   */
+  const [fontsReady, setFontsReady] = useState<boolean>(
+    typeof document === 'undefined' || !document.fonts,
+  );
+
+  useEffect(() => {
+    if (typeof document === 'undefined' || !document.fonts) return;
+    let cancelled = false;
+    document.fonts.ready.then(() => {
+      // Pré-charge les tailles critiques pour que measureText soit fiable immédiatement
+      return Promise.all([
+        document.fonts.load(`italic 500 17px "Cormorant Garamond", serif`),
+        document.fonts.load(`italic 500 13.5px "Cormorant Garamond", serif`),
+        document.fonts.load(`italic 500 11px "Cormorant Garamond", serif`),
+        document.fonts.load(`italic 500 10px "Cormorant Garamond", serif`),
+        document.fonts.load(`italic 500 9.5px "Cormorant Garamond", serif`),
+      ]);
+    }).then(() => {
+      if (!cancelled) setFontsReady(true);
+    }).catch(() => {
+      if (!cancelled) setFontsReady(true); // on passe quand même
+    });
+    return () => { cancelled = true; };
+  }, []);
+
   // Construction du nodeMap
-  const nodeMap = new Map<number, PersonTreeNodeDto>(
-    data.nodes.map(n => [n.id, n]),
+  const nodeMap = useMemo(
+    () => new Map<number, PersonTreeNodeDto>(data.nodes.map(n => [n.id, n])),
+    [data.nodes],
   );
 
   const ego = nodeMap.get(data.rootId);
@@ -406,7 +906,6 @@ export default function FanCanvasV2({ data }: FanCanvasV2Props) {
   const egoName = displayName(ego);
   const egoSpan = lifeSpan(ego.birthDate, ego.deathDate);
 
-  // Nombre de générations ascendantes et descendantes présentes
   const genUpCount  = Math.max(0, ...data.nodes.map(n => -n.generation).filter(g => g > 0));
   const genDnCount  = Math.max(0, ...data.nodes.map(n => n.generation).filter(g => g > 0));
 
@@ -416,11 +915,12 @@ export default function FanCanvasV2({ data }: FanCanvasV2Props) {
       style={{
         position: 'relative',
         width: '100%',
-        // M5 : dvh avec fallback vh pour navigateurs sans support dvh
         height: '100dvh',
-        // Fallback via @supports manquant en inline — on surcharge via minHeight
         minHeight: '100vh',
         touchAction: 'none',
+        // On masque pendant le chargement des fonts pour éviter le flash de labels incorrects
+        opacity: fontsReady ? 1 : 0,
+        transition: 'opacity 0.25s ease',
       }}
       role="img"
       aria-label={t('contemplation.aria_label', { name: egoName })}
@@ -457,7 +957,7 @@ export default function FanCanvasV2({ data }: FanCanvasV2Props) {
         width="100%"
         height="100%"
         style={{ position: 'absolute', inset: 0 }}
-        aria-hidden="true" // navigation accessible via le wrapper role=img
+        aria-hidden="true"
       >
         {/* Ligne horizon */}
         <line
@@ -479,6 +979,9 @@ export default function FanCanvasV2({ data }: FanCanvasV2Props) {
               gen={gen}
               pos={pos}
               node={genMap?.get(pos)}
+              onSectorClick={onSectorClick}
+              selectedNodeId={selectedNodeId}
+              clipId={`clip-up-${gen}-${pos}`}
             />
           ));
         })}
@@ -488,15 +991,15 @@ export default function FanCanvasV2({ data }: FanCanvasV2Props) {
           <DescendantSectorSVG
             key={`dn-${sector.node.id}-${idx}`}
             sector={sector}
+            onSectorClick={onSectorClick}
+            selectedNodeId={selectedNodeId}
+            clipId={`clip-dn-${sector.node.id}-${idx}`}
           />
         ))}
 
         {/* ── Ego ── */}
-        {/* Cercle outer (gold) */}
         <circle cx={CX} cy={CY} r={R0 + 2} fill="none" stroke="#B8924A" strokeWidth={0.8} opacity={0.5} />
-        {/* Cercle inner */}
         <circle cx={CX} cy={CY} r={R0 - 4} fill={colors.cream} stroke={colors.ink} strokeWidth={1.2} />
-        {/* Nom ego */}
         <text
           x={CX}
           y={CY - 6}
@@ -510,7 +1013,6 @@ export default function FanCanvasV2({ data }: FanCanvasV2Props) {
         >
           {egoName}
         </text>
-        {/* Date ego */}
         {egoSpan && (
           <text
             x={CX}
@@ -536,7 +1038,6 @@ export default function FanCanvasV2({ data }: FanCanvasV2Props) {
           <text x={40} y={110} fontSize={34} fontFamily={fonts.serif} fontStyle="italic" fill={colors.ink}>
             {t('contemplation.header_line2')}
           </text>
-          {/* Chips ascendants / descendants — empilés verticalement */}
           <rect x={40} y={122} width={200} height={18} rx={4} fill={colors.sepia} opacity={0.15} />
           <text x={140} y={134} textAnchor="middle" fontSize={9} fontFamily={fonts.mono} fill={colors.sepia}>
             {t('contemplation.chip_up', { count: genUpCount })}
@@ -571,13 +1072,10 @@ export default function FanCanvasV2({ data }: FanCanvasV2Props) {
 
         {/* ── Légende top-right ── */}
         <g aria-hidden="true">
-          {/* ASCENDANTS */}
           <rect x={VB_W - 180} y={30} width={12} height={12} fill={colors.sepia} />
           <text x={VB_W - 162} y={41} fontSize={9} fontFamily={fonts.mono} fill={colors.ink4}>{t('contemplation.legend_up')}</text>
-          {/* DESCENDANTS */}
           <rect x={VB_W - 180} y={50} width={12} height={12} fill={COLORS_DN[0]} />
           <text x={VB_W - 162} y={61} fontSize={9} fontFamily={fonts.mono} fill={colors.ink4}>{t('contemplation.legend_down')}</text>
-          {/* À RECHERCHER */}
           <rect x={VB_W - 180} y={70} width={12} height={12} fill="none" stroke={RUST} strokeDasharray="3 2" />
           <text x={VB_W - 162} y={81} fontSize={9} fontFamily={fonts.mono} fill={colors.ink4}>{t('contemplation.legend_unknown')}</text>
         </g>
