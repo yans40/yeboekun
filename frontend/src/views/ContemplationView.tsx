@@ -86,6 +86,31 @@ export default function ContemplationView() {
     return () => document.removeEventListener('keydown', handler);
   }, [selectedNode]);
 
+  // ── A11y : focus-trap Tab dans le panneau dialog ─────────────────────────
+  const handlePanelKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    if (e.key !== 'Tab') return;
+    const panel = e.currentTarget;
+    const focusable = Array.from(
+      panel.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter(el => !el.disabled && el.offsetParent !== null);
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  };
+
   // ── A11y : focus sur le bouton × à l'ouverture du panneau ───────────────
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -269,6 +294,7 @@ export default function ContemplationView() {
           role="dialog"
           aria-modal="true"
           aria-label={t('contemplation.panel_aria_label')}
+          onKeyDown={handlePanelKeyDown}
           style={{
             position: 'absolute',
             top: panelTop,

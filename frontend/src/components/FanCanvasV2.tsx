@@ -677,6 +677,7 @@ interface AncestorSectorProps {
 }
 
 function AncestorSector({ gen, pos, node, onSectorClick, selectedNodeId, clipId }: AncestorSectorProps) {
+  const { t } = useTranslation();
   const totalSectors = Math.pow(2, gen);
   const spanDeg      = 180 / totalSectors;
   // Convention : ascendants dans le demi-cercle supérieur, -90° à +90°
@@ -731,7 +732,9 @@ function AncestorSector({ gen, pos, node, onSectorClick, selectedNodeId, clipId 
         strokeDasharray={node ? undefined : '3 4'}
         style={node ? { cursor: 'pointer' } : undefined}
         onClick={node && onSectorClick ? () => onSectorClick(node) : undefined}
-        aria-label={node ? `${name} — génération ${gen}` : `Ancêtre inconnu — génération ${gen}, position ${pos}`}
+        aria-label={node
+          ? t('contemplation.sector_ancestor', { name, gen })
+          : t('contemplation.sector_ancestor_unknown', { gen, pos })}
         tabIndex={node && onSectorClick ? 0 : undefined}
         role={node && onSectorClick ? 'button' : undefined}
         onKeyDown={node && onSectorClick ? (e) => {
@@ -786,6 +789,7 @@ interface DescendantSectorSVGProps {
 }
 
 function DescendantSectorSVG({ sector, onSectorClick, selectedNodeId, clipId }: DescendantSectorSVGProps) {
+  const { t } = useTranslation();
   const { node, a0, a1, gen } = sector;
   const r_inner = R0 + (gen - 1) * STEP_DN;
   const r_outer = R0 + gen * STEP_DN;
@@ -825,7 +829,7 @@ function DescendantSectorSVG({ sector, onSectorClick, selectedNodeId, clipId }: 
         strokeWidth={strokeWidth}
         style={{ cursor: 'pointer' }}
         onClick={onSectorClick ? () => onSectorClick(node) : undefined}
-        aria-label={`${name} — descendant génération ${gen}`}
+        aria-label={t('contemplation.sector_descendant', { name, gen })}
         tabIndex={onSectorClick ? 0 : undefined}
         role={onSectorClick ? 'button' : undefined}
         onKeyDown={onSectorClick ? (e) => {
@@ -938,7 +942,7 @@ export default function FanCanvasV2({ data, onSectorClick, selectedNodeId }: Fan
         opacity: fontsReady ? 1 : 0,
         transition: 'opacity 0.25s ease',
       }}
-      role="img"
+      role="group"
       aria-label={t('contemplation.aria_label', { name: egoName })}
     >
       {/* Halo doré derrière l'ego (couche CSS absolue) */}

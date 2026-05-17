@@ -154,6 +154,9 @@
     "tag_ancestor": "ASCENDANT · GÉN {{gen}}",
     "tag_descendant": "DESCENDANT · GÉN {{gen}}",
     "tag_ego": "EGO",
-    "recenter_btn": "Faire d'elle le centre"
+    "recenter_btn": "Faire d'elle le centre",
+    "sector_ancestor": "{{name}} — génération {{gen}}",
+    "sector_ancestor_unknown": "Ancêtre inconnu — génération {{gen}}, position {{pos}}",
+    "sector_descendant": "{{name}} — descendant génération {{gen}}"
   }
 }
