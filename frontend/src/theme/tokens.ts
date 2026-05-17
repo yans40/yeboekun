@@ -16,6 +16,16 @@ export const colors = {
   forest:  '#3d6b4f',
   ocean:   '#3a6b8a',
   gold:    '#c9a227',
+  // ── Palette éventail v4 (Vue Contemplation) ─────────────────────────────────
+  // Ascendants : gradient brun chaud — génération 1 (proche) → 5 (lointain)
+  asc1:  '#3D342A',
+  asc2:  '#5A4528',
+  asc3:  '#7D5A36',
+  asc4:  '#9C7849',
+  asc5:  '#BFA180',
+  // Descendants : vert olive
+  desc1: '#52582F',
+  desc2: '#6A7242',
 } as const;
 
 export const fonts = {

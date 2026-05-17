@@ -89,7 +89,8 @@
     "error": "Une erreur est survenue",
     "close": "Fermer",
     "confirm": "Confirmer",
-    "back": "Retour"
+    "back": "Retour",
+    "person": "cette personne"
   },
   "atelier": {
     "no_selection": "Sélectionnez une personne dans la liste",
@@ -145,6 +146,17 @@
     "meta": "{{total}} personnes · {{pct}}% connues",
     "no_selection": "Choisissez une personne pour contempler son arbre.",
     "no_selection_hint": "Utilisez la barre de recherche ou la liste pour sélectionner une personne.",
-    "error_load": "Impossible de charger l'arbre généalogique."
+    "error_load": "Impossible de charger l'arbre généalogique.",
+    "focus_bar_intro": "Tu vois le monde de ",
+    "return_to": "← Retour à {{name}}",
+    "panel_aria_label": "Fiche personne",
+    "panel_close_aria": "Fermer le panneau",
+    "tag_ancestor": "ASCENDANT · GÉN {{gen}}",
+    "tag_descendant": "DESCENDANT · GÉN {{gen}}",
+    "tag_ego": "EGO",
+    "recenter_btn": "Faire d'elle le centre",
+    "sector_ancestor": "{{name}} — génération {{gen}}",
+    "sector_ancestor_unknown": "Ancêtre inconnu — génération {{gen}}, position {{pos}}",
+    "sector_descendant": "{{name}} — descendant génération {{gen}}"
   }
 }
