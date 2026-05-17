@@ -732,6 +732,14 @@ function AncestorSector({ gen, pos, node, onSectorClick, selectedNodeId, clipId 
         style={node ? { cursor: 'pointer' } : undefined}
         onClick={node && onSectorClick ? () => onSectorClick(node) : undefined}
         aria-label={node ? `${name} — génération ${gen}` : `Ancêtre inconnu — génération ${gen}, position ${pos}`}
+        tabIndex={node && onSectorClick ? 0 : undefined}
+        role={node && onSectorClick ? 'button' : undefined}
+        onKeyDown={node && onSectorClick ? (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onSectorClick(node);
+          }
+        } : undefined}
       />
 
       {/* Croix "+" pour secteur vide */}
@@ -818,6 +826,14 @@ function DescendantSectorSVG({ sector, onSectorClick, selectedNodeId, clipId }: 
         style={{ cursor: 'pointer' }}
         onClick={onSectorClick ? () => onSectorClick(node) : undefined}
         aria-label={`${name} — descendant génération ${gen}`}
+        tabIndex={onSectorClick ? 0 : undefined}
+        role={onSectorClick ? 'button' : undefined}
+        onKeyDown={onSectorClick ? (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onSectorClick(node);
+          }
+        } : undefined}
       />
 
       <SectorLabel
@@ -862,21 +878,21 @@ export default function FanCanvasV2({ data, onSectorClick, selectedNodeId }: Fan
   useEffect(() => {
     if (typeof document === 'undefined' || !document.fonts) return;
     let cancelled = false;
+    // Timeout de sécurité : si les fonts ne sont pas prêtes après 2 s, on passe quand même.
+    // Évite un écran blanc indéfini si document.fonts.ready ne se résout jamais
+    // (ex : CORS bloqué sur la police, réseau lent, navigateur non conforme).
+    const timer = setTimeout(() => {
+      if (!cancelled) setFontsReady(true);
+    }, 2000);
     document.fonts.ready.then(() => {
       // Pré-charge les tailles critiques pour que measureText soit fiable immédiatement
-      return Promise.all([
-        document.fonts.load(`italic 500 17px "Cormorant Garamond", serif`),
-        document.fonts.load(`italic 500 13.5px "Cormorant Garamond", serif`),
-        document.fonts.load(`italic 500 11px "Cormorant Garamond", serif`),
-        document.fonts.load(`italic 500 10px "Cormorant Garamond", serif`),
-        document.fonts.load(`italic 500 9.5px "Cormorant Garamond", serif`),
-      ]);
-    }).then(() => {
-      if (!cancelled) setFontsReady(true);
+      return document.fonts.load('italic 500 13px "Cormorant Garamond"').finally(() => {
+        if (!cancelled) setFontsReady(true);
+      });
     }).catch(() => {
       if (!cancelled) setFontsReady(true); // on passe quand même
     });
-    return () => { cancelled = true; };
+    return () => { cancelled = true; clearTimeout(timer); };
   }, []);
 
   // Construction du nodeMap
@@ -951,13 +967,12 @@ export default function FanCanvasV2({ data, onSectorClick, selectedNodeId }: Fan
         }}
       />
 
-      {/* SVG principal */}
+      {/* SVG principal — aria-hidden retiré pour que les secteurs focusables soient annoncés */}
       <svg
         viewBox={`0 0 ${VB_W} ${VB_H}`}
         width="100%"
         height="100%"
         style={{ position: 'absolute', inset: 0 }}
-        aria-hidden="true"
       >
         {/* Ligne horizon */}
         <line

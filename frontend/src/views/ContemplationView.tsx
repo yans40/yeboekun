@@ -10,7 +10,7 @@
  *   5. Panneau de détail (slide-in droite) + focus-bar (fil d'ariane) — spec v4 hybride.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFamilyTreeContext } from '../context/FamilyTreeContext';
 import { usePersonTree } from '../hooks/usePersonTree';
@@ -36,30 +36,65 @@ export default function ContemplationView() {
    */
   const [selectedNode, setSelectedNode] = useState<PersonTreeNodeDto | null>(null);
 
+  /**
+   * originalFirstNameRef : mémorise le prénom de la personne d'origine (selectedPersonId)
+   * indépendamment de l'état des données courantes.
+   *
+   * Problème résolu : quand egoId diverge de selectedPersonId, data.nodes correspond
+   * à l'arbre de egoId — selectedPersonId n'est plus forcément dans data.nodes, donc
+   * originalPersonNode?.firstName vaut undefined et le bouton affiche "← Retour à ".
+   *
+   * Solution : on capture le prénom dans une ref dès que data arrive et que
+   * la ref est vide. La ref ne se remet à zéro que quand selectedPersonId change
+   * (= changement depuis la TopBar, pas via "Faire d'elle le centre").
+   */
+  const originalFirstNameRef = useRef<string>('');
+
   // Quand la personne sélectionnée change depuis la TopBar → réinitialiser l'éventail
   useEffect(() => {
     setEgoId(selectedPersonId);
     setSelectedNode(null);
+    originalFirstNameRef.current = ''; // sera rempli quand data arrive
   }, [selectedPersonId]);
 
   const { data, loading, error } = usePersonTree(egoId, { up: 5, down: 2 });
 
-  // ── Nom de l'ego courant (pour la focus-bar et le bouton retour) ──────────
+  // Capture du prénom d'origine dès que data est disponible (une seule fois par selectedPersonId)
+  useEffect(() => {
+    if (data && originalFirstNameRef.current === '') {
+      const node = data.nodes.find(n => n.id === selectedPersonId);
+      if (node) originalFirstNameRef.current = node.firstName ?? '';
+    }
+  }, [data, selectedPersonId]);
+
+  // ── Nom de l'ego courant (pour la focus-bar) ──────────────────────────────
   const egoNode = data?.nodes.find(n => n.id === egoId);
   const egoName = egoNode
     ? [egoNode.firstName, egoNode.lastName].filter(Boolean).join(' ')
     : '';
 
-  // Nom de la personne d'origine (selectedPersonId) pour le bouton "Retour à…"
-  // On le mémorise au premier chargement : si data correspond à selectedPersonId
-  // on peut l'extraire, sinon on garde une valeur stable via un ref-like pattern.
-  // Ici on cherche dans les nodes actuels ; au pire c'est vide et le bouton
-  // affiche "← Retour" sans prénom — acceptable.
-  const originalPersonNode = data?.nodes.find(n => n.id === selectedPersonId);
-  const originalFirstName = originalPersonNode?.firstName ?? '';
-
   // La focus-bar est active quand egoId diverge de selectedPersonId
   const hasFocus = egoId !== null && selectedPersonId !== null && egoId !== selectedPersonId;
+
+  // ── A11y : fermeture panneau par Escape ──────────────────────────────────
+  useEffect(() => {
+    if (!selectedNode) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedNode(null);
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [selectedNode]);
+
+  // ── A11y : focus sur le bouton × à l'ouverture du panneau ───────────────
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (selectedNode) {
+      // Micro-délai pour laisser le temps à l'animation CSS (translateX)
+      const timer = setTimeout(() => closeButtonRef.current?.focus(), 50);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedNode]);
 
   // ── Aucune personne sélectionnée ──────────────────────────────────────────
   if (selectedPersonId === null) {
@@ -184,7 +219,7 @@ export default function ContemplationView() {
               letterSpacing: '-0.005em',
             }}
           >
-            {'Tu vois le monde de '}
+            {t('contemplation.focus_bar_intro')}
             <strong style={{ color: colors.cream, fontWeight: 500 }}>{egoName}</strong>
           </span>
           <span style={{ flex: 1 }} />
@@ -209,7 +244,7 @@ export default function ContemplationView() {
             onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = colors.asc1; (e.currentTarget as HTMLButtonElement).style.borderColor = colors.sepia; }}
             onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.borderColor = colors.asc2; }}
           >
-            {`← Retour à ${originalFirstName}`}
+            {t('contemplation.return_to', { name: originalFirstNameRef.current || t('common.person') })}
           </button>
         </div>
       </div>
@@ -232,8 +267,8 @@ export default function ContemplationView() {
         <aside
           data-testid="contemplation-detail-panel"
           role="dialog"
-          aria-label="Fiche personne"
-          aria-live="polite"
+          aria-modal="true"
+          aria-label={t('contemplation.panel_aria_label')}
           style={{
             position: 'absolute',
             top: panelTop,
@@ -256,7 +291,8 @@ export default function ContemplationView() {
             <>
               {/* Bouton fermer */}
               <button
-                aria-label="Fermer le panneau"
+                ref={closeButtonRef}
+                aria-label={t('contemplation.panel_close_aria')}
                 onClick={() => setSelectedNode(null)}
                 style={{
                   position: 'absolute',
@@ -290,10 +326,10 @@ export default function ContemplationView() {
                 }}
               >
                 {selectedNode.generation < 0
-                  ? `ASCENDANT · GÉN ${Math.abs(selectedNode.generation)}`
+                  ? t('contemplation.tag_ancestor', { gen: Math.abs(selectedNode.generation) })
                   : selectedNode.generation > 0
-                    ? `DESCENDANT · GÉN ${selectedNode.generation}`
-                    : 'EGO'}
+                    ? t('contemplation.tag_descendant', { gen: selectedNode.generation })
+                    : t('contemplation.tag_ego')}
               </div>
 
               {/* Nom */}
@@ -361,7 +397,7 @@ export default function ContemplationView() {
                   onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = colors.asc4; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = colors.sepia; }}
                 >
-                  {'Faire d\'elle le centre'}
+                  {t('contemplation.recenter_btn')}
                   <span
                     style={{
                       position: 'absolute',
