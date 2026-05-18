@@ -15,7 +15,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
-    command: --default-authentication-plugin=mysql_native_password
+    command: --default-authentication-plugin=mysql_native_password --sql-mode=STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
     networks:
       - yeboekun-network
     restart: unless-stopped
