@@ -1,8 +1,8 @@
-# 📊 État Complet de l'Application GegeDot
+# 📊 État Complet de l'Application Yeboekun
 
 **Date de synthèse** : Janvier 2026  
 **Version** : Phase Delta (En cours)  
-**Dépôt GitHub** : https://github.com/yans40/gegeDot
+**Dépôt GitHub** : https://github.com/yans40/yeboekun
 
 ---
 
@@ -37,25 +37,25 @@
 
 ```
 backend/src/
-├── GegeDot.API/              # Contrôleurs et configuration
+├── Yeboekun.API/              # Contrôleurs et configuration
 │   ├── Controllers/
 │   │   └── PersonsController.cs
 │   └── Program.cs
-├── GegeDot.Core/             # Entités et interfaces
+├── Yeboekun.Core/             # Entités et interfaces
 │   ├── Entities/
 │   │   ├── Person.cs
 │   │   ├── Relationship.cs
 │   │   └── Tree.cs
 │   └── Interfaces/
-├── GegeDot.Services/         # Logique métier
+├── Yeboekun.Services/         # Logique métier
 │   ├── Services/
 │   │   ├── PersonService.cs
 │   │   ├── DataNormalizationService.cs
 │   │   └── DuplicateDetectionService.cs
 │   └── DTOs/
-└── GegeDot.Infrastructure/   # Accès données
+└── Yeboekun.Infrastructure/   # Accès données
     ├── Data/
-    │   └── GegeDotContext.cs
+    │   └── YeboekunContext.cs
     └── Repositories/
 ```
 
@@ -312,7 +312,7 @@ backend/src/
 docker-compose up -d
 
 # 2. Backend (dans un terminal)
-cd backend/src/GegeDot.API
+cd backend/src/Yeboekun.API
 dotnet run --urls=http://localhost:5001
 
 # 3. Frontend (dans un autre terminal)
@@ -352,7 +352,7 @@ python3 -m http.server 3004 --bind 127.0.0.1
 ## 🔄 État Git
 
 ### Remote Configuré
-- **Origin** : https://github.com/yans40/gegeDot.git
+- **Origin** : https://github.com/yans40/yeboekun.git
 - **Branche principale** : `main`
 
 ### Commits Récents (à vérifier)
@@ -415,8 +415,8 @@ Pour voir les détails :
 
 ## 🔗 Liens Utiles
 
-- **GitHub** : https://github.com/yans40/gegeDot
-- **Issues** : https://github.com/yans40/gegeDot/issues
+- **GitHub** : https://github.com/yans40/yeboekun
+- **Issues** : https://github.com/yans40/yeboekun/issues
 - **Swagger** : http://localhost:5001/swagger (local)
 
 ---

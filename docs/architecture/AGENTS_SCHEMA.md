@@ -1,4 +1,4 @@
-# Architecture des agents — GegeDot / Yeboekun
+# Architecture des agents — Yeboekun / Yeboekun
 
 > Schéma de coordination des agents IA et humains sur le projet.
 > Source partagée Cursor ↔ Claude Code via `docs/PROJECT_STATE.md`.

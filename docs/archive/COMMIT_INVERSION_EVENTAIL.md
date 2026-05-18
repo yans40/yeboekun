@@ -36,7 +36,7 @@
 ## 📋 Commande Git
 
 ```bash
-cd /Users/kassyimbadollou/Documents/gegeDot
+cd /Users/kassyimbadollou/Documents/yeboekun
 
 git add frontend/professional-fan-view.html
 git add SAUVEGARDE_AVANT_INVERSION_EVENTAIL.md

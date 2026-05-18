@@ -1,4 +1,4 @@
-# 🗄️ Schéma de Base de Données MySQL - GegeDot
+# 🗄️ Schéma de Base de Données MySQL - Yeboekun
 
 ## Vue d'ensemble
 
@@ -162,10 +162,10 @@ CREATE TABLE UserTreeAccess (
 ### Variables d'Environnement
 ```env
 # Connection String MySQL
-DATABASE_CONNECTION_STRING=Server=localhost;Database=gegeDot;Uid=root;Pwd=password;Port=3306;
+DATABASE_CONNECTION_STRING=Server=localhost;Database=yeboekun;Uid=root;Pwd=password;Port=3306;
 
 # Ou avec MySQL Connector
-DATABASE_CONNECTION_STRING=Server=localhost;Database=gegeDot;User=root;Password=password;Port=3306;
+DATABASE_CONNECTION_STRING=Server=localhost;Database=yeboekun;User=root;Password=password;Port=3306;
 ```
 
 ### Configuration Entity Framework
@@ -173,12 +173,12 @@ DATABASE_CONNECTION_STRING=Server=localhost;Database=gegeDot;User=root;Password=
 // appsettings.json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=gegeDot;Uid=root;Pwd=password;Port=3306;"
+    "DefaultConnection": "Server=localhost;Database=yeboekun;Uid=root;Pwd=password;Port=3306;"
   }
 }
 
 // Program.cs
-builder.Services.AddDbContext<GegeDotContext>(options =>
+builder.Services.AddDbContext<YeboekunContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 ```
 
@@ -277,8 +277,8 @@ max_connections = 200
 ### Permissions (Phase 2)
 ```sql
 -- Créer un utilisateur dédié
-CREATE USER 'gegedot'@'localhost' IDENTIFIED BY 'secure_password';
-GRANT SELECT, INSERT, UPDATE, DELETE ON gegeDot.* TO 'gegedot'@'localhost';
+CREATE USER 'yeboekun'@'localhost' IDENTIFIED BY 'secure_password';
+GRANT SELECT, INSERT, UPDATE, DELETE ON yeboekun.* TO 'yeboekun'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
@@ -293,7 +293,7 @@ SELECT
     DATA_LENGTH,
     INDEX_LENGTH
 FROM information_schema.TABLES 
-WHERE TABLE_SCHEMA = 'gegeDot';
+WHERE TABLE_SCHEMA = 'yeboekun';
 
 -- Requêtes lentes
 SHOW VARIABLES LIKE 'slow_query_log';
@@ -308,11 +308,11 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8.0
-    container_name: gegeDot-mysql
+    container_name: yeboekun-mysql
     environment:
       MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: gegeDot
-      MYSQL_USER: gegedot
+      MYSQL_DATABASE: yeboekun
+      MYSQL_USER: yeboekun
       MYSQL_PASSWORD: password
     ports:
       - "3306:3306"
@@ -328,8 +328,8 @@ volumes:
 ### Script d'initialisation (init.sql)
 ```sql
 -- Créer la base de données
-CREATE DATABASE IF NOT EXISTS gegeDot;
-USE gegeDot;
+CREATE DATABASE IF NOT EXISTS yeboekun;
+USE yeboekun;
 
 -- Exécuter les scripts de création des tables
 SOURCE /docker-entrypoint-initdb.d/schema.sql;
@@ -347,7 +347,7 @@ SOURCE /docker-entrypoint-initdb.d/seed.sql;
 ### Configuration de Production
 ```env
 # Variables d'environnement pour production
-DATABASE_CONNECTION_STRING=Server=your-server.com;Database=gegeDot;Uid=username;Pwd=password;Port=3306;SslMode=Required;
+DATABASE_CONNECTION_STRING=Server=your-server.com;Database=yeboekun;Uid=username;Pwd=password;Port=3306;SslMode=Required;
 ```
 
 ## 🔧 Migration depuis PostgreSQL

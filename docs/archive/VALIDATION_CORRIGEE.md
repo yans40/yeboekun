@@ -14,7 +14,7 @@ Ajout de validations manuelles dans `PersonsController.cs` pour :
 - ✅ Date de décès avant date de naissance
 - ✅ Personne vivante avec date de décès
 
-**Fichier modifié** : `backend/src/GegeDot.API/Controllers/PersonsController.cs`
+**Fichier modifié** : `backend/src/Yeboekun.API/Controllers/PersonsController.cs`
 
 ### 2. Code Ajouté
 

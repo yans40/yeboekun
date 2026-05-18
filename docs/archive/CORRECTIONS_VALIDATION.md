@@ -12,7 +12,7 @@ L'audit a révélé que les validations de prénom et nom vides n'étaient pas d
 
 Ajout des attributs `[Required]` et `[StringLength]` sur les DTOs :
 
-**Fichier modifié** : `backend/src/GegeDot.Services/DTOs/PersonDto.cs`
+**Fichier modifié** : `backend/src/Yeboekun.Services/DTOs/PersonDto.cs`
 
 #### CreatePersonDto
 ```csharp
@@ -52,7 +52,7 @@ public string Gender { get; set; } = "M";
 
 ### 4. Ajout du Package NuGet
 
-Ajout de `System.ComponentModel.Annotations` au projet `GegeDot.Services` :
+Ajout de `System.ComponentModel.Annotations` au projet `Yeboekun.Services` :
 
 ```xml
 <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
@@ -78,5 +78,5 @@ Après redémarrage du backend, les tests suivants devraient maintenant passer :
 
 **Date de correction** : $(date)
 **Fichiers modifiés** :
-- `backend/src/GegeDot.Services/DTOs/PersonDto.cs`
-- `backend/src/GegeDot.Services/GegeDot.Services.csproj`
+- `backend/src/Yeboekun.Services/DTOs/PersonDto.cs`
+- `backend/src/Yeboekun.Services/Yeboekun.Services.csproj`

@@ -66,17 +66,17 @@ Ce script SQL ajoute les principales familles de Game of Thrones avec leurs rela
 
 ### Option 1 : Depuis MySQL
 ```bash
-mysql -u root -p gegeDot < scripts/add_game_of_thrones_characters.sql
+mysql -u root -p yeboekun < scripts/add_game_of_thrones_characters.sql
 ```
 
 ### Option 2 : Depuis le conteneur Docker
 ```bash
-docker exec -i gegeDot-mysql mysql -u root -p gegeDot < scripts/add_game_of_thrones_characters.sql
+docker exec -i yeboekun-mysql mysql -u root -p yeboekun < scripts/add_game_of_thrones_characters.sql
 ```
 
 ### Option 3 : Depuis MySQL CLI
 ```sql
-USE gegeDot;
+USE yeboekun;
 source scripts/add_game_of_thrones_characters.sql;
 ```
 

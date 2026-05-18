@@ -47,12 +47,12 @@ docker ps
 
 2. **Vérifier les logs du backend** :
 ```bash
-docker logs gegeDot-backend
+docker logs yeboekun-backend
 ```
 
 3. **Vérifier les logs de la base de données** :
 ```bash
-docker logs gegeDot-mysql
+docker logs yeboekun-mysql
 ```
 
 4. **Tester l'API directement** :
@@ -62,11 +62,11 @@ curl http://localhost:5000/api/persons
 
 5. **Vérifier la connexion à la base de données depuis le backend** :
 ```bash
-docker exec -it gegeDot-backend bash
+docker exec -it yeboekun-backend bash
 # Puis tester la connexion
 ```
 
 6. **Vérifier que la base contient des données** :
 ```bash
-docker exec -it gegeDot-mysql mysql -u gegedot -ppassword gegeDot -e "SELECT COUNT(*) FROM Persons;"
+docker exec -it yeboekun-mysql mysql -u yeboekun -ppassword yeboekun -e "SELECT COUNT(*) FROM Persons;"
 ```

@@ -1,10 +1,10 @@
--- Script de remise à zéro de la base de données GegeDot
+-- Script de remise à zéro de la base de données Yeboekun
 -- À exécuter avant un déploiement en production pour repartir d'une base vide
 --
 -- Usage :
---   docker exec -i gegeDot-mysql mysql -u gegedot -ppassword gegeDot < scripts/reset_database.sql
+--   docker exec -i yeboekun-mysql mysql -u yeboekun -ppassword yeboekun < scripts/reset_database.sql
 
-USE gegeDot;
+USE yeboekun;
 
 SET FOREIGN_KEY_CHECKS = 0;
 

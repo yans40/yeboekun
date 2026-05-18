@@ -8,7 +8,7 @@ Permettre l'affichage de **tous les conjoints** d'une personne (actuels et pass√
 
 ### 1. Backend - Nouvel Endpoint
 
-**Fichier** : `backend/src/GegeDot.API/Controllers/PersonsController.cs`
+**Fichier** : `backend/src/Yeboekun.API/Controllers/PersonsController.cs`
 
 **Nouvel endpoint** : `GET /api/persons/{id}/spouses`
 

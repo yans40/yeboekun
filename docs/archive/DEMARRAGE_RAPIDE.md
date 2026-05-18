@@ -1,4 +1,4 @@
-# 🚀 Démarrage Rapide - GegeDot
+# 🚀 Démarrage Rapide - Yeboekun
 
 ## Étapes pour démarrer l'application
 
@@ -39,11 +39,11 @@ Ouvrez votre navigateur et allez sur :
 docker ps
 ```
 
-Vous devriez voir `gegeDot-mysql` et `gegeDot-backend` en cours d'exécution.
+Vous devriez voir `yeboekun-mysql` et `yeboekun-backend` en cours d'exécution.
 
 ### Vérifier les logs du backend
 ```bash
-docker logs gegeDot-backend
+docker logs yeboekun-backend
 ```
 
 ### Vérifier que le port 3004 est libre
@@ -77,7 +77,7 @@ docker-compose stop
 
 ### Voir les logs
 ```bash
-docker logs -f gegeDot-backend
+docker logs -f yeboekun-backend
 ```
 
 ### Redémarrer

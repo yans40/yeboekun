@@ -35,7 +35,7 @@ docker-compose up -d mysql backend
 sleep 10
 
 # Vérifier les logs
-docker logs gegeDot-backend
+docker logs yeboekun-backend
 
 # Vérifier que l'API répond
 curl http://localhost:5000/api/persons

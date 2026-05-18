@@ -1,4 +1,4 @@
-# Baseline QA — GegeDot Frontend
+# Baseline QA — Yeboekun Frontend
 
 > **Date** : 2026-05-01
 > **Branche** : `dev` · commit `daff275`

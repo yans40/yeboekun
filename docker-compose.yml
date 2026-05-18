@@ -4,11 +4,11 @@ services:
   # Base de données MySQL
   mysql:
     image: mysql:8.0
-    container_name: gegeDot-mysql
+    container_name: yeboekun-mysql
     environment:
       MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: gegeDot
-      MYSQL_USER: gegedot
+      MYSQL_DATABASE: yeboekun
+      MYSQL_USER: yeboekun
       MYSQL_PASSWORD: password
     ports:
       - "3306:3306"
@@ -17,16 +17,16 @@ services:
       - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
     command: --default-authentication-plugin=mysql_native_password
     networks:
-      - gegeDot-network
+      - yeboekun-network
     restart: unless-stopped
 
   # Backend .NET API
   backend:
     image: mcr.microsoft.com/dotnet/sdk:9.0
-    container_name: gegeDot-backend
+    container_name: yeboekun-backend
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=mysql;Database=gegeDot;Uid=gegedot;Pwd=password;Port=3306;
+      - ConnectionStrings__DefaultConnection=Server=mysql;Database=yeboekun;Uid=yeboekun;Pwd=password;Port=3306;
       # Garde-fou familial désactivé dans ce compose (CI + dev docker). Pour activer : false + FamilyAccess__Password.
       - FamilyAccess__Disabled=true
     ports:
@@ -34,11 +34,11 @@ services:
     depends_on:
       - mysql
     networks:
-      - gegeDot-network
+      - yeboekun-network
     restart: unless-stopped
     volumes:
       - ./backend:/app
-    working_dir: /app/src/GegeDot.API
+    working_dir: /app/src/Yeboekun.API
     command: dotnet run --urls="http://+:5000"
 
   # Frontend React
@@ -48,35 +48,35 @@ services:
       dockerfile: Dockerfile
       args:
         REACT_APP_API_URL: http://localhost:5000/api
-    container_name: gegeDot-frontend
+    container_name: yeboekun-frontend
     ports:
       - "3000:80"
     depends_on:
       - backend
     networks:
-      - gegeDot-network
+      - yeboekun-network
     restart: unless-stopped
 
   # phpMyAdmin pour gérer la base de données (optionnel)
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: gegeDot-phpmyadmin
+    container_name: yeboekun-phpmyadmin
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
-      PMA_USER: gegedot
+      PMA_USER: yeboekun
       PMA_PASSWORD: password
     ports:
       - "8080:80"
     depends_on:
       - mysql
     networks:
-      - gegeDot-network
+      - yeboekun-network
     restart: unless-stopped
 
 volumes:
   mysql_data:
 
 networks:
-  gegeDot-network:
+  yeboekun-network:
     driver: bridge

@@ -1,4 +1,4 @@
-# 🌐 URLs d'Accès à l'Application GegeDot
+# 🌐 URLs d'Accès à l'Application Yeboekun
 
 ## 🚀 Démarrage Rapide
 
@@ -9,7 +9,7 @@
 docker-compose up -d
 
 # Terminal 2 : Backend API
-cd backend/src/GegeDot.API
+cd backend/src/Yeboekun.API
 dotnet run --urls=http://localhost:5001
 
 # Terminal 3 : Frontend
@@ -58,7 +58,7 @@ Fonctionnalités :
 - **phpMyAdmin** : http://localhost:8080
   - Utilisateur : `root`
   - Mot de passe : `password`
-  - Base : `gegeDot`
+  - Base : `yeboekun`
 
 ---
 

@@ -1,8 +1,8 @@
-# 🚀 Guide de Déploiement - GegeDot
+# 🚀 Guide de Déploiement - Yeboekun
 
 ## Vue d'ensemble
 
-Ce guide vous explique comment déployer GegeDot sur différentes plateformes cloud gratuites.
+Ce guide vous explique comment déployer Yeboekun sur différentes plateformes cloud gratuites.
 
 ## 🌐 Options de Déploiement Gratuites
 
@@ -16,8 +16,8 @@ Ce guide vous explique comment déployer GegeDot sur différentes plateformes cl
 2. **Déployer le backend**
    ```bash
    # Cloner le projet
-   git clone https://github.com/votre-username/gegeDot.git
-   cd gegeDot
+   git clone https://github.com/votre-username/yeboekun.git
+   cd yeboekun
    
    # Installer Railway CLI
    npm install -g @railway/cli
@@ -34,7 +34,7 @@ Ce guide vous explique comment déployer GegeDot sur différentes plateformes cl
    - Ajouter un service MySQL dans Railway
    - Configurer les variables d'environnement :
      ```
-     ConnectionStrings__DefaultConnection=Server=mysql;Database=gegeDot;Uid=root;Pwd=password;Port=3306;
+     ConnectionStrings__DefaultConnection=Server=mysql;Database=yeboekun;Uid=root;Pwd=password;Port=3306;
      ```
 
 #### Frontend (React)
@@ -78,12 +78,12 @@ Ce guide vous explique comment déployer GegeDot sur différentes plateformes cl
 2. **Configurer la connection**
    ```bash
    # Obtenir la connection string
-   pscale connect gegeDot main --port 3306
+   pscale connect yeboekun main --port 3306
    ```
 
 3. **Variables d'environnement**
    ```
-   ConnectionStrings__DefaultConnection=Server=127.0.0.1;Database=gegeDot;Uid=username;Pwd=password;Port=3306;
+   ConnectionStrings__DefaultConnection=Server=127.0.0.1;Database=yeboekun;Uid=username;Pwd=password;Port=3306;
    ```
 
 ## 🐳 Déploiement avec Docker
@@ -92,8 +92,8 @@ Ce guide vous explique comment déployer GegeDot sur différentes plateformes cl
 
 ```bash
 # Cloner le projet
-git clone https://github.com/votre-username/gegeDot.git
-cd gegeDot
+git clone https://github.com/votre-username/yeboekun.git
+cd yeboekun
 
 # Démarrer tous les services
 docker-compose up -d
@@ -107,8 +107,8 @@ curl http://localhost:3000
 
 ```bash
 # Build des images
-docker build -t gegedot-backend ./backend
-docker build -t gegedot-frontend ./frontend
+docker build -t yeboekun-backend ./backend
+docker build -t yeboekun-frontend ./frontend
 
 # Démarrer avec docker-compose
 docker-compose -f docker-compose.prod.yml up -d
@@ -119,7 +119,7 @@ docker-compose -f docker-compose.prod.yml up -d
 ### Backend (.NET)
 ```env
 # Base de données
-ConnectionStrings__DefaultConnection=Server=localhost;Database=gegeDot;Uid=root;Pwd=password;Port=3306;
+ConnectionStrings__DefaultConnection=Server=localhost;Database=yeboekun;Uid=root;Pwd=password;Port=3306;
 
 # Application
 ASPNETCORE_ENVIRONMENT=Production
@@ -127,8 +127,8 @@ ASPNETCORE_URLS=http://+:5000
 
 # JWT (pour plus tard)
 JWT__SecretKey=your-super-secret-key-here
-JWT__Issuer=GegeDot
-JWT__Audience=GegeDot-Users
+JWT__Issuer=Yeboekun
+JWT__Audience=Yeboekun-Users
 ```
 
 ### Frontend (React)
@@ -232,10 +232,10 @@ git pull origin main
 ### Sauvegarde de la base de données
 ```bash
 # Railway
-railway run mysqldump -u root -p gegeDot > backup.sql
+railway run mysqldump -u root -p yeboekun > backup.sql
 
 # PlanetScale
-pscale db dump gegeDot main --output backup.sql
+pscale db dump yeboekun main --output backup.sql
 ```
 
 ### Monitoring

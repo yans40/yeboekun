@@ -1,4 +1,4 @@
-# 🔍 Audit Complet des Formulaires GegeDot
+# 🔍 Audit Complet des Formulaires Yeboekun
 
 ## 📋 Objectif
 
@@ -15,7 +15,7 @@ Cet audit vise à tester exhaustivement :
 ### 1. Injecter les données de test
 
 ```bash
-docker exec -i gegeDot-mysql mysql -u gegedot -ppassword gegeDot < scripts/audit_test_data.sql
+docker exec -i yeboekun-mysql mysql -u yeboekun -ppassword yeboekun < scripts/audit_test_data.sql
 ```
 
 ### 2. Ouvrir la page d'audit

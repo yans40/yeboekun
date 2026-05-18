@@ -56,7 +56,7 @@ function selectSpouse(person) {
 
 ### 2. Backend - Relation Réciproque
 
-**Fichier** : `backend/src/GegeDot.API/Controllers/PersonsController.cs`
+**Fichier** : `backend/src/Yeboekun.API/Controllers/PersonsController.cs`
 
 **Problème** :
 - La relation n'était créée que dans un sens (Person1Id -> Person2Id)

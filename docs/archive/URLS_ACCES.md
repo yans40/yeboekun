@@ -1,4 +1,4 @@
-# 🌐 URLs d'Accès - GegeDot
+# 🌐 URLs d'Accès - Yeboekun
 
 ## ✅ URL Principale (Application Complète)
 
@@ -56,7 +56,7 @@ Si vous obtenez une erreur, le backend n'est pas démarré.
 
 ### Démarrer le backend :
 ```bash
-cd backend/src/GegeDot.API
+cd backend/src/Yeboekun.API
 dotnet run --urls=http://localhost:5001
 ```
 

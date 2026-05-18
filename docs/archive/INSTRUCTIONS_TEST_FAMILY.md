@@ -7,14 +7,14 @@ Le shell semble avoir un problème. Voici comment exécuter le script manuelleme
 Ouvrez un nouveau terminal et exécutez :
 
 ```bash
-cd /Users/kassyimbadollou/Documents/gegeDot
-docker exec -i gegeDot-mysql mysql -u root -ppassword gegeDot < scripts/add_test_family_large.sql
+cd /Users/kassyimbadollou/Documents/yeboekun
+docker exec -i yeboekun-mysql mysql -u root -ppassword yeboekun < scripts/add_test_family_large.sql
 ```
 
 ## Option 2 : Via phpMyAdmin
 
 1. Ouvrez phpMyAdmin : http://localhost:8080
-2. Sélectionnez la base de données `gegeDot`
+2. Sélectionnez la base de données `yeboekun`
 3. Cliquez sur l'onglet "SQL"
 4. Ouvrez le fichier `scripts/add_test_family_large.sql` et copiez tout son contenu
 5. Collez-le dans la zone SQL de phpMyAdmin
@@ -25,7 +25,7 @@ docker exec -i gegeDot-mysql mysql -u root -ppassword gegeDot < scripts/add_test
 Après l'exécution, vérifiez que Jean TestFamille existe :
 
 ```bash
-docker exec gegeDot-mysql mysql -u root -ppassword gegeDot -e "SELECT Id, FirstName, LastName FROM Persons WHERE FirstName = 'Jean' AND LastName = 'TestFamille';"
+docker exec yeboekun-mysql mysql -u root -ppassword yeboekun -e "SELECT Id, FirstName, LastName FROM Persons WHERE FirstName = 'Jean' AND LastName = 'TestFamille';"
 ```
 
 ## Si le script échoue
@@ -35,7 +35,7 @@ Le script SQL peut avoir des erreurs. Vérifiez les erreurs dans phpMyAdmin ou d
 Si vous voyez des erreurs, vous pouvez aussi créer juste Jean TestFamille manuellement :
 
 ```sql
-USE gegeDot;
+USE yeboekun;
 
 INSERT INTO Persons (FirstName, LastName, MiddleName, BirthDate, BirthPlace, Gender, IsAlive, CreatedAt, UpdatedAt)
 VALUES ('Jean', 'TestFamille', 'Le Patriarche', '1950-01-15', 'Paris, France', 'Male', true, NOW(), NOW())

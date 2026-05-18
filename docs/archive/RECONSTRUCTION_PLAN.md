@@ -1,7 +1,7 @@
-# 🔄 Plan de Reconstruction GegeDot
+# 🔄 Plan de Reconstruction Yeboekun
 
 ## 🎯 Objectif
-Reconstruire le projet GegeDot de manière propre, organisée et complète en s'inspirant des prompts, instructions et objectifs définis dans les phases précédentes.
+Reconstruire le projet Yeboekun de manière propre, organisée et complète en s'inspirant des prompts, instructions et objectifs définis dans les phases précédentes.
 
 ---
 
@@ -27,22 +27,22 @@ Reconstruire le projet GegeDot de manière propre, organisée et complète en s'
 ## 🏗️ Architecture Cible
 
 ```
-gegeDot/
+yeboekun/
 ├── backend/
 │   ├── src/
-│   │   ├── GegeDot.API/              # API Gateway
+│   │   ├── Yeboekun.API/              # API Gateway
 │   │   │   ├── Controllers/
 │   │   │   │   ├── PersonsController.cs
 │   │   │   │   ├── RelationshipsController.cs
 │   │   │   │   └── SearchController.cs
 │   │   │   └── Program.cs
-│   │   ├── GegeDot.Core/              # Domain Layer
+│   │   ├── Yeboekun.Core/              # Domain Layer
 │   │   │   ├── Entities/
 │   │   │   │   ├── Person.cs (ENRICHIE)
 │   │   │   │   ├── Relationship.cs (ENRICHIE)
 │   │   │   │   └── Tree.cs
 │   │   │   └── Interfaces/
-│   │   ├── GegeDot.Services/          # Business Logic
+│   │   ├── Yeboekun.Services/          # Business Logic
 │   │   │   ├── Services/
 │   │   │   │   ├── PersonService.cs
 │   │   │   │   ├── RelationshipService.cs
@@ -50,11 +50,11 @@ gegeDot/
 │   │   │   │   ├── DuplicateDetectionService.cs (NOUVEAU)
 │   │   │   │   └── SearchService.cs (NOUVEAU)
 │   │   │   └── DTOs/
-│   │   └── GegeDot.Infrastructure/    # Data Access
+│   │   └── Yeboekun.Infrastructure/    # Data Access
 │   │       ├── Data/
 │   │       └── Repositories/
 │   └── tests/
-│       └── GegeDot.Tests/
+│       └── Yeboekun.Tests/
 ├── frontend/
 │   ├── hierarchical-tree-beta-fixed.html (AMÉLIORÉ)
 │   ├── professional-fan-view.html (NOUVEAU)
@@ -224,7 +224,7 @@ gegeDot/
 
 ## 🎯 Objectif Final
 
-Un projet GegeDot **propre**, **complet**, **testé** et **documenté** qui répond à tous les objectifs des phases Alpha, Beta, Charlie et Delta, avec une architecture solide et extensible pour les phases futures.
+Un projet Yeboekun **propre**, **complet**, **testé** et **documenté** qui répond à tous les objectifs des phases Alpha, Beta, Charlie et Delta, avec une architecture solide et extensible pour les phases futures.
 
 ---
 

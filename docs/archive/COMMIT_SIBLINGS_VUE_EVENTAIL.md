@@ -34,7 +34,7 @@
 ## 📋 Commande Git
 
 ```bash
-cd /Users/kassyimbadollou/Documents/gegeDot
+cd /Users/kassyimbadollou/Documents/yeboekun
 
 git add frontend/professional-fan-view.html
 

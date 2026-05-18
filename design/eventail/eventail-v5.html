@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"/>
+<title>Yeboekun — éventail v5</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500;1,600&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#1F1A14; --ink2:#3D342A; --ink3:#766A58; --ink4:#A89F8C;
+    --ivory:#F4EFE6; --cream:#FAF6EC; --paper2:#ECE5D6;
+    --line:#CABFA6; --line2:#DDD2B8; --sepia:#7D5A36; --rust:#A4502A;
+    --olive:#6A7242;
+    --asc-1:#3D342A; --asc-2:#5A4528; --asc-3:#7D5A36;
+    --asc-4:#9C7849; --asc-5:#BFA180;
+    --desc-1:#52582F; --desc-2:#6A7242;
+    --vide-stroke:#CABFA6;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--paper2);color:var(--ink);
+    font-family:'Geist',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  .em{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;letter-spacing:-.015em;}
+  .mono{font-family:'Geist Mono',monospace;}
+
+  header{padding:48px 96px 40px;background:var(--ivory);border-bottom:1px solid var(--line2);}
+  header h1{margin:0;font-size:52px;line-height:.98;letter-spacing:-.02em;}
+  header .lede{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;
+    color:var(--ink2);max-width:860px;line-height:1.5;margin-top:12px;}
+  .rules{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:32px;
+    border-top:1px solid var(--line2);}
+  .rules .r{padding:20px 24px;border-right:1px solid var(--line2);
+    font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink3);line-height:1.7;}
+  .rules .r:last-child{border-right:none;}
+  .rules .r strong{display:block;color:var(--sepia);margin-bottom:4px;}
+
+  .stage{background:var(--paper2);padding:48px 0 96px;}
+  .artboard{width:1440px;margin:0 auto 48px;background:var(--ivory);
+    border:1px solid var(--line2);position:relative;}
+  .artboard .cap{padding:16px 32px;border-bottom:1px solid var(--line2);
+    display:flex;justify-content:space-between;align-items:baseline;gap:32px;
+    background:var(--cream);}
+  .artboard .cap .title{font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:22px;color:var(--ink);}
+  .artboard .cap .id{font-family:'Geist Mono',monospace;font-size:10px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);}
+  .artboard .cap .verdict{font-family:'Geist Mono',monospace;font-size:9.5px;
+    letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;
+    border:1px solid var(--sepia);background:var(--ivory);color:var(--sepia);}
+
+  .focus-bar{height:0;overflow:hidden;background:var(--ink);color:var(--ivory);
+    transition:height .3s cubic-bezier(.4,0,.2,1);}
+  .focus-bar.on{height:56px;}
+  .focus-bar .inner{display:flex;align-items:center;gap:16px;padding:0 32px;height:56px;}
+  .focus-bar .lookthru{font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:17px;letter-spacing:-.005em;color:#CABFA6;}
+  .focus-bar .lookthru strong{color:var(--ivory);font-weight:500;}
+  .focus-bar .spacer{flex:1;}
+  .focus-bar button.return{background:transparent;border:1px solid #5A4528;
+    color:var(--ivory);padding:8px 16px;font-family:'Geist Mono',monospace;font-size:11px;
+    letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .15s;}
+  .focus-bar button.return:hover{background:#3D342A;border-color:var(--sepia);}
+  .focus-bar button.return::before{content:"← ";}
+
+  .artboard svg.fan{display:block;width:1440px;height:880px;cursor:default;
+    transition:opacity .25s ease;}
+  .artboard svg.fan.fading{opacity:0;}
+
+  .fan-grid-soft{stroke:var(--line);stroke-width:.4;fill:none;opacity:.5;}
+  .ego-disc{fill:var(--cream);stroke:var(--ink2);stroke-width:1.4;cursor:pointer;}
+  .ego-name{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;
+    font-size:21px;fill:var(--ink);text-anchor:middle;letter-spacing:-.005em;pointer-events:none;}
+  .ego-name.small{font-size:17px;}
+  .ego-dates{font-family:'Geist Mono',monospace;font-size:11px;fill:var(--ink3);
+    text-anchor:middle;letter-spacing:.06em;pointer-events:none;}
+  .ego-here{font-family:'Geist Mono',monospace;font-size:8.5px;
+    fill:var(--sepia);letter-spacing:.15em;text-anchor:middle;pointer-events:none;}
+
+  .sector{stroke:var(--ivory);stroke-width:1;cursor:pointer;
+    transition:filter .15s ease,stroke .15s ease;}
+  .sector:hover{filter:brightness(1.1);stroke:var(--ink);stroke-width:1.6;}
+  .sector:focus-visible{outline:none;stroke:var(--rust);stroke-width:2;}
+  .sector.empty{fill:transparent;stroke:var(--vide-stroke);stroke-width:.6;
+    stroke-dasharray:1.5 2.5;cursor:default;}
+  .sector.empty:hover{filter:none;stroke:var(--vide-stroke);}
+  .sector.selected{stroke:var(--rust);stroke-width:2.4;}
+
+  /* v5 — texte horizontal, une seule ligne par secteur */
+  .sector-label{font-family:'Cormorant Garamond',serif;font-style:italic;
+    fill:var(--cream);pointer-events:none;text-anchor:middle;dominant-baseline:central;}
+  /* dates inline en Geist Mono via tspan */
+
+  .empty-cross{stroke:var(--ink4);stroke-width:.6;opacity:.5;pointer-events:none;}
+  .marker-orig{fill:var(--rust);pointer-events:none;}
+  .gen-ring-label{font-family:'Geist Mono',monospace;font-size:9px;
+    letter-spacing:.16em;text-transform:uppercase;fill:var(--ink4);pointer-events:none;}
+
+  .corner-title{position:absolute;top:88px;left:48px;max-width:300px;pointer-events:none;
+    transition:top .3s cubic-bezier(.4,0,.2,1);}
+  .board.has-focus .corner-title,.board.has-focus .legend{top:144px;}
+  .corner-title .em-h{font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:28px;line-height:1.1;color:var(--ink);letter-spacing:-.015em;}
+  .corner-title .hint{font-family:'Geist Mono',monospace;font-size:10px;
+    letter-spacing:.08em;color:var(--ink3);margin-top:14px;line-height:1.6;}
+
+  .legend{position:absolute;top:88px;right:40px;padding:16px 20px;
+    background:rgba(250,246,236,.92);border:1px solid var(--line2);pointer-events:none;
+    transition:top .3s cubic-bezier(.4,0,.2,1);}
+  .legend .row{display:flex;align-items:center;gap:10px;margin:5px 0;
+    font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink2);}
+  .legend .sw{width:18px;height:10px;}
+  .legend .sw.dashed{background:transparent;border:.6px dashed var(--vide-stroke);}
+
+  .detail-panel{position:absolute;top:32px;right:32px;width:360px;
+    background:var(--ink);color:var(--ivory);padding:32px 32px 24px;
+    transform:translateX(400px);opacity:0;
+    transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .25s,top .3s cubic-bezier(.4,0,.2,1);
+    z-index:10;border:1px solid var(--ink2);}
+  .board.has-focus .detail-panel{top:88px;}
+  .detail-panel.open{transform:translateX(0);opacity:1;}
+  .detail-panel .close{position:absolute;top:14px;right:14px;background:transparent;
+    border:none;color:var(--ivory);font-family:'Geist Mono',monospace;font-size:14px;
+    cursor:pointer;opacity:.6;padding:6px;}
+  .detail-panel .close:hover{opacity:1;}
+  .detail-panel .gen-tag{font-family:'Geist Mono',monospace;font-size:9px;
+    letter-spacing:.18em;text-transform:uppercase;color:#BFA180;}
+  .detail-panel .name{font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-weight:500;font-size:32px;line-height:1.1;margin:8px 0 10px;
+    letter-spacing:-.015em;color:var(--ivory);}
+  .detail-panel .dates{font-family:'Geist Mono',monospace;font-size:12px;
+    letter-spacing:.06em;color:#CABFA6;margin-bottom:24px;}
+  .detail-panel .branch{padding-top:16px;border-top:1px solid #3D342A;
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13.5px;
+    color:#CABFA6;line-height:1.5;margin-bottom:18px;}
+  .detail-panel button.recenter{display:block;width:100%;padding:14px 16px;
+    background:var(--sepia);color:var(--ivory);border:none;
+    font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.12em;
+    text-transform:uppercase;cursor:pointer;transition:background .15s;
+    text-align:left;position:relative;}
+  .detail-panel button.recenter:hover{background:#9C7849;}
+  .detail-panel button.recenter::after{content:"→";position:absolute;right:16px;
+    top:50%;transform:translateY(-50%);font-family:serif;font-size:18px;}
+  .detail-panel button.recenter .hint{display:block;font-family:'Cormorant Garamond',serif;
+    font-style:italic;text-transform:none;letter-spacing:-.005em;font-size:12px;
+    opacity:.75;margin-top:4px;}
+
+  /* v5 tokens override */
+  /* (palette inchangée — tokens actés) */
+</style>
+</head>
+<body>
+
+<header>
+  <div class="mono" style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;">
+    YEBOEKUN · MODE CONTEMPLATION · ÉVENTAIL V5
+  </div>
+  <h1 class="em">Texte horizontal. Mesure réelle. Adaptatif.</h1>
+  <div class="lede">Option C hybride conservée (panneau + recentrage opt-in).
+    Quatre corrections appliquées : direction B 270°/90°, texte horizontal partout,
+    débordement par mesure canvas réelle, disposition adaptative si pas de descendants.</div>
+  <div class="rules">
+    <div class="r"><strong>Règle 1 — Layout</strong>270° ascendants · 90° descendants<br/>Adaptatif : 360° si pas de descendants</div>
+    <div class="r"><strong>Règle 2 — Texte</strong>Horizontal partout<br/>Aucune rotation, aucun texte tangentiel</div>
+    <div class="r"><strong>Règle 3 — Débordement</strong>Mesure canvas réelle<br/>Cascade : nom+dates → init+dates → init → tronqué</div>
+    <div class="r"><strong>Règle 4 — Interaction</strong>Clic = panneau<br/>Bouton recenter + fil d'ariane</div>
+  </div>
+</header>
+
+<div class="stage">
+
+  <!-- CAS 1 : DENSE — 32 ancêtres gen 5 + 4 descendants -->
+  <div class="artboard board" id="board-dense">
+    <div class="cap">
+      <span class="id">v5 · cas dense · 32 ancêtres gen-5 · 4 descendants · 270°/90°</span>
+      <span class="title em">Arbre complet — toutes branches connues</span>
+      <span class="verdict">adaptatif 270°/90°</span>
+    </div>
+    <div class="focus-bar" id="fb-dense">
+      <div class="inner">
+        <span class="lookthru" id="lt-dense"></span>
+        <span class="spacer"></span>
+        <button class="return" id="ret-dense"></button>
+      </div>
+    </div>
+    <svg class="fan" viewBox="0 0 1440 880" id="svg-dense" role="tree" aria-label="Éventail généalogique dense"></svg>
+    <aside class="detail-panel" id="dp-dense" aria-live="polite" role="dialog" aria-label="Fiche personne"></aside>
+  </div>
+
+  <!-- CAS 2 : ASYMÉTRIQUE — branche maternelle profonde, branche paternelle inconnue dès gen 2 -->
+  <div class="artboard board" id="board-asym">
+    <div class="cap">
+      <span class="id">v5 · cas asymétrique · branche paternelle vide dès gen-2 · 360° adaptatif</span>
+      <span class="title em">Branche maternelle profonde — côté paternel inconnu</span>
+      <span class="verdict">adaptatif 360°</span>
+    </div>
+    <div class="focus-bar" id="fb-asym">
+      <div class="inner">
+        <span class="lookthru" id="lt-asym"></span>
+        <span class="spacer"></span>
+        <button class="return" id="ret-asym"></button>
+      </div>
+    </div>
+    <svg class="fan" viewBox="0 0 1440 880" id="svg-asym" role="tree" aria-label="Éventail généalogique asymétrique"></svg>
+    <aside class="detail-panel" id="dp-asym" aria-live="polite" role="dialog" aria-label="Fiche personne"></aside>
+  </div>
+
+</div><!-- /stage -->
+
+<script>
+(async function(){
+await document.fonts.ready;
+/* Pré-charge explicitement Cormorant Garamond pour que canvas.measureText soit fiable */
+await Promise.all([
+  document.fonts.load('italic 500 13px "Cormorant Garamond"'),
+  document.fonts.load('italic 500 9px "Cormorant Garamond"'),
+]);
+
+/* =========================================================================
+   GEOMETRY
+   ========================================================================= */
+const D = Math.PI/180;
+const polar = (cx,cy,r,deg) => [cx + r*Math.cos(deg*D), cy + r*Math.sin(deg*D)];
+function arcSectorPath(cx,cy,rIn,rOut,a1,a2){
+  const [x1,y1]=polar(cx,cy,rOut,a1), [x2,y2]=polar(cx,cy,rOut,a2);
+  const [x3,y3]=polar(cx,cy,rIn,a2),  [x4,y4]=polar(cx,cy,rIn,a1);
+  const large = (a2-a1)%360 > 180 ? 1 : 0;
+  return `M${x1.toFixed(2)},${y1.toFixed(2)} `
+       + `A${rOut},${rOut} 0 ${large} 1 ${x2.toFixed(2)},${y2.toFixed(2)} `
+       + `L${x3.toFixed(2)},${y3.toFixed(2)} `
+       + `A${rIn},${rIn} 0 ${large} 0 ${x4.toFixed(2)},${y4.toFixed(2)} Z`;
+}
+
+/* =========================================================================
+   MEASURE + fitText (Règle 3)
+   Cascade : Prénom Nom (dates) → P. Nom (dates) → P. Nom → P. N…
+   Mesure en Cormorant Garamond Italic (dates inline même police — prototype)
+   ========================================================================= */
+const mc = document.createElement('canvas'), mctx = mc.getContext('2d');
+function measureIt(text, fs){
+  mctx.font = `italic 500 ${fs}px "Cormorant Garamond", serif`;
+  return mctx.measureText(text).width;
+}
+
+function fitText(p, avail, fs){
+  if (!p) return null;
+  const dateStr = p.d ? `(${p.b}–${p.d})` : (p.b ? `(${p.b}–)` : '');
+  const full   = `${p.fn} ${p.ln}`;
+  const init   = `${p.fn[0]}. ${p.ln}`;
+  const truncLn = p.ln.length > 12 ? p.ln.slice(0,11)+'…' : p.ln;
+  const trunc  = `${p.fn[0]}. ${truncLn}`;
+
+  if (dateStr){
+    const t0 = `${full} ${dateStr}`;
+    if (measureIt(t0, fs) <= avail) return { name: full, dates: dateStr };
+    const t1 = `${init} ${dateStr}`;
+    if (measureIt(t1, fs) <= avail) return { name: init, dates: dateStr };
+  }
+  if (measureIt(full, fs) <= avail) return { name: full, dates: null };
+  if (measureIt(init, fs) <= avail) return { name: init, dates: null };
+  return { name: trunc, dates: null };
+}
+
+/* Available width for horizontal text.
+   On utilise la corde intérieure (rIn, la partie la plus étroite du secteur)
+   comme borne conservative — garantit que le texte ne dépasse pas les bords radiaux. */
+function sectorAvail(rIn, sw){
+  return 2 * rIn * Math.sin(sw/2 * D) * 0.78;
+}
+
+/* =========================================================================
+   WALK GRAPH
+   ========================================================================= */
+function walkAsc(id, G, maxGen){
+  const out=[];
+  let prev=[id];
+  for(let g=1;g<=maxGen;g++){
+    const next=[];
+    for(const pid of prev){
+      const ps = pid && G[pid] ? G[pid].parents : [];
+      next.push(ps[0]||null, ps[1]||null);
+    }
+    out.push(next); prev=next;
+  }
+  return out;
+}
+function walkDesc(id, G, maxGen){
+  const out=[];
+  let prev=[id];
+  for(let g=1;g<=maxGen;g++){
+    const next=[];
+    for(const pid of prev){
+      if(!pid) continue;
+      const ch = G[pid] ? G[pid].children : [];
+      next.push(...ch);
+    }
+    out.push(next); prev=next;
+  }
+  return out;
+}
+
+/* =========================================================================
+   FONT SIZES
+   ========================================================================= */
+const ascFs  = g => [12.5, 12.5, 11, 10, 9.5][g-1];
+const descFs = g => [13, 11][g-1];
+
+/* =========================================================================
+   RADII
+   ========================================================================= */
+const RADII      = [82, 162, 242, 312, 372, 428];
+const DESC_RADII = [82, 168, 250];
+
+/* =========================================================================
+   LAYOUT — Règle 1 : adaptatif 270°/90° ou 360° si pas de descendants
+   ========================================================================= */
+function computeLayout(hasDesc){
+  if(hasDesc) return { ascStart:135, ascSpan:270, descStart:45, descSpan:90 };
+  /* Adaptatif : 360° pour les ascendants, ego recentré verticalement */
+  return { ascStart:135, ascSpan:360, descStart:0, descSpan:0 };
+}
+
+/* =========================================================================
+   DATA — CAS 1 : DENSE
+   ========================================================================= */
+const MALE_FN   = ['Auguste','Henri','Pierre','Louis','Victor','Jules','Albert','Léon',
+                   'Gaston','Marcel','Fernand','Eugène','Charles','Édouard','Alfred','Lucien',
+                   'Adolphe','Gustave','Joseph','Théodore','Étienne','Bernard','Émile','Adrien',
+                   'Clément','François','Georges','Raymond','Armand','Maurice','André','Octave'];
+const FEMALE_FN = ['Marie','Jeanne','Louise','Rose','Marguerite','Hortense','Adèle','Céleste',
+                   'Thérèse','Victoire','Pauline','Mathilde','Blanche','Irène','Suzanne','Hélène',
+                   'Yvonne','Clémentine','Joséphine','Madeleine','Augustine','Leontine','Eulalie',
+                   'Berthe','Germaine','Renée','Albertine','Clotilde','Marcelline','Anastasie','Eulalie','Noémie'];
+const LASTNAMES = ['Lefèvre','Moreau','Dupont','Bernard','Tixier','Cordier','Berger','Vasseur',
+                   'Roux','Lemaire','Laurent','Petit','Dubois','Robert','Martin','Blanc',
+                   'Garnier','Dumont','Boyer','Simon'];
+const BASE_B = [0, 1923, 1895, 1866, 1838, 1808];
+
+function buildDenseData(){
+  const G = {};
+  G['ego'] = { fn:'Marguerite', ln:'Lefèvre', b:1955, lieu:'Grenoble',
+               parents:['g1_0','g1_1'], children:['d0','d1','d2','d3'] };
+  G['d0'] = { fn:'Léa',     ln:'Lefèvre', b:2000, parents:['ego'], children:[] };
+  G['d1'] = { fn:'Antoine', ln:'Lefèvre', b:2002, parents:['ego'], children:[] };
+  G['d2'] = { fn:'Camille', ln:'Lefèvre', b:2005, parents:['ego'], children:[] };
+  G['d3'] = { fn:'Théo',    ln:'Lefèvre', b:2009, parents:['ego'], children:[] };
+
+  for(let g=1; g<=5; g++){
+    const count = 2**g;
+    for(let p=0; p<count; p++){
+      const id = `g${g}_${p}`;
+      const isMale = p%2===0;
+      const fnArr = isMale ? MALE_FN : FEMALE_FN;
+      const fn = fnArr[(g*7+p*3) % fnArr.length];
+      const ln = LASTNAMES[(g*3+p*2) % LASTNAMES.length];
+      const b  = BASE_B[g] + (p*3) % 22;
+      const d  = b + 68 + p%18;
+      const childId = g===1 ? 'ego' : `g${g-1}_${Math.floor(p/2)}`;
+      const parents = g<5 ? [`g${g+1}_${p*2}`,`g${g+1}_${p*2+1}`] : [];
+      G[id] = { fn, ln, b, d, parents, children:[childId] };
+    }
+  }
+  return G;
+}
+const G_DENSE = buildDenseData();
+
+/* =========================================================================
+   DATA — CAS 2 : ASYMÉTRIQUE
+   Branche paternelle (Kwame) : aucun parent connu à partir de gen 2
+   Branche maternelle (Adjoa) : profonde sur 5 générations
+   Pas de descendants → layout 360° (adaptatif)
+   ========================================================================= */
+const G_ASYM = {
+  'ego':    { fn:'Kofi',    ln:'Mensah',   b:1975, lieu:'Accra',
+              parents:['kwame','adjoa'], children:[] },
+  /* gen 1 */
+  'kwame':  { fn:'Kwame',   ln:'Mensah',   b:1948, d:2019,
+              parents:[], children:['ego'] },           /* branche paternelle — vide */
+  'adjoa':  { fn:'Adjoa',   ln:'Boateng',  b:1952,
+              parents:['kwesi','akosua'], children:['ego'] },
+  /* gen 2 maternel */
+  'kwesi':  { fn:'Kwesi',   ln:'Boateng',  b:1923, d:2001,
+              parents:['fiifi','ama'], children:['adjoa'] },
+  'akosua': { fn:'Akosua',  ln:'Darko',    b:1926, d:2008,
+              parents:['yao','efua'], children:['adjoa'] },
+  /* gen 3 */
+  'fiifi':  { fn:'Fiifi',   ln:'Boateng',  b:1896, d:1967,
+              parents:['kofi2','abena'], children:['kwesi'] },
+  'ama':    { fn:'Ama',     ln:'Acquah',   b:1899, d:1978,
+              parents:['kwame2','adjoa2'], children:['kwesi'] },
+  'yao':    { fn:'Yao',     ln:'Darko',    b:1899, d:1966,
+              parents:[], children:['akosua'] },
+  'efua':   { fn:'Efua',    ln:'Tetteh',   b:1902, d:1981,
+              parents:[], children:['akosua'] },
+  /* gen 4 */
+  'kofi2':  { fn:'Kofi',    ln:'Boateng',  b:1869, d:1941,
+              parents:['yaw2','akua2'], children:['fiifi'] },
+  'abena':  { fn:'Abena',   ln:'Asiedu',   b:1873, d:1955,
+              parents:[], children:['fiifi'] },
+  'kwame2': { fn:'Kwame',   ln:'Acquah',   b:1871, d:1944,
+              parents:[], children:['ama'] },
+  'adjoa2': { fn:'Adjoa',   ln:'Mensah',   b:1875, d:1959,
+              parents:[], children:['ama'] },
+  /* gen 5 */
+  'yaw2':   { fn:'Yaw',     ln:'Boateng',  b:1841, d:1912,
+              parents:[], children:['kofi2'] },
+  'akua2':  { fn:'Akua',    ln:'Kumi-Asante', b:1845, d:1921,
+              parents:[], children:['kofi2'] },
+};
+
+/* =========================================================================
+   BUILD FAN
+   ========================================================================= */
+const ns = "http://www.w3.org/2000/svg";
+
+function buildFan(svgEl, egoId, G, cx, cy, layout, origEgo, onSector){
+  while(svgEl.firstChild) svgEl.removeChild(svgEl.firstChild);
+  /* defs pour les clipPaths (filet de sécurité anti-débordement) */
+  const defsEl = document.createElementNS(ns,'defs');
+  svgEl.appendChild(defsEl);
+  let clipIdx = 0;
+  function makeClip(d){
+    const id = `cp-${svgEl.id}-${clipIdx++}`;
+    const cl = document.createElementNS(ns,'clipPath');
+    cl.setAttribute('id', id);
+    const cp = document.createElementNS(ns,'path');
+    cp.setAttribute('d', d);
+    cl.appendChild(cp);
+    defsEl.appendChild(cl);
+    return id;
+  }
+  const {ascStart,ascSpan,descStart,descSpan} = layout;
+  const ascData  = walkAsc(egoId, G, 5);
+  const descData = walkDesc(egoId, G, 2);
+  const egoPerson = G[egoId];
+
+  /* grid rings */
+  for(let g=1;g<=5;g++){
+    const c=document.createElementNS(ns,'circle');
+    c.setAttribute('cx',cx); c.setAttribute('cy',cy);
+    c.setAttribute('r',RADII[g]); c.setAttribute('class','fan-grid-soft');
+    svgEl.appendChild(c);
+  }
+  if(descSpan>0){
+    for(let g=1;g<=2;g++){
+      const c=document.createElementNS(ns,'circle');
+      c.setAttribute('cx',cx); c.setAttribute('cy',cy);
+      c.setAttribute('r',DESC_RADII[g]); c.setAttribute('class','fan-grid-soft');
+      svgEl.appendChild(c);
+    }
+  }
+
+  /* ASCENDANTS */
+  for(let g=1;g<=5;g++){
+    const rIn=RADII[g-1], rOut=RADII[g];
+    const sectors=2**g;
+    const sw=ascSpan/sectors;
+    const fs=ascFs(g);
+    const rOffset = g===1 ? 0.68 : 0.50;
+    const arr=ascData[g-1];
+
+    for(let i=0;i<sectors;i++){
+      const a1=ascStart+i*sw, a2=a1+sw, mid=(a1+a2)/2;
+      const rMid=rIn+(rOut-rIn)*rOffset;
+      const [tx,ty]=polar(cx,cy,rMid,mid);
+      const pid=arr[i];
+      const p=pid?G[pid]:null;
+      const grp=document.createElementNS(ns,'g');
+
+      const path=document.createElementNS(ns,'path');
+      path.setAttribute('d',arcSectorPath(cx,cy,rIn,rOut,a1,a2));
+
+      if(!p){
+        path.setAttribute('class','sector empty');
+        grp.appendChild(path);
+        const cs=4;
+        const cross=document.createElementNS(ns,'path');
+        cross.setAttribute('d',`M${tx-cs},${ty} L${tx+cs},${ty} M${tx},${ty-cs} L${tx},${ty+cs}`);
+        cross.setAttribute('class','empty-cross');
+        grp.appendChild(cross);
+        svgEl.appendChild(grp);
+        continue;
+      }
+
+      path.setAttribute('class','sector');
+      path.setAttribute('fill',`var(--asc-${g})`);
+      path.setAttribute('tabindex','0');
+      path.setAttribute('role','treeitem');
+      path.dataset.kind='asc'; path.dataset.id=pid; path.dataset.gen=g;
+      path.setAttribute('aria-label',`${p.fn} ${p.ln}, génération ${g} ascendante`);
+      grp.appendChild(path);
+
+      /* titre SVG */
+      const title=document.createElementNS(ns,'title');
+      title.textContent=`${p.fn} ${p.ln} · ${p.b}${p.d?'–'+p.d:''}`;
+      grp.appendChild(title);
+
+      /* fitText — Règle 2 (horizontal) + Règle 3 (mesure réelle) */
+      const avail=sectorAvail(rIn,sw);
+      const label=fitText(p,avail,fs);
+      const sectorD=arcSectorPath(cx,cy,rIn,rOut,a1,a2);
+      const clipId=makeClip(sectorD);
+      if(label){
+        const t=document.createElementNS(ns,'text');
+        t.setAttribute('class','sector-label');
+        t.setAttribute('x',tx); t.setAttribute('y',ty);
+        t.setAttribute('font-size',fs);
+        t.setAttribute('clip-path',`url(#${clipId})`);
+        const ns1=document.createElementNS(ns,'tspan');
+        ns1.textContent=label.name;
+        t.appendChild(ns1);
+        if(label.dates){
+          const ds=document.createElementNS(ns,'tspan');
+          ds.textContent=' '+label.dates;
+          ds.setAttribute('font-family','"Geist Mono",monospace');
+          ds.setAttribute('font-style','normal');
+          ds.setAttribute('font-size', Math.max(7.5, fs-2));
+          ds.setAttribute('fill-opacity','0.70');
+          t.appendChild(ds);
+        }
+        grp.appendChild(t);
+      }
+
+      /* marker ego d'origine */
+      if(pid===origEgo && egoId!==origEgo){
+        const dot=document.createElementNS(ns,'circle');
+        dot.setAttribute('cx',tx); dot.setAttribute('cy',ty-fs-2);
+        dot.setAttribute('r',3); dot.setAttribute('class','marker-orig');
+        grp.appendChild(dot);
+      }
+
+      svgEl.appendChild(grp);
+    }
+  }
+
+  /* DESCENDANTS */
+  if(descSpan>0){
+    for(let g=1;g<=2;g++){
+      const arr=descData[g-1];
+      if(!arr||arr.length===0) continue;
+      const rIn=DESC_RADII[g-1], rOut=DESC_RADII[g];
+      const sw=descSpan/arr.length;
+      const fs=descFs(g);
+
+      arr.forEach((pid,i)=>{
+        const a1=descStart+i*sw, a2=a1+sw, mid=(a1+a2)/2;
+        const rMid=(rIn+rOut)/2;
+        const [tx,ty]=polar(cx,cy,rMid,mid);
+        const p=pid?G[pid]:null;
+        const grp=document.createElementNS(ns,'g');
+        const path=document.createElementNS(ns,'path');
+        path.setAttribute('d',arcSectorPath(cx,cy,rIn,rOut,a1,a2));
+
+        if(!p){
+          path.setAttribute('class','sector empty');
+          grp.appendChild(path);
+          svgEl.appendChild(grp); return;
+        }
+
+        path.setAttribute('class','sector');
+        path.setAttribute('fill',`var(--desc-${g})`);
+        path.setAttribute('tabindex','0');
+        path.setAttribute('role','treeitem');
+        path.dataset.kind='desc'; path.dataset.id=pid; path.dataset.gen=g;
+        path.setAttribute('aria-label',`${p.fn} ${p.ln}, descendant génération ${g}`);
+        grp.appendChild(path);
+
+        const avail=sectorAvail(rIn,sw);
+        const label=fitText(p,avail,fs);
+        const dSectorD=arcSectorPath(cx,cy,rIn,rOut,a1,a2);
+        const dClipId=makeClip(dSectorD);
+        if(label){
+          const t=document.createElementNS(ns,'text');
+          t.setAttribute('class','sector-label');
+          t.setAttribute('x',tx); t.setAttribute('y',ty);
+          t.setAttribute('font-size',fs);
+          t.setAttribute('clip-path',`url(#${dClipId})`);
+          const ns1=document.createElementNS(ns,'tspan');
+          ns1.textContent=label.name;
+          t.appendChild(ns1);
+          if(label.dates){
+            const ds=document.createElementNS(ns,'tspan');
+            ds.textContent=' '+label.dates;
+            ds.setAttribute('font-family','"Geist Mono",monospace');
+            ds.setAttribute('font-style','normal');
+            ds.setAttribute('font-size',Math.max(8,fs-2));
+            ds.setAttribute('fill-opacity','0.70');
+            t.appendChild(ds);
+          }
+          grp.appendChild(t);
+        }
+
+        svgEl.appendChild(grp);
+      });
+    }
+  }
+
+  /* EGO disc */
+  const ego=document.createElementNS(ns,'circle');
+  ego.setAttribute('cx',cx); ego.setAttribute('cy',cy); ego.setAttribute('r',RADII[0]);
+  ego.setAttribute('class','ego-disc');
+  ego.setAttribute('tabindex','0');
+  ego.dataset.kind='ego'; ego.dataset.id=egoId;
+  svgEl.appendChild(ego);
+
+  const fullName=`${egoPerson.fn} ${egoPerson.ln}`;
+  const en=document.createElementNS(ns,'text');
+  en.setAttribute('class',fullName.length>18?'ego-name small':'ego-name');
+  en.setAttribute('x',cx); en.setAttribute('y',cy-5);
+  en.textContent=fullName;
+  svgEl.appendChild(en);
+
+  const ed=document.createElementNS(ns,'text');
+  ed.setAttribute('class','ego-dates');
+  ed.setAttribute('x',cx); ed.setAttribute('y',cy+14);
+  ed.textContent=egoPerson.d?`${egoPerson.b}–${egoPerson.d}`:`${egoPerson.b}—`;
+  svgEl.appendChild(ed);
+
+  if(egoId!==origEgo){
+    const tag=document.createElementNS(ns,'text');
+    tag.setAttribute('class','ego-here');
+    tag.setAttribute('x',cx); tag.setAttribute('y',cy+30);
+    tag.textContent='VOUS REGARDEZ À TRAVERS';
+    svgEl.appendChild(tag);
+  }
+
+  /* ring labels */
+  for(let g=1;g<=5;g++){
+    const r=(RADII[g-1]+RADII[g])/2;
+    const [lx,ly]=polar(cx,cy,r,ascStart-5);
+    const t=document.createElementNS(ns,'text');
+    t.setAttribute('class','gen-ring-label');
+    t.setAttribute('x',lx); t.setAttribute('y',ly+3);
+    t.setAttribute('text-anchor','end');
+    t.textContent=`GEN ${g}`;
+    svgEl.appendChild(t);
+  }
+}
+
+/* =========================================================================
+   INIT BOARD — factory (Règle 4 : interaction complète)
+   ========================================================================= */
+function initBoard(svgId, fbId, ltId, retId, dpId, boardId, G, origEgo, cx, cy){
+  const svgEl  = document.getElementById(svgId);
+  const fb     = document.getElementById(fbId);
+  const lt     = document.getElementById(ltId);
+  const ret    = document.getElementById(retId);
+  const dp     = document.getElementById(dpId);
+  const board  = document.getElementById(boardId);
+
+  let currentEgo  = origEgo;
+  let selectedId  = null;
+
+  function layout(){ return computeLayout(walkDesc(currentEgo,G,1)[0].length>0); }
+
+  function hasDesc(egoId){
+    return G[egoId]&&G[egoId].children&&G[egoId].children.length>0;
+  }
+
+  function rebuild(){
+    const lo = computeLayout(hasDesc(currentEgo));
+    buildFan(svgEl, currentEgo, G, cx, cy, lo, origEgo, openDetail);
+  }
+
+  function updateFocusBar(){
+    if(currentEgo===origEgo){
+      fb.classList.remove('on'); board.classList.remove('has-focus');
+    } else {
+      const p=G[currentEgo];
+      lt.innerHTML=`Vous regardez à travers les yeux de <strong>${p.fn} ${p.ln}</strong>`;
+      ret.textContent=`Retour à ${G[origEgo].fn}`;
+      fb.classList.add('on'); board.classList.add('has-focus');
+    }
+  }
+
+  function openDetail(pid, kind, gen){
+    selectedId=pid;
+    svgEl.querySelectorAll('.sector.selected').forEach(n=>n.classList.remove('selected'));
+    const node=svgEl.querySelector(`[data-id="${pid}"]`);
+    if(node&&node.classList) node.classList.add('selected');
+
+    const p=G[pid]; if(!p) return;
+    const isEgo=kind==='ego';
+    const isOriginal=pid===origEgo;
+    const dateStr=p.d?`${p.b} – ${p.d}`:`${p.b} —`;
+    const genTag=isEgo?(isOriginal?'EGO ORIGINEL':'CENTRE ACTUEL')
+      : kind==='asc'?`ASCENDANT · GÉN ${gen}`:`DESCENDANT · GÉN ${gen}`;
+
+    const branchTxt= isEgo&&isOriginal ? "C'est l'ego de départ."
+      : isEgo ? `Recentré sur ${p.fn}.`
+      : kind==='asc' ? `Génération ${gen} ascendante de ${G[currentEgo].fn}.`
+      : `Génération ${gen} descendante de ${G[currentEgo].fn}.`;
+
+    const canRecenter = !isEgo && (G[pid].parents.length>0||G[pid].children.length>0);
+    const recenterBtn = canRecenter ? `
+      <button class="recenter" data-target="${pid}">
+        Faire de ${p.fn} le centre
+        <span class="hint">voir le monde tel que ${p.fn} le voyait</span>
+      </button>` : '';
+
+    dp.innerHTML=`
+      <button class="close" aria-label="Fermer">×</button>
+      <div class="gen-tag">${genTag}</div>
+      <div class="name">${p.fn} ${p.ln}</div>
+      <div class="dates">${dateStr}${p.lieu?` · ${p.lieu}`:''}</div>
+      <div class="branch">${branchTxt}</div>
+      ${recenterBtn}`;
+    dp.classList.add('open');
+
+    dp.querySelector('.close').addEventListener('click', closeDetail);
+    const rb=dp.querySelector('button.recenter');
+    if(rb) rb.addEventListener('click',()=>setEgo(rb.dataset.target));
+  }
+
+  function closeDetail(){
+    dp.classList.remove('open');
+    svgEl.querySelectorAll('.sector.selected').forEach(n=>n.classList.remove('selected'));
+    selectedId=null;
+  }
+
+  async function setEgo(newId){
+    if(!G[newId]||newId===currentEgo) return;
+    svgEl.classList.add('fading');
+    dp.classList.remove('open');
+    await new Promise(r=>setTimeout(r,260));
+    currentEgo=newId;
+    rebuild();
+    updateFocusBar();
+    svgEl.classList.remove('fading');
+    await new Promise(r=>setTimeout(r,280));
+    openDetail(newId,'ego',0);
+  }
+
+  ret.addEventListener('click',()=>setEgo(origEgo));
+
+  svgEl.addEventListener('click',e=>{
+    const t=e.target.closest('.sector:not(.empty), .ego-disc');
+    if(!t) return;
+    openDetail(t.dataset.id, t.dataset.kind, +t.dataset.gen||0);
+  });
+  svgEl.addEventListener('keydown',e=>{
+    if((e.key==='Enter'||e.key===' ')&&e.target.matches('.sector:not(.empty),.ego-disc')){
+      e.preventDefault();
+      openDetail(e.target.dataset.id, e.target.dataset.kind, +e.target.dataset.gen||0);
+    }
+    if(e.key==='Escape') closeDetail();
+  });
+
+  /* corner chrome */
+  const chrome=document.createElement('div');
+  chrome.innerHTML=`
+    <div class="corner-title">
+      <div class="em-h">Ce qui nous précède,<br/>ce qui nous suit.</div>
+      <div class="hint">Cliquez un secteur · le panneau s'ouvre<br/>
+        « Faire de X le centre » pour contempler<br/>
+        Esc · ferme le panneau</div>
+    </div>
+    <div class="legend">
+      <div class="row"><span class="sw" style="background:var(--asc-3)"></span>Ascendants</div>
+      <div class="row"><span class="sw" style="background:var(--desc-1)"></span>Descendants</div>
+      <div class="row"><span class="sw dashed"></span>À rechercher</div>
+    </div>`;
+  while(chrome.firstChild) board.appendChild(chrome.firstChild);
+
+  /* INIT */
+  rebuild();
+  updateFocusBar();
+  openDetail(origEgo,'ego',0);
+}
+
+/* =========================================================================
+   LAUNCH BOTH BOARDS
+   ========================================================================= */
+initBoard('svg-dense','fb-dense','lt-dense','ret-dense','dp-dense','board-dense',
+  G_DENSE, 'ego', 720, 510);
+
+initBoard('svg-asym','fb-asym','lt-asym','ret-asym','dp-asym','board-asym',
+  G_ASYM, 'ego', 720, 440);
+
+})();
+</script>
+</body></html>

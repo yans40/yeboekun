@@ -1,4 +1,4 @@
-# Gitflow GegeDot
+# Gitflow Yeboekun
 
 Workflow officiel pour la refonte UI et tout chantier futur. Inspiré de Gitflow simplifié, adapté à un projet à équipe réduite.
 

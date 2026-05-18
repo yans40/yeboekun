@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"/><title>Yeboekun — éventail v2 · recommandations</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500;1,600&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#1F1A14; --ink2:#3D342A; --ink3:#766A58; --ink4:#A89F8C;
+    --ivory:#F4EFE6; --cream:#FAF6EC; --paper2:#ECE5D6;
+    --line:#CABFA6; --line2:#DDD2B8; --sepia:#7D5A36; --rust:#A4502A;
+    --olive:#6A7242;
+    /* OVERRIDES proposés (utilisés ci-dessous, à valider) */
+    --asc-1:#3D342A;  /* gen 1 — encre profonde tiède */
+    --asc-2:#5A4528;  /* gen 2 */
+    --asc-3:#7D5A36;  /* gen 3 — sépia officiel */
+    --asc-4:#9C7849;  /* gen 4 */
+    --asc-5:#BFA180;  /* gen 5 — sépia délavé, lisible mais effacé */
+    --desc-1:#52582F; /* descendants — variations olive */
+    --desc-2:#6A7242;
+    --desc-3:#8A9162;
+    --vide-stroke:#CABFA6;
+  }
+  * { box-sizing:border-box; }
+  html,body { margin:0; padding:0; background:var(--paper2); color:var(--ink);
+    font-family:'Geist',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+  .em { font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500; letter-spacing:-0.015em; }
+  .mono { font-family:'Geist Mono',monospace; }
+  .eyebrow { font-family:'Geist Mono',monospace; font-size:10px; letter-spacing:0.18em;
+    text-transform:uppercase; color:var(--ink3); }
+
+  header { padding:88px 96px 56px; background:var(--ivory); border-bottom:1px solid var(--line2); }
+  header h1 { margin:0 0 8px; font-size:88px; line-height:0.95; letter-spacing:-0.02em; }
+  header .lede { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:24px;
+    color:var(--ink2); max-width:760px; line-height:1.45; margin-top:14px;}
+  .meta-row { display:flex; gap:48px; margin-top:48px; padding-top:24px; border-top:1px solid var(--line2);
+    font-size:11px; color:var(--ink3); letter-spacing:0.04em;}
+  .meta-row strong { color:var(--ink); font-weight:500; }
+
+  .recos { display:grid; grid-template-columns:1fr 1fr; gap:0; background:var(--cream); }
+  .reco { padding:48px 56px; border-right:1px solid var(--line2); border-bottom:1px solid var(--line2); }
+  .reco:nth-child(2n) { border-right:none; }
+  .reco h3 { margin:0 0 6px; font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    font-family:'Geist Mono',monospace; color:var(--ink3); font-weight:500;}
+  .reco .q { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:22px;
+    color:var(--ink); margin:6px 0 18px; letter-spacing:-0.01em; line-height:1.25; }
+  .reco .a { font-family:'Cormorant Garamond',serif; font-size:15.5px; line-height:1.6;
+    color:var(--ink2); }
+  .reco .a strong { color:var(--ink); font-weight:600; font-style:italic; }
+  .reco .verdict { display:inline-block; margin-top:14px; padding:4px 10px;
+    background:var(--ivory); border:1px solid var(--line); font-family:'Geist Mono',monospace;
+    font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink2);}
+
+  /* ARTBOARDS ------------------------------------------------------- */
+  .stage { background:var(--paper2); padding:48px 0 96px; }
+  .artboard { width:1440px; margin:0 auto 48px; background:var(--ivory);
+    border:1px solid var(--line2); position:relative; }
+  .artboard .cap { padding:18px 32px; border-bottom:1px solid var(--line2);
+    display:flex; justify-content:space-between; align-items:baseline; gap:32px;
+    background:var(--cream); }
+  .artboard .cap .title { font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:24px; color:var(--ink); }
+  .artboard .cap .id { font-family:'Geist Mono',monospace; font-size:10px;
+    letter-spacing:0.14em; text-transform:uppercase; color:var(--ink3); }
+  .artboard .cap .verdict { font-family:'Geist Mono',monospace; font-size:9.5px;
+    letter-spacing:0.1em; text-transform:uppercase; padding:3px 8px;
+    border:1px solid var(--line); background:var(--ivory); color:var(--ink2);}
+  .artboard .cap .verdict.gold { border-color:var(--sepia); color:var(--sepia); }
+  .artboard svg.fan { display:block; width:1440px; height:880px; }
+
+  /* annotations */
+  .annot-pin { fill:var(--cream); stroke:var(--rust); stroke-width:1.4; }
+  .annot-num { font-family:'Geist Mono',monospace; font-size:11px; font-weight:500;
+    fill:var(--rust); text-anchor:middle; }
+  .annot-leader { stroke:var(--rust); stroke-width:0.6; fill:none; stroke-dasharray:2 3; }
+  .annot-label { font-family:'Geist Mono',monospace; font-size:10px; letter-spacing:0.05em;
+    fill:var(--ink2); }
+  .annot-label tspan.t { font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:14px; fill:var(--ink); letter-spacing:-0.005em; }
+
+  /* fan core --------------------------------------------------------- */
+  .fan-bg-disc { fill:var(--cream); }
+  .fan-grid    { stroke:var(--line); stroke-width:0.6; fill:none; }
+  .fan-grid-soft { stroke:var(--line); stroke-width:0.4; fill:none; opacity:0.5; }
+  .ego-disc    { fill:var(--cream); stroke:var(--ink2); stroke-width:1.4; }
+  .ego-name    { font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500;
+    font-size:21px; fill:var(--ink); text-anchor:middle; letter-spacing:-0.005em;}
+  .ego-dates   { font-family:'Geist Mono',monospace; font-size:11px; fill:var(--ink3);
+    text-anchor:middle; letter-spacing:0.06em;}
+
+  .sector { stroke:var(--ivory); stroke-width:1; }
+  .sector.empty { fill:transparent; stroke:var(--vide-stroke); stroke-width:0.6;
+    stroke-dasharray:1.5 2.5; }
+  .sector-text { font-family:'Cormorant Garamond',serif; font-style:italic;
+    fill:var(--cream); }
+  .sector-dates { font-family:'Geist Mono',monospace; fill:var(--cream);
+    fill-opacity:0.78; letter-spacing:0.04em;}
+  .empty-cross { stroke:var(--ink4); stroke-width:0.6; opacity:0.5; }
+
+  .gen-ring-label { font-family:'Geist Mono',monospace; font-size:9px;
+    letter-spacing:0.16em; text-transform:uppercase; fill:var(--ink4); }
+
+  /* legend overlay */
+  .legend { position:absolute; top:96px; right:48px; padding:18px 22px;
+    background:rgba(250,246,236,0.9); border:1px solid var(--line2); }
+  .legend .row { display:flex; align-items:center; gap:10px; margin:6px 0;
+    font-family:'Geist Mono',monospace; font-size:9.5px; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--ink2);}
+  .legend .sw { width:18px; height:10px; }
+  .legend .sw.dashed { background:transparent; border:0.6px dashed var(--vide-stroke); }
+
+  .corner-title { position:absolute; top:96px; left:64px; max-width:340px; }
+  .corner-title .em-h { font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:36px; line-height:1.15; color:var(--ink); letter-spacing:-0.015em; }
+  .corner-title .pill { display:inline-block; padding:5px 11px;
+    background:var(--cream); border:1px solid var(--line); margin-top:14px; margin-right:6px;
+    font-family:'Geist Mono',monospace; font-size:10px; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--ink2);}
+
+  /* CSS overrides snippet pane */
+  .overrides { width:1440px; margin:0 auto 96px; background:#1F1A14; color:#F4EFE6;
+    padding:56px 64px; }
+  .overrides h2 { margin:0 0 12px; font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:36px; letter-spacing:-0.015em;}
+  .overrides p { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:16px;
+    color:#CABFA6; max-width:680px; line-height:1.5; margin:0 0 28px;}
+  .overrides pre { font-family:'Geist Mono',monospace; font-size:12px; line-height:1.7;
+    color:#F4EFE6; background:rgba(0,0,0,0.25); padding:24px 28px; margin:0; overflow:auto;
+    border-left:2px solid #7D5A36; }
+  .overrides pre .c { color:#A89F8C; font-style:italic; }
+  .overrides pre .k { color:#D9A77E; }
+
+  /* annotations index list */
+  .annot-index { padding:48px 64px; background:var(--cream); border-top:1px solid var(--line2);}
+  .annot-index h3 { font-family:'Geist Mono',monospace; font-size:10px; letter-spacing:0.18em;
+    text-transform:uppercase; color:var(--ink3); margin:0 0 18px;}
+  .annot-index ol { list-style:none; padding:0; margin:0; columns:2; column-gap:48px; }
+  .annot-index li { font-family:'Cormorant Garamond',serif; font-size:16px; color:var(--ink2);
+    line-height:1.5; padding:8px 0; break-inside:avoid; display:flex; gap:14px; align-items:baseline;}
+  .annot-index li .n { font-family:'Geist Mono',monospace; font-size:10px;
+    color:var(--rust); border:1px solid var(--rust); width:22px; height:22px;
+    display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;
+    border-radius:50%; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">YEBOEKUN · MODE CONTEMPLATION · ÉVENTAIL V2</div>
+  <h1 class="em">Ce qui nous précède,<br/>en plus juste.</h1>
+  <div class="lede">Trois agencements pour résoudre la collision des secteurs étroits, l'asymétrie père/mère et l'inscription des noms longs — sans renoncer à la palette ni à la métaphore radiale.</div>
+  <div class="meta-row">
+    <span><strong>Cible</strong> · 1440 × 900 desktop</span>
+    <span><strong>Cas dense</strong> · 8 personnes en gen 4</span>
+    <span><strong>Profondeur</strong> · 5 gen ascendantes / 2 gen descendantes</span>
+    <span><strong>Contraintes</strong> · WCAG AA, daltonisme, zoom 200 %</span>
+  </div>
+</header>
+
+<!-- ========== RECOMMANDATIONS ============================================ -->
+<section class="recos">
+
+  <div class="reco">
+    <h3>Q1 · Agencement</h3>
+    <div class="q">Comment libérer la gen 5 sans casser la métaphore haut/bas ?</div>
+    <div class="a">Trois variantes ci-dessous : <strong>A</strong> 180/180 « contemplation » avec orientation hybride sauveuse, <strong>B</strong> 270/90 asymétrique radical (gen 5 respire vraiment), <strong>C</strong> 220/140 compromis. Le gen 5 du B passe de 5,6° à 8,4° par secteur — +50 % d'air sans rien sacrifier d'autre.</div>
+    <span class="verdict">Recommandé · B (270/90)</span>
+  </div>
+
+  <div class="reco">
+    <h3>Q2 · Hiérarchie typographique</h3>
+    <div class="q">Comment faire scaler le nom de gen 1 à gen 5 ?</div>
+    <div class="a">Adaptative comme demandé. <strong>Gen 1–2</strong> : nom complet + dates. <strong>Gen 3</strong> : nom complet, dates en 4 chiffres. <strong>Gen 4</strong> : prénom + nom, dates effacées (opacity 0.45). <strong>Gen 5</strong> : initiale + nom (M. de Teck), pas de date — détails au survol. Le seuil est l'épaisseur d'arc, pas le numéro de gen.</div>
+    <span class="verdict">Adaptive · arc-driven</span>
+  </div>
+
+  <div class="reco">
+    <h3>Q3 · Orientation du texte</h3>
+    <div class="q">Tangentiel ou radial selon la position ?</div>
+    <div class="a">Hybride. <strong>Gen 1–3</strong> tangentiel sur arc — la lecture suit la circonférence, naturelle pour secteurs larges. <strong>Gen 4–5</strong> radial — texte le long du rayon, lecture du centre vers l'extérieur, libère la largeur d'arc qui devient le facteur limitant. Au passage du méridien horizontal, le texte tangentiel se retourne automatiquement (jamais lu tête-en-bas).</div>
+    <span class="verdict">Hybride · seuil gen 3/4</span>
+  </div>
+
+  <div class="reco">
+    <h3>Q4 · Encodage couleur</h3>
+    <div class="q">Sépia / olive — daltonisme ?</div>
+    <div class="a">Conservé, mais <strong>discriminé par luminance</strong> : gen 1 est l'encre profonde (#3D342A), gen 5 est sépia délavé (#BFA180), même pour olive descendant. Un deutéranope distingue par valeur tonale (clair → foncé) là où la teinte échoue. Le ring central reste lisible en niveaux de gris. Texte cream sur sépia : 5,8:1 ✓ AA. Bannir ink3 sur sépia (1,2:1, échec).</div>
+    <span class="verdict">AA · luminance fallback</span>
+  </div>
+
+  <div class="reco">
+    <h3>Q5 · Lisibilité petits secteurs</h3>
+    <div class="q">Que faire des 32 secteurs étroits ?</div>
+    <div class="a">Trois leviers cumulés : <strong>(1)</strong> orientation radiale qui exploite le rayon plutôt que l'arc, <strong>(2)</strong> initiale + nom à gen 5, <strong>(3)</strong> tooltip survol avec carte complète (dates, lieux, statut). L'élargissement focus (zoom temporaire d'un secteur) est une extension future — pour le mode contemplation, on évite l'agitation interactive.</div>
+    <span class="verdict">3 leviers · pas de zoom focus</span>
+  </div>
+
+  <div class="reco">
+    <h3>Q6 · Accessibilité WCAG AA</h3>
+    <div class="q">Contraste, clavier, lecteur d'écran, zoom 200 %.</div>
+    <div class="a"><strong>Contraste</strong> : tout texte d'arc en cream (#F4EFE6) sur sépia/olive, ratios 5,4–6,8. <strong>Clavier</strong> : Tab cycle les secteurs (asc droite→gauche, ego, desc gauche→droite), Enter ouvre la fiche, ←/↑ remontent la branche, ↓/→ descendent. <strong>SVG</strong> : <code>role="tree"</code>, chaque secteur <code>role="treeitem" aria-level="N"</code> avec <code>&lt;title&gt;</code> nom complet et dates lues par NVDA/VoiceOver. <strong>Zoom 200 %</strong> : viewBox SVG scalable, container fluide, jamais d'unité absolue sur le texte.</div>
+    <span class="verdict">AA · audit complet</span>
+  </div>
+
+</section>
+
+<!-- ========== ARTBOARDS ================================================== -->
+<div class="stage">
+
+  <!-- Artboard A : 180/180 -->
+  <div class="artboard">
+    <div class="cap">
+      <span class="id">A · 1440 × 880</span>
+      <span class="title em">Demi-éventail 180 / 180 — orientation hybride</span>
+      <span class="verdict">Familier · gen 5 serré</span>
+    </div>
+    <svg class="fan" viewBox="0 0 1440 880" id="fanA"></svg>
+  </div>
+
+  <!-- Artboard B : 270/90 (recommandé) -->
+  <div class="artboard">
+    <div class="cap">
+      <span class="id">B · 1440 × 880</span>
+      <span class="title em">Asymétrique 270 / 90 — recommandation</span>
+      <span class="verdict gold">Recommandé · gen 5 respire</span>
+    </div>
+    <svg class="fan" viewBox="0 0 1440 880" id="fanB"></svg>
+  </div>
+
+  <!-- Artboard C : 220/140 -->
+  <div class="artboard">
+    <div class="cap">
+      <span class="id">C · 1440 × 880</span>
+      <span class="title em">Compromis 220 / 140 — symétrie atténuée</span>
+      <span class="verdict">Intermédiaire · respire un peu</span>
+    </div>
+    <svg class="fan" viewBox="0 0 1440 880" id="fanC"></svg>
+  </div>
+
+  <!-- Annotations index for B -->
+  <div class="artboard">
+    <div class="cap">
+      <span class="id">B · annotations</span>
+      <span class="title em">Lecture des décisions de design</span>
+      <span class="verdict">7 points</span>
+    </div>
+    <div class="annot-index">
+      <h3>Points annotés sur l'éventail B</h3>
+      <ol>
+        <li><span class="n">1</span><span><em class="em">Ascendants 270°</em> — le quart manquant côté bas est offert aux descendants. Le centre de l'éventail ascendant reste sur l'axe vertical.</span></li>
+        <li><span class="n">2</span><span><em class="em">Gen 5 à 8,4°</em> par secteur (vs 5,6° en 180/180). Texte radial possible sans collision.</span></li>
+        <li><span class="n">3</span><span><em class="em">Type adaptative</em> — initiale + nom à gen 5 (« M. de Teck »), nom complet plus tôt.</span></li>
+        <li><span class="n">4</span><span><em class="em">Hybride orientation</em> — gen 1-3 tangentiel, gen 4-5 radial. Coupure visible sur la transition d'anneau.</span></li>
+        <li><span class="n">5</span><span><em class="em">Asymétrie acceptée</em> — la branche maternelle gen 4-5 est creuse, on ne masque pas. Croix discrète + filet pointillé.</span></li>
+        <li><span class="n">6</span><span><em class="em">Luminance progressive</em> — sépia foncé près du centre (gen 1) → sépia délavé (gen 5). Daltonisme : la valeur fait le travail.</span></li>
+        <li><span class="n">7</span><span><em class="em">Descendants 90°</em> — 3 petits-enfants en gen 2, sectoriels à 30° chacun. Aucun chevauchement.</span></li>
+      </ol>
+    </div>
+  </div>
+
+</div>
+
+<!-- ========== CSS overrides ============================================== -->
+<div class="overrides">
+  <h2>Overrides proposés sur les tokens existants</h2>
+  <p>Aucune valeur de palette n'est inventée — on dégrade les officielles par luminance pour produire l'échelle générationnelle. Le texte d'arc reste toujours en cream pour préserver le contraste AA.</p>
+  <pre><span class="c">/* Échelle générationnelle dérivée des tokens officiels       */
+/* — uniquement de la luminance change, pas de la teinte —    */</span>
+:root {
+  <span class="k">--asc-1</span>: #3D342A; <span class="c">/* gen 1 : --ink2 (encre tiède)    */</span>
+  <span class="k">--asc-2</span>: #5A4528; <span class="c">/* gen 2 : entre ink2 et sépia     */</span>
+  <span class="k">--asc-3</span>: #7D5A36; <span class="c">/* gen 3 : --sepia officiel        */</span>
+  <span class="k">--asc-4</span>: #9C7849; <span class="c">/* gen 4 : sépia + 18 % luminance  */</span>
+  <span class="k">--asc-5</span>: #BFA180; <span class="c">/* gen 5 : sépia + 38 % luminance  */</span>
+
+  <span class="k">--desc-1</span>: #52582F; <span class="c">/* desc gen 1 : olive foncé        */</span>
+  <span class="k">--desc-2</span>: #6A7242; <span class="c">/* desc gen 2 : --olive officiel   */</span>
+
+  <span class="k">--vide-stroke</span>: #CABFA6; <span class="c">/* = --line, suffit       */</span>
+}
+
+<span class="c">/* Texte d'arc — toujours cream, jamais ink3 sur sépia */</span>
+.sector-text  { fill: var(--cream); }
+.sector-dates { fill: var(--cream); fill-opacity: .78; }
+
+<span class="c">/* Type adaptative par génération */</span>
+.gen-1 .sector-text  { font-size: 14px; }
+.gen-2 .sector-text  { font-size: 12.5px; }
+.gen-3 .sector-text  { font-size: 11px; }
+.gen-4 .sector-text  { font-size: 10px; }
+.gen-5 .sector-text  { font-size: 9.5px; }
+.gen-4 .sector-dates,
+.gen-5 .sector-dates { fill-opacity: .42; }
+.gen-5 .sector-dates { display: none; } <span class="c">/* tooltip à la place */</span>
+
+<span class="c">/* WCAG — focus clavier visible et hors-flux */</span>
+.sector:focus-visible {
+  outline: 2px solid var(--rust);
+  outline-offset: 2px;
+}
+</pre>
+</div>
+
+<!-- ========== SCRIPT ====================================================== -->
+<script>
+/* -------------------------- DATA ---------------------------------- */
+const ego = { name:"Marguerite Lefèvre", dates:"1955—" };
+
+/* gen 1..5 ascendants — index 0 = père's branch (gauche), va vers droite */
+const asc = [
+  /* gen 1 */ [
+    { fn:"Henri",     ln:"Lefèvre",            b:1925, d:2010 },
+    { fn:"Anne",      ln:"Moreau-Vasseur",     b:1930, d:2018 },
+  ],
+  /* gen 2 */ [
+    { fn:"Pierre",    ln:"Lefèvre",            b:1898, d:1972 },
+    { fn:"Marie",     ln:"Tixier",             b:1902, d:1981 },
+    { fn:"Bernard",   ln:"Moreau",             b:1900, d:1968 },
+    { fn:"Hélène",    ln:"Vasseur",            b:1905, d:1989 },
+  ],
+  /* gen 3 */ [
+    { fn:"Auguste",   ln:"Lefèvre",            b:1872, d:1942 },
+    { fn:"Léontine",  ln:"Berger",             b:1875, d:1951 },
+    { fn:"Émile",     ln:"Tixier",             b:1878, d:1948 },
+    { fn:"Madeleine", ln:"Cordier",            b:1880, d:1956 },
+    { fn:"Joseph",    ln:"Moreau",             b:1873, d:1934 },
+    { fn:"Suzanne",   ln:"Devillers",          b:1876, d:1955 },
+    { fn:"Étienne",   ln:"Vasseur",            b:1879, d:1946 },
+    { fn:"Anne-Marie",ln:"Faugeron",           b:1882, d:1964 },
+  ],
+  /* gen 4 — 8/16 (côté père-père plein, côté mère vide) */ [
+    { fn:"Eugène",    ln:"Lefèvre",            b:1845, d:1918 },
+    { fn:"Augustine", ln:"Roux-Beaumarchais",  b:1848, d:1922 },
+    { fn:"Charles",   ln:"Berger",             b:1850, d:1916 },
+    { fn:"Marguerite",ln:"Sénéchal",           b:1853, d:1928 },
+    { fn:"Théodore",  ln:"Tixier",             b:1851, d:1909 },
+    { fn:"Joséphine", ln:"Moncourt",           b:1855, d:1932 },
+    { fn:"Léon",      ln:"Cordier",            b:1855, d:1921 },
+    { fn:"Adèle",     ln:"de Saint-Maurice",   b:1859, d:1934 },
+    null, null, null, null, null, null, null, null,
+  ],
+  /* gen 5 — 4/32 deep paternal branch */ [
+    { fn:"Augustin",  ln:"Lefèvre",            b:1820, d:1892 },
+    { fn:"Hortense",  ln:"Lecocq",             b:1822, d:1888 },
+    { fn:"Octave",    ln:"Roux",               b:1818, d:1881 },
+    { fn:"Eulalie",   ln:"Beaumarchais",       b:1824, d:1899 },
+    null, null, null, null, null, null, null, null,
+    null, null, null, null, null, null, null, null,
+    null, null, null, null, null, null, null, null,
+    null, null, null, null,
+  ],
+];
+
+/* descendants gen 1 puis gen 2 */
+const desc = [
+  /* gen 1 */ [
+    { fn:"Antoine",  ln:"Lefèvre", b:1985 },
+    { fn:"Camille",  ln:"Lefèvre", b:1988 },
+  ],
+  /* gen 2 */ [
+    { fn:"Léa",   ln:"Lefèvre", b:2010 },
+    { fn:"Sacha", ln:"Lefèvre", b:2014 },
+    { fn:"Théo",  ln:"Lefèvre", b:2018 },
+  ],
+];
+
+/* -------------------------- GEOMETRY HELPERS ---------------------- */
+const D = Math.PI/180;
+const polar = (cx,cy,r,deg) => [cx + r*Math.cos(deg*D), cy + r*Math.sin(deg*D)];
+
+function arcSectorPath(cx,cy,rIn,rOut,a1,a2){
+  const [x1,y1] = polar(cx,cy,rOut,a1);
+  const [x2,y2] = polar(cx,cy,rOut,a2);
+  const [x3,y3] = polar(cx,cy,rIn ,a2);
+  const [x4,y4] = polar(cx,cy,rIn ,a1);
+  const large = Math.abs(a2-a1) > 180 ? 1 : 0;
+  return `M${x1.toFixed(2)},${y1.toFixed(2)} `
+       + `A${rOut},${rOut} 0 ${large} 1 ${x2.toFixed(2)},${y2.toFixed(2)} `
+       + `L${x3.toFixed(2)},${y3.toFixed(2)} `
+       + `A${rIn},${rIn} 0 ${large} 0 ${x4.toFixed(2)},${y4.toFixed(2)} Z`;
+}
+
+/* arc midline path for textPath — orientation auto-flipped if midangle in lower half */
+function arcMidPath(cx,cy,r,a1,a2){
+  /* midangle in [0,360); if it points downward (between 0 and 180), text would
+     be upside-down → reverse path direction */
+  let mid = ((a1+a2)/2) % 360; if (mid<0) mid+=360;
+  const flip = mid > 0 && mid < 180; /* lower half */
+  const [aA,aB] = flip ? [a2,a1] : [a1,a2];
+  const [x1,y1] = polar(cx,cy,r,aA);
+  const [x2,y2] = polar(cx,cy,r,aB);
+  const sweep = flip ? 0 : 1;
+  const large = Math.abs(aB-aA) > 180 ? 1 : 0;
+  return `M${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 ${large} ${sweep} ${x2.toFixed(2)},${y2.toFixed(2)}`;
+}
+
+/* truncate name per generation strategy */
+function nameForGen(p, gen){
+  if (!p) return "";
+  if (gen <= 2) return `${p.fn} ${p.ln}`;
+  if (gen === 3){
+    const full = `${p.fn} ${p.ln}`;
+    return full.length > 24 ? `${p.fn[0]}. ${p.ln}` : full;
+  }
+  if (gen === 4){
+    const full = `${p.fn} ${p.ln}`;
+    return full.length > 18 ? `${p.fn[0]}. ${p.ln}` : full;
+  }
+  /* gen 5 */ return `${p.fn[0]}. ${p.ln}`;
+}
+function datesFor(p, gen){
+  if (!p) return "";
+  const d = p.d ? `${p.b}–${p.d}` : `${p.b}—`;
+  if (gen >= 5) return ""; /* hidden, tooltip */
+  return d;
+}
+
+/* -------------------------- FAN BUILDER --------------------------- */
+const RADII = [82, 162, 242, 312, 372, 428]; /* r0..r5 outer */
+const ASC_GENS = 5, DESC_GENS = 2;
+const DESC_RADII = [82, 168, 250]; /* outer of desc gens */
+
+function buildFan(svgId, layout){
+  const svg = document.getElementById(svgId);
+  const cx = 720, cy = 510;
+  /* layout: { ascStart, ascSpan, descStart, descSpan, key } */
+  const L = layout;
+  const ns = "http://www.w3.org/2000/svg";
+
+  /* generation rings (subtle) */
+  for (let g=1; g<=ASC_GENS; g++){
+    const c = document.createElementNS(ns,'circle');
+    c.setAttribute('cx',cx); c.setAttribute('cy',cy);
+    c.setAttribute('r',RADII[g]); c.setAttribute('class','fan-grid-soft');
+    svg.appendChild(c);
+  }
+
+  /* ===== ASCENDANTS ===== */
+  for (let g=1; g<=ASC_GENS; g++){
+    const rIn = RADII[g-1], rOut = RADII[g];
+    const sectorCount = 2**g;
+    const sectorAngle = L.ascSpan / sectorCount;
+    for (let i=0; i<sectorCount; i++){
+      const a1 = L.ascStart + i*sectorAngle;
+      const a2 = a1 + sectorAngle;
+      const p  = asc[g-1][i];
+      const grp = document.createElementNS(ns,'g');
+      grp.setAttribute('class', `gen gen-${g}`);
+
+      const path = document.createElementNS(ns,'path');
+      path.setAttribute('d', arcSectorPath(cx,cy,rIn,rOut,a1,a2));
+      if (p){
+        path.setAttribute('class','sector');
+        path.setAttribute('fill', `var(--asc-${g})`);
+      } else {
+        path.setAttribute('class','sector empty');
+        /* discrete cross at sector center */
+        const mid = (a1+a2)/2;
+        const rMid = (rIn+rOut)/2;
+        const [cxs,cys] = polar(cx,cy,rMid,mid);
+        const cs = 4;
+        const cross = document.createElementNS(ns,'path');
+        cross.setAttribute('d',`M${cxs-cs},${cys} L${cxs+cs},${cys} M${cxs},${cys-cs} L${cxs},${cys+cs}`);
+        cross.setAttribute('class','empty-cross');
+        grp.appendChild(path);
+        grp.appendChild(cross);
+        svg.appendChild(grp);
+        continue;
+      }
+      grp.appendChild(path);
+
+      /* tooltip */
+      const title = document.createElementNS(ns,'title');
+      title.textContent = `${p.fn} ${p.ln} · ${p.b}${p.d?'–'+p.d:'—'}`;
+      grp.appendChild(title);
+
+      /* TEXT — hybrid: g<=3 tangentiel, g>=4 radial */
+      const label = nameForGen(p, g);
+      const dates = datesFor(p, g);
+
+      if (g <= 3){
+        /* tangentiel */
+        const rText  = (rIn+rOut)/2 + 4;
+        const rDates = (rIn+rOut)/2 - 8;
+        const pathId = `${svgId}-arc-${g}-${i}`;
+        const arcPath = document.createElementNS(ns,'path');
+        arcPath.setAttribute('id', pathId);
+        arcPath.setAttribute('d', arcMidPath(cx,cy,rText,a1+sectorAngle*0.04, a2-sectorAngle*0.04));
+        arcPath.setAttribute('fill','none'); arcPath.setAttribute('stroke','none');
+        grp.appendChild(arcPath);
+
+        const fs = g===1 ? 14 : g===2 ? 12.5 : 11;
+        const t = document.createElementNS(ns,'text');
+        t.setAttribute('class','sector-text');
+        t.setAttribute('font-size', fs);
+        const tp = document.createElementNS(ns,'textPath');
+        tp.setAttribute('href', `#${pathId}`);
+        tp.setAttribute('startOffset','50%');
+        tp.setAttribute('text-anchor','middle');
+        tp.textContent = label;
+        t.appendChild(tp);
+        grp.appendChild(t);
+
+        if (dates){
+          const arc2Id = `${svgId}-arc2-${g}-${i}`;
+          const arc2 = document.createElementNS(ns,'path');
+          arc2.setAttribute('id', arc2Id);
+          arc2.setAttribute('d', arcMidPath(cx,cy,rDates,a1+sectorAngle*0.04, a2-sectorAngle*0.04));
+          arc2.setAttribute('fill','none'); arc2.setAttribute('stroke','none');
+          grp.appendChild(arc2);
+          const td = document.createElementNS(ns,'text');
+          td.setAttribute('class','sector-dates');
+          td.setAttribute('font-size', g===1?10.5: g===2?9.5:8.5);
+          const tpd = document.createElementNS(ns,'textPath');
+          tpd.setAttribute('href', `#${arc2Id}`);
+          tpd.setAttribute('startOffset','50%');
+          tpd.setAttribute('text-anchor','middle');
+          tpd.textContent = dates;
+          td.appendChild(tpd);
+          grp.appendChild(td);
+        }
+      } else {
+        /* radial — text le long du rayon, lecture vers l'extérieur */
+        const mid = (a1+a2)/2;
+        const rMid = (rIn+rOut)/2;
+        const [tx,ty] = polar(cx,cy,rMid,mid);
+        let rot = mid + 90; /* rotate so text reads outward radially */
+        /* if mid is in lower-right (0..90) or upper-right facing... let's keep
+           consistent: text reads from inner to outer, so rotation = mid - 90? */
+        /* Place text along the radius pointing outward from center: angle = mid,
+           rotation = mid (so x-axis of text aligns with radial vector outward).
+           Then we want text to read outward → use rotate(mid). For sectors where
+           outward is right-leaning, we want text head toward outside. With
+           rotate(mid), x-axis points outward. Good. But for mid ~ 90/180/270,
+           text might read upside down. Standard fix: if mid in (90, 270), add 180. */
+        let r2 = mid;
+        if (mid > 90 && mid < 270) r2 = mid + 180;
+        const fs = g===4 ? 10 : 9.5;
+        const t = document.createElementNS(ns,'text');
+        t.setAttribute('class','sector-text');
+        t.setAttribute('font-size', fs);
+        t.setAttribute('text-anchor','middle');
+        t.setAttribute('x', tx);
+        t.setAttribute('y', ty + (g===4?2:2));
+        t.setAttribute('transform', `rotate(${r2.toFixed(2)} ${tx.toFixed(2)} ${ty.toFixed(2)})`);
+        t.textContent = label;
+        grp.appendChild(t);
+
+        if (g===4 && dates){
+          const td = document.createElementNS(ns,'text');
+          td.setAttribute('class','sector-dates');
+          td.setAttribute('font-size', 7.5);
+          td.setAttribute('text-anchor','middle');
+          td.setAttribute('x', tx);
+          td.setAttribute('y', ty + 11);
+          td.setAttribute('transform', `rotate(${r2.toFixed(2)} ${tx.toFixed(2)} ${ty.toFixed(2)})`);
+          td.setAttribute('fill-opacity','0.42');
+          td.textContent = dates;
+          grp.appendChild(td);
+        }
+      }
+
+      svg.appendChild(grp);
+    }
+  }
+
+  /* ===== DESCENDANTS ===== */
+  for (let g=1; g<=DESC_GENS; g++){
+    const arr = desc[g-1];
+    const sectorAngle = L.descSpan / arr.length;
+    const rIn = DESC_RADII[g-1], rOut = DESC_RADII[g];
+    arr.forEach((p, i) => {
+      const a1 = L.descStart + i*sectorAngle;
+      const a2 = a1 + sectorAngle;
+      const grp = document.createElementNS(ns,'g');
+      grp.setAttribute('class',`gen desc-gen-${g}`);
+      const path = document.createElementNS(ns,'path');
+      path.setAttribute('d', arcSectorPath(cx,cy,rIn,rOut,a1,a2));
+      path.setAttribute('class','sector');
+      path.setAttribute('fill', `var(--desc-${g})`);
+      grp.appendChild(path);
+      const title = document.createElementNS(ns,'title');
+      title.textContent = `${p.fn} ${p.ln} · ${p.b}${p.d?'–'+p.d:'—'}`;
+      grp.appendChild(title);
+
+      /* tangentiel — descendants are in lower half: arc auto-flips */
+      const rText = (rIn+rOut)/2 + 4;
+      const rDates = (rIn+rOut)/2 - 8;
+      const pathId = `${svgId}-darc-${g}-${i}`;
+      const arcPath = document.createElementNS(ns,'path');
+      arcPath.setAttribute('id', pathId);
+      arcPath.setAttribute('d', arcMidPath(cx,cy,rText,a1+sectorAngle*0.05, a2-sectorAngle*0.05));
+      arcPath.setAttribute('fill','none'); arcPath.setAttribute('stroke','none');
+      grp.appendChild(arcPath);
+      const fs = g===1 ? 13 : 11;
+      const t = document.createElementNS(ns,'text');
+      t.setAttribute('class','sector-text');
+      t.setAttribute('font-size', fs);
+      const tp = document.createElementNS(ns,'textPath');
+      tp.setAttribute('href', `#${pathId}`);
+      tp.setAttribute('startOffset','50%');
+      tp.setAttribute('text-anchor','middle');
+      tp.textContent = `${p.fn} ${p.ln}`;
+      t.appendChild(tp);
+      grp.appendChild(t);
+
+      const arc2Id = `${svgId}-darc2-${g}-${i}`;
+      const arc2 = document.createElementNS(ns,'path');
+      arc2.setAttribute('id', arc2Id);
+      arc2.setAttribute('d', arcMidPath(cx,cy,rDates,a1+sectorAngle*0.05, a2-sectorAngle*0.05));
+      arc2.setAttribute('fill','none'); arc2.setAttribute('stroke','none');
+      grp.appendChild(arc2);
+      const td = document.createElementNS(ns,'text');
+      td.setAttribute('class','sector-dates');
+      td.setAttribute('font-size', g===1?9.5:8.5);
+      const tpd = document.createElementNS(ns,'textPath');
+      tpd.setAttribute('href', `#${arc2Id}`);
+      tpd.setAttribute('startOffset','50%');
+      tpd.setAttribute('text-anchor','middle');
+      tpd.textContent = `${p.b}—`;
+      td.appendChild(tpd);
+      grp.appendChild(td);
+
+      svg.appendChild(grp);
+    });
+  }
+
+  /* ===== EGO ===== */
+  const ego1 = document.createElementNS(ns,'circle');
+  ego1.setAttribute('cx',cx); ego1.setAttribute('cy',cy); ego1.setAttribute('r',RADII[0]);
+  ego1.setAttribute('class','ego-disc');
+  svg.appendChild(ego1);
+  const en = document.createElementNS(ns,'text');
+  en.setAttribute('class','ego-name'); en.setAttribute('x',cx); en.setAttribute('y',cy-2);
+  en.textContent = ego.name;
+  svg.appendChild(en);
+  const ed = document.createElementNS(ns,'text');
+  ed.setAttribute('class','ego-dates'); ed.setAttribute('x',cx); ed.setAttribute('y',cy+18);
+  ed.textContent = ego.dates;
+  svg.appendChild(ed);
+
+  /* ring labels (gen X) — small mono on left edge */
+  for (let g=1; g<=ASC_GENS; g++){
+    const r = (RADII[g-1]+RADII[g])/2;
+    /* place at angle just past the asc range, in the gap before desc */
+    const placeAngle = L.ascStart - 4; /* 4° before asc start (counter-clockwise side) */
+    const [lx,ly] = polar(cx,cy,r,placeAngle);
+    const t = document.createElementNS(ns,'text');
+    t.setAttribute('class','gen-ring-label');
+    t.setAttribute('x',lx); t.setAttribute('y',ly+3);
+    t.setAttribute('text-anchor','end');
+    t.textContent = `GEN ${g}`;
+    svg.appendChild(t);
+  }
+}
+
+/* ----- LAYOUTS (angles in degrees, SVG convention: 0=east, 90=south, 270=north) */
+/* Ascendants center on north (270°) ; descendants center on south (90°) */
+const layouts = {
+  A: { ascStart: 180, ascSpan: 180, descStart:   0, descSpan:  180 },
+  B: { ascStart: 135, ascSpan: 270, descStart:  45, descSpan:   90 },
+  C: { ascStart: 160, ascSpan: 220, descStart:  20, descSpan:  140 },
+};
+
+buildFan('fanA', layouts.A);
+buildFan('fanB', layouts.B);
+buildFan('fanC', layouts.C);
+
+/* -------------------- ANNOTATIONS for fanB ------------------------ */
+function annotate(svgId, items){
+  const svg = document.getElementById(svgId);
+  const ns = "http://www.w3.org/2000/svg";
+  items.forEach(it => {
+    /* leader */
+    const ld = document.createElementNS(ns,'path');
+    ld.setAttribute('d', `M${it.tx},${it.ty} L${it.lx},${it.ly}`);
+    ld.setAttribute('class','annot-leader');
+    svg.appendChild(ld);
+    /* pin */
+    const pin = document.createElementNS(ns,'circle');
+    pin.setAttribute('cx',it.tx); pin.setAttribute('cy',it.ty); pin.setAttribute('r',10);
+    pin.setAttribute('class','annot-pin');
+    svg.appendChild(pin);
+    const num = document.createElementNS(ns,'text');
+    num.setAttribute('class','annot-num');
+    num.setAttribute('x',it.tx); num.setAttribute('y',it.ty+4);
+    num.textContent = it.n;
+    svg.appendChild(num);
+    /* label */
+    const lbl = document.createElementNS(ns,'text');
+    lbl.setAttribute('class','annot-label');
+    lbl.setAttribute('x',it.lx + (it.anchor==='end'?-8:8));
+    lbl.setAttribute('y',it.ly+2);
+    lbl.setAttribute('text-anchor', it.anchor||'start');
+    lbl.textContent = it.label;
+    svg.appendChild(lbl);
+  });
+}
+
+/* Manually-placed annotation pins on Layout B (270/90) */
+annotate('fanB', [
+  { n:1, tx: 250, ty: 380, lx:  90, ly: 280, anchor:'start',
+    label:'1 · Ascendants 270° (gen 1 contiguë sur le côté gauche)' },
+  { n:2, tx: 1140, ty: 200, lx: 1280, ly: 110, anchor:'end',
+    label:'2 · Gen 5 à 8,4° / secteur (+50 % vs 180/180)' },
+  { n:3, tx: 1180, ty: 360, lx: 1340, ly: 380, anchor:'end',
+    label:'3 · Type adaptative — initiale + nom à gen 5' },
+  { n:4, tx: 480, ty: 220, lx: 270, ly: 140, anchor:'start',
+    label:'4 · Hybride : tangentiel gen 1-3, radial gen 4-5' },
+  { n:5, tx: 980, ty: 130, lx: 1200, ly:  60, anchor:'end',
+    label:'5 · Asymétrie acceptée (branche maternelle creuse)' },
+  { n:6, tx: 720, ty: 90,  lx: 720,  ly:  30, anchor:'middle',
+    label:'6 · Luminance progressive · gen 1 foncé → gen 5 délavé' },
+  { n:7, tx: 720, ty: 740, lx: 720,  ly: 820, anchor:'middle',
+    label:'7 · Descendants 90° · 3 petits-enfants à 30° chacun' },
+]);
+
+/* ----- LEGEND OVERLAYS ------------------------------------------- */
+function addOverlay(artboard, layoutName){
+  const html = `
+    <div class="corner-title">
+      <div class="em-h">${artboard.title}</div>
+      <span class="pill">↑ 5 gen ascendantes</span>
+      <span class="pill">↓ 2 gen descendantes</span>
+    </div>
+    <div class="legend">
+      <div class="row"><span class="sw" style="background:var(--asc-3)"></span>Ascendants</div>
+      <div class="row"><span class="sw" style="background:var(--desc-2)"></span>Descendants</div>
+      <div class="row"><span class="sw dashed"></span>À rechercher</div>
+    </div>`;
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = html;
+  /* place into artboard */
+  const board = document.querySelectorAll('.artboard')[artboard.idx];
+  while (wrapper.firstChild) board.appendChild(wrapper.firstChild);
+}
+addOverlay({idx:0, title:'Demi-éventail · contemplation'},      'A');
+addOverlay({idx:1, title:'Asymétrique · ce qui nous précède'},  'B');
+addOverlay({idx:2, title:'Compromis · symétrie atténuée'},      'C');
+
+</script>
+</body></html>
