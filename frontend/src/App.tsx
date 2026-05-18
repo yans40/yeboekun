@@ -66,7 +66,7 @@ export default function App() {
       .then(status => {
         if (cancelled) return;
         if (!status.gateEnabled || status.accessGranted) {
-          setPhase('app');
+          setPhase(WELCOME_ENABLED ? 'welcome' : 'app');
         } else {
           setPhase('gate');
         }
