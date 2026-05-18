@@ -1,14 +1,28 @@
 # PROJECT_STATE — Yeboekun / Yeboekun
 
 > Source de vérité du projet — pilotée par Émile (Claude Code)
-> Dernière mise à jour : 2026-05-17 — FanCanvasV2 v5 qa-validated, PR #50 prête pour merge main — Émile
+> Dernière mise à jour : 2026-05-18 — Lot 4 Vue Atelier livré, tests verts, qa-validated en attente de PR — Émile
 
 ---
 
-## Lot en cours : **FanCanvasV2 v5 — prêt pour merge main**
+## Lot en cours : **Lot 4 — Vue Atelier**
 
-- **Branche active** : `dev`
-- **Statut** : PR #50 `qa-validated` — merge main en attente d'approbation PO.
+- **Branche active** : `feature/vue-atelier`
+- **Statut** : commit `97784b2` — tests backend 185/185, frontend 178/178 — PR à ouvrir vers `dev`
+
+### Ce qui a été livré
+- `PersonForm` refactorisé en 4 sections collapsibles (Identité, Vie, Famille, Conjoints)
+- Section Conjoints avec dates début/fin, mode édition uniquement
+- `addSpouse` / `removeSpouse` dans `api.ts` — endpoint DELETE ajouté par Ada
+- FluentValidation wired pour `CreatePersonDto`, `UpdatePersonDto`, `CreateSpouseRelationshipDto`
+- `[CustomValidation]` doublon supprimé de `PersonDto.cs`
+- `aria-controls` + `id` sur `CollapsibleSection` (a11y)
+- 33 nouvelles clés i18n, zéro chaîne hardcodée
+
+### Points de vigilance pour la PR
+- Iris a noté : conjoints multiples avec périodes chevauchantes acceptés silencieusement — comportement intentionnel (modèle polygamie/remariage) mais non documenté
+- `URL de la photo` (champ existant, ligne 821) n'est pas encore passé par `t()` — non bloquant, à faire dans un suivi
+- Iris n'a pas pu lancer les tests en session (permissions Bash) — validés manuellement ici
 
 ---
 
