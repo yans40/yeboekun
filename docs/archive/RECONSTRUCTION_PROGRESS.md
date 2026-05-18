@@ -1,16 +1,16 @@
-# 🔄 Progression de la Reconstruction GegeDot
+# 🔄 Progression de la Reconstruction Yeboekun
 
 ## ✅ Phase 1.1 : Extension du Modèle de Données - TERMINÉE
 
 ### Modifications Effectuées
 
-#### 1. **Entité Person** (`backend/src/GegeDot.Core/Entities/Person.cs`)
+#### 1. **Entité Person** (`backend/src/Yeboekun.Core/Entities/Person.cs`)
 - ✅ Ajout de `Profession` (string?, MaxLength 100)
 - ✅ Ajout de `MarriageDate` (DateTime?, nullable)
 - ✅ Ajout de `MarriagePlace` (string?, MaxLength 200)
 - ✅ Ajout de `DeathStatus` (string?, MaxLength 50) - pour "Mort en Mer", etc.
 
-#### 2. **DTOs** (`backend/src/GegeDot.Services/DTOs/PersonDto.cs`)
+#### 2. **DTOs** (`backend/src/Yeboekun.Services/DTOs/PersonDto.cs`)
 - ✅ `PersonDto` : Ajout des nouveaux champs
 - ✅ `CreatePersonDto` : Ajout des nouveaux champs
 - ✅ `UpdatePersonDto` : Ajout des nouveaux champs
@@ -21,14 +21,14 @@
 
 ### Fichiers Créés
 
-#### 1. **Interface** (`backend/src/GegeDot.Services/Interfaces/IDataNormalizationService.cs`)
+#### 1. **Interface** (`backend/src/Yeboekun.Services/Interfaces/IDataNormalizationService.cs`)
 - ✅ Interface définie avec 4 méthodes :
   - `NormalizeName()` : Normalisation des noms
   - `NormalizePlace()` : Normalisation des lieux
   - `NormalizeDate()` : Normalisation des dates
   - `NormalizeProfession()` : Normalisation des professions
 
-#### 2. **Implémentation** (`backend/src/GegeDot.Services/Services/DataNormalizationService.cs`)
+#### 2. **Implémentation** (`backend/src/Yeboekun.Services/Services/DataNormalizationService.cs`)
 - ✅ Normalisation des noms : Suppression espaces multiples, capitalisation
 - ✅ Normalisation des lieux : Gestion des abréviations (St → Saint, etc.), capitalisation
 - ✅ Normalisation des dates : Support de multiples formats, gestion des dates approximatives ("vers 1850")
@@ -40,14 +40,14 @@
 
 ### Fichiers Créés
 
-#### 1. **Interface** (`backend/src/GegeDot.Services/Interfaces/IDuplicateDetectionService.cs`)
+#### 1. **Interface** (`backend/src/Yeboekun.Services/Interfaces/IDuplicateDetectionService.cs`)
 - ✅ Interface définie avec :
   - `FindDuplicatesAsync()` : Recherche des doublons potentiels
   - `IsDuplicate()` : Vérification si deux personnes sont des doublons
   - `CalculateSimilarityScore()` : Calcul du score de similarité
 - ✅ Classe `DuplicateCandidate` : Modèle pour les résultats
 
-#### 2. **Implémentation** (`backend/src/GegeDot.Services/Services/DuplicateDetectionService.cs`)
+#### 2. **Implémentation** (`backend/src/Yeboekun.Services/Services/DuplicateDetectionService.cs`)
 - ✅ Algorithme de similarité basé sur :
   - **Noms** (50% du score) : Distance de Levenshtein + bonus si prénom/nom identiques
   - **Dates** (30% du score) : Tolérance de 30 jours = 100%, 1 an = 80%, 10 ans = 50%
@@ -62,13 +62,13 @@
 
 ### Modifications Effectuées
 
-#### 1. **PersonService** (`backend/src/GegeDot.Services/Services/PersonService.cs`)
+#### 1. **PersonService** (`backend/src/Yeboekun.Services/Services/PersonService.cs`)
 - ✅ Injection de `IDataNormalizationService`
 - ✅ Normalisation automatique dans `CreatePersonAsync()`
 - ✅ Normalisation automatique dans `UpdatePersonAsync()`
 - ✅ Méthodes privées `NormalizePersonDto()` et `NormalizeUpdatePersonDto()`
 
-#### 2. **Program.cs** (`backend/src/GegeDot.API/Program.cs`)
+#### 2. **Program.cs** (`backend/src/Yeboekun.API/Program.cs`)
 - ✅ Enregistrement de `IDataNormalizationService` dans le conteneur DI
 - ✅ Enregistrement de `IDuplicateDetectionService` dans le conteneur DI
 
@@ -78,17 +78,17 @@
 
 ### Fichiers Créés (6)
 1. `RECONSTRUCTION_PLAN.md` - Plan complet de reconstruction
-2. `backend/src/GegeDot.Services/Interfaces/IDataNormalizationService.cs`
-3. `backend/src/GegeDot.Services/Services/DataNormalizationService.cs`
-4. `backend/src/GegeDot.Services/Interfaces/IDuplicateDetectionService.cs`
-5. `backend/src/GegeDot.Services/Services/DuplicateDetectionService.cs`
+2. `backend/src/Yeboekun.Services/Interfaces/IDataNormalizationService.cs`
+3. `backend/src/Yeboekun.Services/Services/DataNormalizationService.cs`
+4. `backend/src/Yeboekun.Services/Interfaces/IDuplicateDetectionService.cs`
+5. `backend/src/Yeboekun.Services/Services/DuplicateDetectionService.cs`
 6. `RECONSTRUCTION_PROGRESS.md` (ce fichier)
 
 ### Fichiers Modifiés (4)
-1. `backend/src/GegeDot.Core/Entities/Person.cs` - Champs ajoutés
-2. `backend/src/GegeDot.Services/DTOs/PersonDto.cs` - DTOs mis à jour
-3. `backend/src/GegeDot.Services/Services/PersonService.cs` - Normalisation intégrée
-4. `backend/src/GegeDot.API/Program.cs` - Services enregistrés
+1. `backend/src/Yeboekun.Core/Entities/Person.cs` - Champs ajoutés
+2. `backend/src/Yeboekun.Services/DTOs/PersonDto.cs` - DTOs mis à jour
+3. `backend/src/Yeboekun.Services/Services/PersonService.cs` - Normalisation intégrée
+4. `backend/src/Yeboekun.API/Program.cs` - Services enregistrés
 
 ---
 

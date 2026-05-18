@@ -9,7 +9,7 @@ Exécutez ce script pour vérifier l'état :
 
 Ou manuellement :
 ```bash
-cd /Users/kassyimbadollou/Documents/gegeDot
+cd /Users/kassyimbadollou/Documents/yeboekun
 
 # Vérifier les remotes
 git remote -v
@@ -26,10 +26,10 @@ git log origin/main..HEAD --oneline
 
 ## Si le remote n'est pas configuré
 
-Si vous voyez que le remote n'est pas configuré vers https://github.com/yans40/gegeDot, configurez-le :
+Si vous voyez que le remote n'est pas configuré vers https://github.com/yans40/yeboekun, configurez-le :
 
 ```bash
-git remote add origin https://github.com/yans40/gegeDot.git
+git remote add origin https://github.com/yans40/yeboekun.git
 ```
 
 ## Pour pousser vos commits

@@ -1,4 +1,4 @@
-# 🚀 Guide de Démarrage de l'Application GegeDot
+# 🚀 Guide de Démarrage de l'Application Yeboekun
 
 ## 📋 Prérequis
 
@@ -18,10 +18,10 @@ docker ps
 ```
 
 Vous devriez voir :
-- `gegeDot-mysql` (port 3306)
-- `gegeDot-backend` (ports 5000, 5001)
-- `gegeDot-frontend` (port 3000)
-- `gegeDot-phpmyadmin` (port 8080)
+- `yeboekun-mysql` (port 3306)
+- `yeboekun-backend` (ports 5000, 5001)
+- `yeboekun-frontend` (port 3000)
+- `yeboekun-phpmyadmin` (port 8080)
 
 ### 3. Accéder à l'application
 - **Frontend Docker** : http://localhost:3000
@@ -68,10 +68,10 @@ python3 -m http.server 3004 --bind 127.0.0.1
 docker ps -a
 
 # Voir les logs du backend
-docker logs gegeDot-backend
+docker logs yeboekun-backend
 
 # Voir les logs de MySQL
-docker logs gegeDot-mysql
+docker logs yeboekun-mysql
 ```
 
 ### Vérifier que les ports sont libres
@@ -111,13 +111,13 @@ docker-compose up -d
 ### Voir les logs en temps réel
 ```bash
 # Backend
-docker logs -f gegeDot-backend
+docker logs -f yeboekun-backend
 
 # MySQL
-docker logs -f gegeDot-mysql
+docker logs -f yeboekun-mysql
 
 # Frontend
-docker logs -f gegeDot-frontend
+docker logs -f yeboekun-frontend
 ```
 
 ### Arrêter les services
@@ -160,8 +160,8 @@ docker-compose down -v
 - Ou modifiez le port dans `docker-compose.yml`
 
 ### "Backend not responding"
-- Vérifiez les logs : `docker logs gegeDot-backend`
-- Vérifiez que MySQL est démarré : `docker logs gegeDot-mysql`
+- Vérifiez les logs : `docker logs yeboekun-backend`
+- Vérifiez que MySQL est démarré : `docker logs yeboekun-mysql`
 - Vérifiez la connexion à la base de données
 
 ### "Frontend not loading"

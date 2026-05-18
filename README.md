@@ -1,4 +1,4 @@
-# GegeDot - Arbre Généalogique
+# Yeboekun - Arbre Généalogique
 
 Application web d'arbre généalogique avec backend .NET 9 et frontend React/TypeScript, conteneurisée via Docker.
 
@@ -16,10 +16,10 @@ Application web d'arbre généalogique avec backend .NET 9 et frontend React/Typ
 
 | Couche | Projet |
 |--------|--------|
-| API REST | `GegeDot.API` — `PersonsController` |
-| Services | `GegeDot.Services` — `PersonService`, `DataNormalizationService`, `DuplicateDetectionService` |
-| Domaine | `GegeDot.Core` — entités, interfaces |
-| Persistance | `GegeDot.Infrastructure` — EF Core, `GegeDotContext` |
+| API REST | `Yeboekun.API` — `PersonsController` |
+| Services | `Yeboekun.Services` — `PersonService`, `DataNormalizationService`, `DuplicateDetectionService` |
+| Domaine | `Yeboekun.Core` — entités, interfaces |
+| Persistance | `Yeboekun.Infrastructure` — EF Core, `YeboekunContext` |
 
 ### Frontend (React/TypeScript)
 
@@ -69,8 +69,8 @@ En développement local, le garde-fou est en général **désactivé** via `apps
 ### Lancer l'application
 
 ```bash
-git clone https://github.com/yans40/gegeDot.git
-cd gegeDot
+git clone https://github.com/yans40/yeboekun.git
+cd yeboekun
 docker-compose up -d
 ```
 
@@ -134,7 +134,7 @@ POST   /api/persons/check-duplicates  Détecter les doublons
 ### Backend (.NET 9)
 
 ```bash
-dotnet test backend/tests/GegeDot.Tests/GegeDot.Tests.csproj
+dotnet test backend/tests/Yeboekun.Tests/Yeboekun.Tests.csproj
 ```
 
 Stack : **xUnit** + **Moq** + **FluentAssertions** + **EF Core InMemory**.
@@ -185,11 +185,11 @@ La CI échoue si les seuils suivants ne sont pas respectés :
 Vérification locale :
 
 ```bash
-dotnet test backend/tests/GegeDot.Tests/GegeDot.Tests.csproj \
+dotnet test backend/tests/Yeboekun.Tests/Yeboekun.Tests.csproj \
   --collect:"XPlat Code Coverage" \
-  --settings backend/tests/GegeDot.Tests/coverlet.runsettings
+  --settings backend/tests/Yeboekun.Tests/coverlet.runsettings
 python3 scripts/check-coverage.py \
-  "backend/tests/GegeDot.Tests/TestResults/**/coverage.cobertura.xml" \
+  "backend/tests/Yeboekun.Tests/TestResults/**/coverage.cobertura.xml" \
   --line 80 --branch 70
 ```
 

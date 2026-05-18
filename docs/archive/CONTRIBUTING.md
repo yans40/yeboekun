@@ -1,6 +1,6 @@
-# 🤝 Guide de Contribution - GegeDot
+# 🤝 Guide de Contribution - Yeboekun
 
-Merci de votre intérêt à contribuer à GegeDot ! Ce guide vous aidera à comprendre comment contribuer efficacement au projet.
+Merci de votre intérêt à contribuer à Yeboekun ! Ce guide vous aidera à comprendre comment contribuer efficacement au projet.
 
 ## 🎯 Comment Contribuer
 
@@ -35,8 +35,8 @@ Merci de votre intérêt à contribuer à GegeDot ! Ce guide vous aidera à comp
 ### Installation
 ```bash
 # 1. Fork et cloner le repository
-git clone https://github.com/votre-username/gegeDot.git
-cd gegeDot
+git clone https://github.com/votre-username/yeboekun.git
+cd yeboekun
 
 # 2. Configurer le backend
 cd backend
@@ -314,4 +314,4 @@ En contribuant, vous acceptez que vos contributions soient sous la licence MIT.
 
 ---
 
-Merci de contribuer à GegeDot ! 🚀
+Merci de contribuer à Yeboekun ! 🚀

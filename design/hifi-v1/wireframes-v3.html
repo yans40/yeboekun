@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8" />
-<title>GegeDot · v3 consolidé</title>
+<title>Yeboekun · v3 consolidé</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1119,7 +1119,7 @@ function TopBar({ active = 'Atelier' }) {
   const items = ['Tableau de bord','Rivière','Contemplation','Atelier','Album','Pistes'];
   return (
     <div className="wf-bar">
-      <span className="brand">gegedot.</span>
+      <span className="brand">yeboekun.</span>
       <span className="wf-mono" style={{fontSize:11, color:'var(--ink-3)'}}>▾ Lefèvre · 1640–</span>
       <span className="sep" />
       {items.map(i => <span key={i} className={'nav '+(i===active?'active':'')}>{i}</span>)}
@@ -1714,7 +1714,7 @@ function Pistes() {
 function App() {
   return (
     <DesignCanvas>
-      <DCSection id="intro" title="GegeDot · v3 consolidée" subtitle="Synthèse des 6 écrans retenus — vue verticale et timeline rangées au bon endroit">
+      <DCSection id="intro" title="Yeboekun · v3 consolidée" subtitle="Synthèse des 6 écrans retenus — vue verticale et timeline rangées au bon endroit">
         <DCArtboard id="dash" label="01 · Tableau de bord (timeline intégrée)" width={1200} height={920}>
           <Dashboard />
         </DCArtboard>

@@ -56,7 +56,7 @@ const API_BASE_URL = 'http://localhost:5001/api';
 **Solutions** :
 - Vérifier que le backend est démarré : `docker ps`
 - Vérifier l'URL dans le code : doit être `http://localhost:5001/api`
-- Vérifier les logs du backend : `docker logs gegeDot-backend`
+- Vérifier les logs du backend : `docker logs yeboekun-backend`
 
 ### Problème : "0 personnes chargées"
 
@@ -65,7 +65,7 @@ const API_BASE_URL = 'http://localhost:5001/api';
 2. Erreur de connexion à la base de données
 
 **Solutions** :
-- Vérifier les données : `docker exec -it gegeDot-mysql mysql -u gegedot -ppassword gegeDot -e "SELECT COUNT(*) FROM Persons;"`
+- Vérifier les données : `docker exec -it yeboekun-mysql mysql -u yeboekun -ppassword yeboekun -e "SELECT COUNT(*) FROM Persons;"`
 - Vérifier les logs du backend pour les erreurs de connexion
 
 ### Problème : Page blanche
@@ -93,7 +93,7 @@ curl http://localhost:5001/api/persons
 curl http://localhost:3004/professional-fan-view.html
 
 # 4. Vérifier les logs du backend
-docker logs gegeDot-backend --tail 50
+docker logs yeboekun-backend --tail 50
 ```
 
 ### Redémarrer les services

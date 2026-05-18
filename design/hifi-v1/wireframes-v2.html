@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8" />
-<title>GegeDot · Atelier — Wireframes v2</title>
+<title>Yeboekun · Atelier — Wireframes v2</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -707,7 +707,7 @@ function TopBar({ active = 'Atelier', tree = 'Lefèvre · 1640–' }) {
   const items = ['Atelier', 'Rivière', 'Contemplation', 'Album', 'Pistes'];
   return (
     <div className="wf-bar">
-      <span className="brand">gegedot.</span>
+      <span className="brand">yeboekun.</span>
       <span className="wf-mono" style={{fontSize:11, color:'var(--ink-3)'}}>▾ {tree}</span>
       <span className="sep" />
       {items.map(i => <span key={i} className={'nav ' + (i===active?'active':'')}>{i}</span>)}
@@ -1331,7 +1331,7 @@ function System() {
 function App() {
   return (
     <DesignCanvas>
-      <DCSection id="manifesto" title="GegeDot · Atelier" subtitle="Direction v2 — un livre qu'on feuillette, plus qu'un arbre qu'on inspecte">
+      <DCSection id="manifesto" title="Yeboekun · Atelier" subtitle="Direction v2 — un livre qu'on feuillette, plus qu'un arbre qu'on inspecte">
         <DCArtboard id="cover" label="00 · Manifeste v2" width={840} height={620}>
           <Cover />
         </DCArtboard>

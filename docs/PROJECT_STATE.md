@@ -1,4 +1,4 @@
-# PROJECT_STATE — GegeDot / Yeboekun
+# PROJECT_STATE — Yeboekun / Yeboekun
 
 > Source de vérité du projet — pilotée par Émile (Claude Code)
 > Dernière mise à jour : 2026-05-17 — FanCanvasV2 v5 qa-validated, PR #50 prête pour merge main — Émile
@@ -42,7 +42,7 @@
 - Encodage genre = reporté Lot 2 (zero touch sur GenealogyCard au Lot 1)
 - Brand Yeboekun = Direction B (Y monogramme Sankofa) + tagline "La mémoire des liens"
 - Vue principale = Arbre vertical sur `/`, conservé jusqu'à fin de refonte
-- Migration repo hors iCloud = faite (`~/Code/gegeDot-claude/`)
+- Migration repo hors iCloud = faite (`~/Code/yeboekun-claude/`)
 - auto-assign-reviewers.yml = désactivé (renommé `.disabled`) jusqu'à création d'une org GitHub
 - **Collaboration Cursor/Victor = abandonnée** — projet piloté uniquement via Claude Code
 - **Gate vs nuage (2026-05-09)** : gate **sobre livré tôt** (~3 j max seuil) ; **nuage interactif** (Framer ou CSS+mouse, A11y, mobile grille/touch) → **Lot 6** dédié — pas de mega-lot tout-en-un qui bâclerait le nuage

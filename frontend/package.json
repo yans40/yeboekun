@@ -1,7 +1,7 @@
 {
-  "name": "gegedot-frontend",
+  "name": "yeboekun-frontend",
   "version": "1.0.0-beta",
-  "description": "Frontend pour l'application GegeDot - Arbre Généalogique",
+  "description": "Frontend pour l'application Yeboekun - Arbre Généalogique",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,7 +16,7 @@
     "family-tree",
     "visualization"
   ],
-  "author": "GegeDot Team",
+  "author": "Yeboekun Team",
   "license": "MIT",
   "dependencies": {
     "@emotion/react": "^11.13.3",

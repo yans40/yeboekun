@@ -4,14 +4,14 @@
 
 **Via phpMyAdmin (RECOMMANDÉ)** :
 1. Ouvrez http://localhost:8080
-2. Base `gegeDot` → onglet "SQL"
+2. Base `yeboekun` → onglet "SQL"
 3. Copiez-collez le contenu de `scripts/diagnostic_jean.sql`
 4. Cliquez sur "Exécuter"
 
 **OU via terminal (nouveau terminal)** :
 ```bash
-cd /Users/kassyimbadollou/Documents/gegeDot
-docker exec -i gegeDot-mysql mysql -u root -ppassword gegeDot < scripts/diagnostic_jean.sql
+cd /Users/kassyimbadollou/Documents/yeboekun
+docker exec -i yeboekun-mysql mysql -u root -ppassword yeboekun < scripts/diagnostic_jean.sql
 ```
 
 ## Étape 2 : Vérifier que le backend fonctionne
@@ -38,5 +38,5 @@ Vérifiez la console du navigateur (F12) pour voir s'il y a des erreurs lors du 
 
 Vérifiez aussi que le backend est bien en cours d'exécution :
 ```bash
-ps aux | grep "dotnet.*GegeDot"
+ps aux | grep "dotnet.*Yeboekun"
 ```

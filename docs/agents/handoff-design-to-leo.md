@@ -1,6 +1,6 @@
 # Handoff Claude Design → Léo (frontend)
 
-Prompt prêt à coller dans Claude Code (ou dans une conversation Claude où l'agent `gegedot-frontend-architect` est actif) une fois que le ZIP exporté depuis Claude Design est posé dans `design/hifi-v1/`.
+Prompt prêt à coller dans Claude Code (ou dans une conversation Claude où l'agent `yeboekun-frontend-architect` est actif) une fois que le ZIP exporté depuis Claude Design est posé dans `design/hifi-v1/`.
 
 ---
 

@@ -83,8 +83,8 @@ sudo apt-get install -y git
 
 ```bash
 # Sur la VM Oracle
-git clone https://github.com/yans40/gegeDot.git
-cd gegeDot
+git clone https://github.com/yans40/yeboekun.git
+cd yeboekun
 
 # Créer le fichier de variables de production
 cp .env.example .env.prod
@@ -128,8 +128,8 @@ Pour se connecter à un serveur distant, il faut prouver son identité. Le mot d
 C'est deux fichiers liés mathématiquement :
 
 ```
-~/.ssh/oracle_gegedot      ← clé PRIVÉE  (reste sur ton Mac, ne quitte jamais ta machine)
-~/.ssh/oracle_gegedot.pub  ← clé PUBLIQUE (déposée sur le serveur Oracle)
+~/.ssh/oracle_yeboekun      ← clé PRIVÉE  (reste sur ton Mac, ne quitte jamais ta machine)
+~/.ssh/oracle_yeboekun.pub  ← clé PUBLIQUE (déposée sur le serveur Oracle)
 ```
 
 Analogie : la clé publique est un **cadenas** posé sur le serveur, la clé privée est la **clé** que toi seul possèdes.
@@ -154,7 +154,7 @@ La clé privée étant absente, le serveur refusera l'accès. Deux options :
 
 **Option 1 — Copier la clé privée sur l'autre machine** (usage personnel uniquement)
 ```bash
-scp ~/.ssh/oracle_gegedot utilisateur@autre-machine:~/.ssh/
+scp ~/.ssh/oracle_yeboekun utilisateur@autre-machine:~/.ssh/
 ```
 
 **Option 2 — Autoriser une nouvelle machine** (bonne pratique)
@@ -162,7 +162,7 @@ Générer une nouvelle paire sur l'autre machine, puis ajouter sa clé publique 
 
 ### En pratique
 ```bash
-ssh -i ~/.ssh/oracle_gegedot ubuntu@<IP-de-ta-VM>
+ssh -i ~/.ssh/oracle_yeboekun ubuntu@<IP-de-ta-VM>
 ```
 
 ---

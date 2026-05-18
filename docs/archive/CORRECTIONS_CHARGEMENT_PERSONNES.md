@@ -9,13 +9,13 @@
 - **Raison** : Le backend dans Docker écoute sur le port 5000, pas 5001
 
 ### 2. CORS amélioré pour le développement
-**Fichier** : `backend/src/GegeDot.API/Program.cs`
+**Fichier** : `backend/src/Yeboekun.API/Program.cs`
 - **Avant** : CORS limité aux ports 3000-3005 (React uniquement)
 - **Après** : En développement, autorise toutes les origines pour faciliter les tests
 - **Raison** : Permet d'accéder au frontend depuis un fichier HTML local ou nginx
 
 ### 3. HTTPS Redirection désactivée en développement
-**Fichier** : `backend/src/GegeDot.API/Program.cs`
+**Fichier** : `backend/src/Yeboekun.API/Program.cs`
 - **Avant** : Redirection HTTPS active même en HTTP
 - **Après** : Désactivée en développement (le backend écoute en HTTP)
 - **Raison** : Évite les erreurs de redirection HTTPS quand on utilise HTTP
@@ -39,14 +39,14 @@ docker-compose up -d
 docker ps
 ```
 Vous devriez voir :
-- `gegeDot-mysql` (port 3306)
-- `gegeDot-backend` (ports 5000, 5001)
-- `gegeDot-frontend` (port 3000)
-- `gegeDot-phpmyadmin` (port 8080)
+- `yeboekun-mysql` (port 3306)
+- `yeboekun-backend` (ports 5000, 5001)
+- `yeboekun-frontend` (port 3000)
+- `yeboekun-phpmyadmin` (port 8080)
 
 ### 3. Vérifier les logs du backend
 ```bash
-docker logs gegeDot-backend
+docker logs yeboekun-backend
 ```
 Recherchez les messages indiquant que l'API est démarrée et écoute sur le port 5000.
 
@@ -61,13 +61,13 @@ Ouvrez `test-api-connection.html` dans votre navigateur et cliquez sur "Tester t
 
 ### 6. Vérifier la base de données
 ```bash
-docker exec -it gegeDot-mysql mysql -u gegedot -ppassword gegeDot -e "SELECT COUNT(*) FROM Persons;"
+docker exec -it yeboekun-mysql mysql -u yeboekun -ppassword yeboekun -e "SELECT COUNT(*) FROM Persons;"
 ```
 
 ### 7. Si la base est vide, charger des données
 ```bash
 # Exécuter un script SQL d'initialisation
-docker exec -i gegeDot-mysql mysql -u gegedot -ppassword gegeDot < scripts/init.sql
+docker exec -i yeboekun-mysql mysql -u yeboekun -ppassword yeboekun < scripts/init.sql
 ```
 
 ## 🔍 Diagnostic des problèmes courants
@@ -79,7 +79,7 @@ docker exec -i gegeDot-mysql mysql -u gegedot -ppassword gegeDot < scripts/init.
 3. Problème de CORS
 
 **Solutions** :
-- Vérifier les logs : `docker logs gegeDot-backend`
+- Vérifier les logs : `docker logs yeboekun-backend`
 - Tester avec curl : `curl http://localhost:5000/api/persons`
 - Vérifier la console du navigateur (F12) pour les erreurs CORS
 
@@ -89,7 +89,7 @@ docker exec -i gegeDot-mysql mysql -u gegedot -ppassword gegeDot < scripts/init.
 2. Problème de connexion à la base de données
 
 **Solutions** :
-- Vérifier le nombre de personnes : `docker exec -it gegeDot-mysql mysql -u gegedot -ppassword gegeDot -e "SELECT COUNT(*) FROM Persons;"`
+- Vérifier le nombre de personnes : `docker exec -it yeboekun-mysql mysql -u yeboekun -ppassword yeboekun -e "SELECT COUNT(*) FROM Persons;"`
 - Charger des données initiales si nécessaire
 - Vérifier les logs du backend pour les erreurs de connexion
 

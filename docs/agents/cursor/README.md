@@ -1,4 +1,4 @@
-# Agents Cursor pour GegeDot / Yeboekun
+# Agents Cursor pour Yeboekun / Yeboekun
 
 Quatre agents spécialisés pour prendre le relais quand la limite Claude Code est atteinte. Trois miroirs des agents Claude Code (avec prénoms distincts pour différencier les sources) plus un PO orchestrateur dédié à Cursor (Victor) qui a son homologue côté Claude Code (Émile).
 
@@ -47,7 +47,7 @@ Tu peux aussi les invoquer explicitement dans le chat avec `@theo-frontend`, `@l
 
 ### Héritage des Claude Code
 
-Les trois miroirs **lisent leur spec parente** au démarrage (`docs/agents/gegedot-frontend-architect.md` etc.). C'est pour ça que les Cursor rules sont courtes : tout le contenu lourd est déjà documenté côté Claude Code, on ne duplique pas. Si tu modifies la spec d'un agent, tu modifies son fichier parent dans `docs/agents/`, et le miroir Cursor suit automatiquement.
+Les trois miroirs **lisent leur spec parente** au démarrage (`docs/agents/yeboekun-frontend-architect.md` etc.). C'est pour ça que les Cursor rules sont courtes : tout le contenu lourd est déjà documenté côté Claude Code, on ne duplique pas. Si tu modifies la spec d'un agent, tu modifies son fichier parent dans `docs/agents/`, et le miroir Cursor suit automatiquement.
 
 ## Optimisation des tokens (la mission de Victor)
 

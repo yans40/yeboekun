@@ -30,7 +30,7 @@ jobs:
     - name: Wait for services to be ready
       run: |
         # Attendre que MySQL soit prêt
-        timeout 60 bash -c 'until docker exec gegeDot-mysql mysqladmin ping -h"localhost" --silent; do sleep 2; done'
+        timeout 60 bash -c 'until docker exec yeboekun-mysql mysqladmin ping -h"localhost" --silent; do sleep 2; done'
         
         # Attendre que l'API soit prête
         timeout 60 bash -c 'until curl -f http://localhost:5001/api/persons; do sleep 2; done'
@@ -57,11 +57,11 @@ jobs:
       if: failure()
       run: |
         echo "=== Backend Logs ==="
-        docker logs gegeDot-backend
+        docker logs yeboekun-backend
         echo "=== Frontend Logs ==="
-        docker logs gegeDot-frontend
+        docker logs yeboekun-frontend
         echo "=== MySQL Logs ==="
-        docker logs gegeDot-mysql
+        docker logs yeboekun-mysql
 
     - name: Cleanup
       if: always()

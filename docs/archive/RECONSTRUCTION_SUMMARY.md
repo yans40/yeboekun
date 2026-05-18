@@ -1,11 +1,11 @@
-# 🎉 Résumé de la Reconstruction GegeDot
+# 🎉 Résumé de la Reconstruction Yeboekun
 
 ## ✅ Phase 1 : Fondations - TERMINÉE
 
 ### 1.1 Extension du Modèle de Données ✅
 - **Person.cs** : Ajout de `Profession`, `MarriageDate`, `MarriagePlace`, `DeathStatus`
 - **PersonDto.cs** : Tous les DTOs mis à jour
-- **GegeDotContext.cs** : Configuration EF Core mise à jour
+- **YeboekunContext.cs** : Configuration EF Core mise à jour
 - **Script SQL** : `scripts/migration_add_person_fields.sql` créé
 
 ### 1.2 Service de Normalisation ✅
@@ -43,16 +43,16 @@
 ## 📊 Fichiers Créés/Modifiés
 
 ### Backend (10 fichiers)
-1. ✅ `backend/src/GegeDot.Core/Entities/Person.cs` - Modifié
-2. ✅ `backend/src/GegeDot.Services/DTOs/PersonDto.cs` - Modifié
-3. ✅ `backend/src/GegeDot.Infrastructure/Data/GegeDotContext.cs` - Modifié
-4. ✅ `backend/src/GegeDot.Services/Interfaces/IDataNormalizationService.cs` - Créé
-5. ✅ `backend/src/GegeDot.Services/Services/DataNormalizationService.cs` - Créé
-6. ✅ `backend/src/GegeDot.Services/Interfaces/IDuplicateDetectionService.cs` - Créé
-7. ✅ `backend/src/GegeDot.Services/Services/DuplicateDetectionService.cs` - Créé
-8. ✅ `backend/src/GegeDot.Services/Services/PersonService.cs` - Modifié
-9. ✅ `backend/src/GegeDot.API/Program.cs` - Modifié
-10. ✅ `backend/src/GegeDot.API/Controllers/PersonsController.cs` - Modifié
+1. ✅ `backend/src/Yeboekun.Core/Entities/Person.cs` - Modifié
+2. ✅ `backend/src/Yeboekun.Services/DTOs/PersonDto.cs` - Modifié
+3. ✅ `backend/src/Yeboekun.Infrastructure/Data/YeboekunContext.cs` - Modifié
+4. ✅ `backend/src/Yeboekun.Services/Interfaces/IDataNormalizationService.cs` - Créé
+5. ✅ `backend/src/Yeboekun.Services/Services/DataNormalizationService.cs` - Créé
+6. ✅ `backend/src/Yeboekun.Services/Interfaces/IDuplicateDetectionService.cs` - Créé
+7. ✅ `backend/src/Yeboekun.Services/Services/DuplicateDetectionService.cs` - Créé
+8. ✅ `backend/src/Yeboekun.Services/Services/PersonService.cs` - Modifié
+9. ✅ `backend/src/Yeboekun.API/Program.cs` - Modifié
+10. ✅ `backend/src/Yeboekun.API/Controllers/PersonsController.cs` - Modifié
 
 ### Frontend (1 fichier)
 1. ✅ `frontend/hierarchical-tree-beta-fixed.html` - Modifié (formulaire enrichi)
@@ -114,12 +114,12 @@
 ### 1. Migration de Base de Données
 **IMPORTANT** : Exécuter le script SQL pour ajouter les nouveaux champs :
 ```bash
-mysql -u root -p gegeDot < scripts/migration_add_person_fields.sql
+mysql -u root -p yeboekun < scripts/migration_add_person_fields.sql
 ```
 
 Ou via phpMyAdmin :
 - Ouvrir http://localhost:8080
-- Sélectionner la base `gegeDot`
+- Sélectionner la base `yeboekun`
 - Exécuter le contenu de `scripts/migration_add_person_fields.sql`
 
 ### 2. Redémarrer le Backend
@@ -147,7 +147,7 @@ Après les modifications, redémarrer le backend pour que les nouveaux services 
 
 ## 🎉 Résultat
 
-Le projet GegeDot a été **reconstruit avec succès** selon les objectifs définis :
+Le projet Yeboekun a été **reconstruit avec succès** selon les objectifs définis :
 - ✅ Modèle de données enrichi
 - ✅ Services de normalisation et détection de doublons
 - ✅ Formulaire amélioré avec validation

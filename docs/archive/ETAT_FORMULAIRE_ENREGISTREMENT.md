@@ -90,9 +90,9 @@
 - `frontend/professional-fan-view.html` : Formulaire d'enregistrement/mise à jour, détection de doublons, boîte de dialogue de confirmation
 
 ### Backend
-- `backend/src/GegeDot.API/Controllers/PersonsController.cs` : Endpoint de vérification de doublons, endpoint de mise à jour avec vérification
-- `backend/src/GegeDot.Services/Services/DuplicateDetectionService.cs` : Amélioration de l'algorithme de détection
-- `backend/src/GegeDot.Services/Services/PersonService.cs` : Gestion des relations parent-enfant lors de la création
+- `backend/src/Yeboekun.API/Controllers/PersonsController.cs` : Endpoint de vérification de doublons, endpoint de mise à jour avec vérification
+- `backend/src/Yeboekun.Services/Services/DuplicateDetectionService.cs` : Amélioration de l'algorithme de détection
+- `backend/src/Yeboekun.Services/Services/PersonService.cs` : Gestion des relations parent-enfant lors de la création
 
 ## 📝 Notes techniques
 

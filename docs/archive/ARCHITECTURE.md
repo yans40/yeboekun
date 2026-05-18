@@ -1,8 +1,8 @@
-# 🏗️ Architecture GegeDot
+# 🏗️ Architecture Yeboekun
 
 ## Vue d'ensemble
 
-GegeDot utilise une architecture microservices moderne avec séparation claire entre le frontend et le backend, permettant une évolutivité et une maintenabilité optimales.
+Yeboekun utilise une architecture microservices moderne avec séparation claire entre le frontend et le backend, permettant une évolutivité et une maintenabilité optimales.
 
 ## 🎯 Principes Architecturaux
 
@@ -26,13 +26,13 @@ Chaque service a une responsabilité unique :
 ## 📁 Structure du Projet
 
 ```
-gegeDot/
+yeboekun/
 ├── backend/                 # Services .NET Core
 │   ├── src/
-│   │   ├── GegeDot.API/     # API Gateway
-│   │   ├── GegeDot.Core/    # Modèles et interfaces
-│   │   ├── GegeDot.Infrastructure/ # Accès aux données
-│   │   └── GegeDot.Services/ # Logique métier
+│   │   ├── Yeboekun.API/     # API Gateway
+│   │   ├── Yeboekun.Core/    # Modèles et interfaces
+│   │   ├── Yeboekun.Infrastructure/ # Accès aux données
+│   │   └── Yeboekun.Services/ # Logique métier
 │   ├── tests/
 │   └── docker-compose.yml
 ├── frontend/                # Application React
@@ -147,10 +147,10 @@ public enum RelationshipType
 ```env
 # Backend
 ASPNETCORE_ENVIRONMENT=Development
-ConnectionStrings__DefaultConnection=Host=localhost;Database=gegeDot;Username=postgres;Password=password
+ConnectionStrings__DefaultConnection=Host=localhost;Database=yeboekun;Username=postgres;Password=password
 JWT__SecretKey=your-secret-key
-JWT__Issuer=GegeDot
-JWT__Audience=GegeDot-Users
+JWT__Issuer=Yeboekun
+JWT__Audience=Yeboekun-Users
 
 # Frontend
 REACT_APP_API_URL=http://localhost:5000

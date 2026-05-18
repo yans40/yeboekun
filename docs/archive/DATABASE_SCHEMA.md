@@ -1,4 +1,4 @@
-# 🗄️ Schéma de Base de Données - GegeDot
+# 🗄️ Schéma de Base de Données - Yeboekun
 
 ## Vue d'ensemble
 

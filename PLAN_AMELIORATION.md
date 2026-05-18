@@ -1,4 +1,4 @@
-# Plan d'amélioration GegeDot
+# Plan d'amélioration Yeboekun
 
 > Généré le 2026-04-12 — Branche : `claude/react-migration`
 
@@ -9,7 +9,7 @@
 | # | Action | Fichier(s) | Statut |
 |---|--------|-----------|--------|
 | 1.1 | Supprimer les `console.log` de debug | `frontend/src/services/api.ts` | ✅ Fait |
-| 1.2 | Typer le retour de `GET /family` avec un vrai DTO | `backend/src/GegeDot.Services/DTOs/` + `PersonsController.cs` | ✅ Fait |
+| 1.2 | Typer le retour de `GET /family` avec un vrai DTO | `backend/src/Yeboekun.Services/DTOs/` + `PersonsController.cs` | ✅ Fait |
 | 1.3 | Harmoniser le type `gender` (string côté frontend, `char` côté backend) | `frontend/src/types/index.ts` + DTOs backend | ✅ Fait |
 | 1.4 | Améliorer les messages d'erreur (remplacer les `"Erreur lors de..."` génériques) | `frontend/src/App.tsx`, `frontend/src/services/api.ts` | ✅ Fait |
 | 1.5 | Ajouter des Error Boundaries React | `frontend/src/components/ErrorBoundary.tsx` | ✅ Fait |

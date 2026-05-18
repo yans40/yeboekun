@@ -9,19 +9,19 @@ Le shell semble corrompu, donc vous devez exécuter le script SQL manuellement.
 Exécutez cette commande dans votre terminal :
 
 ```bash
-docker exec -i gegeDot-mysql-1 mysql -u root -proot gegeDot < scripts/cleanup_and_add_catherine_test.sql
+docker exec -i yeboekun-mysql-1 mysql -u root -proot yeboekun < scripts/cleanup_and_add_catherine_test.sql
 ```
 
 ### Option 2 : Via phpMyAdmin
 1. Ouvrez phpMyAdmin : http://localhost:8080
-2. Sélectionnez la base de données `gegeDot`
+2. Sélectionnez la base de données `yeboekun`
 3. Allez dans l'onglet "SQL"
 4. Copiez-collez le contenu du fichier `scripts/cleanup_and_add_catherine_test.sql`
 5. Cliquez sur "Exécuter"
 
 ### Option 3 : Via MySQL en ligne de commande
 ```bash
-mysql -u root -proot gegeDot < scripts/cleanup_and_add_catherine_test.sql
+mysql -u root -proot yeboekun < scripts/cleanup_and_add_catherine_test.sql
 ```
 
 ## Ce que fait le script

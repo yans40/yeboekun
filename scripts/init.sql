@@ -1,7 +1,7 @@
--- Script d'initialisation de la base de données GegeDot
+-- Script d'initialisation de la base de données Yeboekun
 -- Exécuté automatiquement lors de la création du conteneur MySQL
 
-USE gegeDot;
+USE yeboekun;
 
 CREATE TABLE IF NOT EXISTS Persons (
     Id INT AUTO_INCREMENT PRIMARY KEY,

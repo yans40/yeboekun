@@ -96,11 +96,11 @@
 
 ## 🔗 **Liens et Ressources**
 
-- **Repository**: https://github.com/yans40/gegeDot
+- **Repository**: https://github.com/yans40/yeboekun
 - **Version Beta**: Tag `v1.0.0-beta`
 - **Demo Locale**: http://localhost:3004/hierarchical-tree-beta-fixed.html
 - **API Backend**: http://localhost:5001/swagger
-- **Issues GitHub**: https://github.com/yans40/gegeDot/issues
+- **Issues GitHub**: https://github.com/yans40/yeboekun/issues
 
 ---
 

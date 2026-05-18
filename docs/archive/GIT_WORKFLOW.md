@@ -1,4 +1,4 @@
-# 🌿 Git Workflow - GegeDot
+# 🌿 Git Workflow - Yeboekun
 
 ## 📋 **Stratégie de Branches**
 

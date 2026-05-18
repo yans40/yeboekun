@@ -243,7 +243,7 @@ Créer une documentation complète pour les utilisateurs et développeurs.
 
 ## 🔗 **Liens Utiles**
 
-- **Repository**: https://github.com/yans40/gegeDot
+- **Repository**: https://github.com/yans40/yeboekun
 - **Version Beta**: Tag `v1.0.0-beta`
 - **Demo**: http://localhost:3004/hierarchical-tree-beta-fixed.html
 - **API Docs**: http://localhost:5001/swagger
