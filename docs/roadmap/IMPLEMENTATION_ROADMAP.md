@@ -156,38 +156,44 @@ Chaque lot fait l'objet d'**une PR** unique, **une QA challenge** dédiée, **un
 
 ---
 
-## Lot 6 — Renommage Yeboekun
+## Lot 6 — Renommage Yeboekun ✅ livré
 
-**Branche** : `chore/rename-yeboekun`
+**Branche** : `chore/rename-yeboekun` — mergé main 2026-05-18
 **Effort** : S (~1–2 jours)
-**Risque** : moyen — changements transversaux frontend + backend + infra, aucune logique métier modifiée.
+
+Renommage complet GegeDot → Yeboekun : namespaces .NET, assemblies, .csproj, .sln, DB MySQL, Docker, CI, frontend, docs, repo GitHub.
+
+---
+
+## Lot 7 — Responsive mobile des vues
+
+**Branche** : `feature/mobile-views`
+**Effort** : M (~1 semaine)
+**Risque** : moyen — retouches CSS/layout sur des composants existants, aucune logique métier modifiée.
 
 **Contexte**
-Le nom définitif du projet est **Yeboekun**. "yeboekun" était un nom de code temporaire. Ce lot renomme sans modifier de comportement.
+Le shell mobile (hamburger, Drawer, safe-area, dvh) est livré depuis le Lot Mobile Shell (PR #40). Les vues elles-mêmes ne sont pas adaptées aux petits écrans — l'éventail SVG et la rivière sont fonctionnels mais pas optimisés mobile.
 
 **Périmètre**
 
-- **Backend** : namespaces `Yeboekun.*` → `Yeboekun.*` (assembly names, `namespace`, `using`, fichiers `.csproj`).
-- **Frontend** : `name` dans `package.json`, `<title>` HTML, tout texte "Yeboekun" visible dans l'UI.
-- **Base de données** : nom de la base MySQL `yeboekun` → `yeboekun` (migration + `appsettings.json`).
-- **Dossiers / repo** : renommage des dossiers `yeboekun` / `yeboekun-claude` et du repo GitHub `yeboekun` → `yeboekun` (action manuelle GitHub, puis `git remote set-url`).
-- **Variables d'environnement** : `VITE_*`, chaînes de connexion, tout ce qui contient "yeboekun" ou "yeboekun".
-- **Docs** : mettre à jour `IMPLEMENTATION_ROADMAP.md`, `GITFLOW.md`, `PR_TEMPLATE.md` et les fichiers agents.
+- **Vue Contemplation** : éventail SVG trop petit sur mobile → layout adaptatif (réduction du nombre de secteurs visibles, ou basculement vers une liste hiérarchique sous un breakpoint `sm`).
+- **Vue Rivière** : scroll horizontal fluide sur touch, taille des `PersonChip` ajustée pour les pouces.
+- **Vue Tableau** : `StatCard` en colonne unique sur mobile, `RecentCard` tronquée.
+- **Vue Atelier** : layout deux colonnes → colonne unique sur mobile, formulaire plein écran.
+- **WelcomeView** : nuage de noms → grille ou liste sur mobile si densité trop élevée.
+- **Touch targets** : tous les éléments interactifs ≥ 44×44 px (WCAG 2.5.5).
+- **Tests** : vérification sur viewport 375px (iPhone SE) et 390px (iPhone 14).
 
 **Hors périmètre**
-- Aucune modification de logique métier, de schéma BDD (tables/colonnes), ni de contrats d'API.
-
-**Stratégie**
-Renommer en une seule PR atomique avec une checklist exhaustive. Pas de renommage partiel étalé sur plusieurs lots — risque de mélange de noms dans les logs et erreurs de build.
-
-**Pré-requis**
-- Tous les lots en cours (Lot 2 au minimum) mergés sur `main` avant de lancer, pour éviter les conflits de rebase.
-- Kassy renomme le repo GitHub manuellement avant que la branche soit poussée.
+- Refacto logique métier.
+- App native (React Native, PWA shell) — hors scope.
+- Backend.
 
 **Critères de sortie**
-- `grep -r "yeboekun\|Yeboekun\|yeboekun" --include="*.ts" --include="*.tsx" --include="*.cs" --include="*.csproj" --include="*.json" --include="*.md"` ne retourne aucun résultat hors historique git.
-- Build frontend + backend verts.
-- App démarre et l'arbre vertical fonctionne.
+- Chaque vue testée manuellement sur 375px et 390px (Chrome DevTools mobile).
+- Aucun overflow horizontal non intentionnel.
+- Touch targets ≥ 44px vérifiés.
+- Lighthouse mobile score ≥ seuil actuel (75 perf, 95 a11y).
 - QA challenger valide.
 
 ---
@@ -213,6 +219,7 @@ Ces lots feront l'objet de chantiers dédiés, pas en queue de la refonte UI.
 | 4 | feature/vue-atelier | M | moyen | Lot 1 mergé | Validation FluentValidation Ada |
 | 5 | feature/vue-tableau | M | bas | Lot 1 mergé | API stats Ada |
 | 6 | chore/rename-yeboekun | S | moyen | Lot 2+ mergés | Repo GitHub renommé manuellement |
+| 7 | feature/mobile-views | M | moyen | Lots 2-5 mergés | — |
 
 ---
 
