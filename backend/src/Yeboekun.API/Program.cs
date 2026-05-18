@@ -1,3 +1,4 @@
+using FluentValidation;
 using Yeboekun.API.Configuration;
 using Yeboekun.API.Middleware;
 using Yeboekun.Core.Interfaces;
@@ -5,6 +6,7 @@ using Yeboekun.Infrastructure.Data;
 using Yeboekun.Infrastructure.Repositories;
 using Yeboekun.Services.Interfaces;
 using Yeboekun.Services.Services;
+using Yeboekun.Services.Validators;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -52,6 +54,9 @@ builder.Services.AddScoped<IStatsService, StatsService>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(Yeboekun.Services.Mappings.MappingProfile));
+
+// FluentValidation — scanne l'assembly Services et enregistre tous les AbstractValidator<T> en Scoped
+builder.Services.AddValidatorsFromAssemblyContaining<CreatePersonDtoValidator>();
 
 // CORS — WithCredentials exige des origines explicites (cookies d'accès familial).
 var corsOrigins = builder.Configuration["Cors:Origins"]?.Split(

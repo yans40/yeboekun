@@ -1,5 +1,7 @@
 using AutoMapper;
 using FluentAssertions;
+using FluentValidation;
+using FluentValidation.Results;
 using Yeboekun.API.Controllers;
 using Yeboekun.Core.Entities;
 using Yeboekun.Core.Interfaces;
@@ -29,6 +31,17 @@ public class RiverViewControllerTests
         uow.Setup(u => u.Persons).Returns(personsRepo.Object);
         uow.Setup(u => u.Relationships).Returns(relRepo.Object);
 
+        var validResult = new ValidationResult();
+        var createValidator = new Mock<IValidator<CreatePersonDto>>();
+        createValidator.Setup(v => v.ValidateAsync(It.IsAny<CreatePersonDto>(), It.IsAny<CancellationToken>()))
+                       .ReturnsAsync(validResult);
+        var updateValidator = new Mock<IValidator<UpdatePersonDto>>();
+        updateValidator.Setup(v => v.ValidateAsync(It.IsAny<UpdatePersonDto>(), It.IsAny<CancellationToken>()))
+                       .ReturnsAsync(validResult);
+        var spouseValidator = new Mock<IValidator<CreateSpouseRelationshipDto>>();
+        spouseValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateSpouseRelationshipDto>(), It.IsAny<CancellationToken>()))
+                       .ReturnsAsync(validResult);
+
         _controller = new PersonsController(
             personService:            new Mock<IPersonService>().Object,
             duplicateDetectionService: new Mock<IDuplicateDetectionService>().Object,
@@ -36,7 +49,10 @@ public class RiverViewControllerTests
             mapper:                   new Mock<IMapper>().Object,
             logger:                   NullLogger<PersonsController>.Instance,
             treeTraversalService:     new Mock<ITreeTraversalService>().Object,
-            riverViewService:         _riverViewService.Object);
+            riverViewService:         _riverViewService.Object,
+            createPersonValidator:    createValidator.Object,
+            updatePersonValidator:    updateValidator.Object,
+            createSpouseValidator:    spouseValidator.Object);
     }
 
     // ── Cas nominal : 200 OK ─────────────────────────────────────────────────
