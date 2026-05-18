@@ -1,10 +1,9 @@
 /**
- * Feature flags centralisés.
+ * Feature flags centralisés — tous actifs en production (Lots 2-6 livrés).
  *
  * Convention :
- *   - Défaut false en production.
- *   - import.meta.env.DEV active les flags "en cours" automatiquement.
- *   - Pour forcer un flag indépendamment de l'env, override ici explicitement.
+ *   - Défaut true depuis la livraison complète.
+ *   - Désactiver explicitement ici si un lot doit être retiré.
  */
 
 /** Vue Rivière (Lot 2) — layout horizontal par génération. */
