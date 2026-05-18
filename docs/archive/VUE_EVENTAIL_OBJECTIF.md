@@ -197,7 +197,7 @@ L'image de référence montre :
 5. **Tester** avec des familles réelles
 6. **Optimiser** les performances
 
-Cette référence visuelle nous donne un objectif clair et professionnel pour la vue éventail de GegeDot ! 🎯
+Cette référence visuelle nous donne un objectif clair et professionnel pour la vue éventail de Yeboekun ! 🎯
 
 
 

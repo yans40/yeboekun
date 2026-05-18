@@ -168,7 +168,7 @@ Format : `[ ]` à faire · `[x]` fait · `[~]` partiel · `[!]` bloquant/décisi
 
 ### VII. index.html & meta
 
-- [x] **meta-1** `<title>GegeDot — Arbre généalogique</title>` défini
+- [x] **meta-1** `<title>Yeboekun — Arbre généalogique</title>` défini
 - [x] **meta-2** `<meta name="description" content="...">` ajouté (fixe SEO score baseline)
 - [x] **meta-3** `<meta name="theme-color" content="#f4efe6">` (color paper)
 - [x] **meta-4** `lang="fr"` sur la balise `<html>`

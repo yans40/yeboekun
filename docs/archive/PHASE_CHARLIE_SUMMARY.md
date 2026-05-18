@@ -54,7 +54,7 @@
 - `frontend/debug-interactive-tree.html` - Version debug
 
 ### Fichiers de Configuration
-- `backend/src/GegeDot.API/Program.cs` - Configuration CORS mise à jour
+- `backend/src/Yeboekun.API/Program.cs` - Configuration CORS mise à jour
 - `add_philip_parents.sql` - Script d'ajout des parents de Philip
 
 ## 🎯 Fonctionnalités Clés Implémentées

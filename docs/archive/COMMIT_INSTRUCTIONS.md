@@ -3,11 +3,11 @@
 Le shell semble avoir un problème. Veuillez exécuter les commandes suivantes directement dans votre terminal :
 
 ```bash
-cd /Users/kassyimbadollou/Documents/gegeDot
+cd /Users/kassyimbadollou/Documents/yeboekun
 
 # Ajouter les fichiers modifiés
 git add frontend/professional-fan-view.html
-git add backend/src/GegeDot.API/Controllers/PersonsController.cs
+git add backend/src/Yeboekun.API/Controllers/PersonsController.cs
 git add scripts/add_spouses_and_ancestors.sql
 
 # Créer le commit

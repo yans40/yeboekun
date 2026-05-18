@@ -20,23 +20,23 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Restore solution
-        run: dotnet restore backend/GegeDot.sln
+        run: dotnet restore backend/Yeboekun.sln
 
       - name: Build solution
-        run: dotnet build backend/GegeDot.sln --configuration Release --no-restore
+        run: dotnet build backend/Yeboekun.sln --configuration Release --no-restore
 
       - name: Run tests with coverage
         run: |
-          dotnet test backend/tests/GegeDot.Tests/GegeDot.Tests.csproj \
+          dotnet test backend/tests/Yeboekun.Tests/Yeboekun.Tests.csproj \
             --configuration Release \
             --no-build \
             --verbosity normal \
             --logger "trx;LogFileName=test-results.trx" \
             --collect:"XPlat Code Coverage" \
-            --settings backend/tests/GegeDot.Tests/coverlet.runsettings
+            --settings backend/tests/Yeboekun.Tests/coverlet.runsettings
 
       - name: Enforce backend coverage thresholds
-        run: python3 scripts/check-coverage.py "backend/tests/GegeDot.Tests/TestResults/**/coverage.cobertura.xml" --line 80 --branch 70
+        run: python3 scripts/check-coverage.py "backend/tests/Yeboekun.Tests/TestResults/**/coverage.cobertura.xml" --line 80 --branch 70
 
       - name: Upload backend test results
         if: always()
@@ -44,8 +44,8 @@ jobs:
         with:
           name: backend-test-results
           path: |
-            backend/tests/GegeDot.Tests/TestResults/**/*.trx
-            backend/tests/GegeDot.Tests/TestResults/**/coverage.cobertura.xml
+            backend/tests/Yeboekun.Tests/TestResults/**/*.trx
+            backend/tests/Yeboekun.Tests/TestResults/**/coverage.cobertura.xml
 
   frontend-tests:
     name: Frontend (Jest)

@@ -1,4 +1,4 @@
-# ✅ Résumé des Corrections - Application GegeDot
+# ✅ Résumé des Corrections - Application Yeboekun
 
 ## 🎯 Problème Initial
 - Impossible de charger les personnes depuis le frontend
@@ -22,11 +22,11 @@
 
 ### 3. CORS
 - **Amélioration** : CORS configuré pour autoriser toutes les origines en développement
-- **Fichier modifié** : `backend/src/GegeDot.API/Program.cs`
+- **Fichier modifié** : `backend/src/Yeboekun.API/Program.cs`
 
 ### 4. HTTPS Redirection
 - **Correction** : Désactivée en développement (le backend écoute en HTTP)
-- **Fichier modifié** : `backend/src/GegeDot.API/Program.cs`
+- **Fichier modifié** : `backend/src/Yeboekun.API/Program.cs`
 
 ### 5. Gestion des Erreurs
 - **Amélioration** : Logs détaillés dans le frontend pour faciliter le diagnostic
@@ -38,7 +38,7 @@
 - **Port** : 5001 (mappé depuis 5000 dans le container)
 - **URL API** : http://localhost:5001/api
 - **Swagger** : http://localhost:5001/swagger
-- **Container** : `gegeDot-backend`
+- **Container** : `yeboekun-backend`
 
 ### Frontend
 - **Port** : 3004
@@ -47,7 +47,7 @@
 
 ### Base de Données
 - **Port** : 3306
-- **Container** : `gegeDot-mysql`
+- **Container** : `yeboekun-mysql`
 - **phpMyAdmin** : http://localhost:8080
 
 ## 🚀 Commandes de Démarrage

@@ -6,12 +6,12 @@ Le shell semble avoir un problème. Voici comment procéder manuellement :
 
 1. Ouvrez votre navigateur et allez sur : **http://localhost:8080**
 2. Connectez-vous à phpMyAdmin (utilisateur: `root`, mot de passe: `password`)
-3. Sélectionnez la base de données **`gegeDot`** dans le menu de gauche
+3. Sélectionnez la base de données **`yeboekun`** dans le menu de gauche
 4. Cliquez sur l'onglet **"SQL"** en haut
 5. Copiez et collez ce code SQL :
 
 ```sql
-USE gegeDot;
+USE yeboekun;
 
 INSERT INTO Persons (FirstName, LastName, MiddleName, BirthDate, BirthPlace, Gender, IsAlive, CreatedAt, UpdatedAt)
 VALUES ('Jean', 'TestFamille', 'Le Patriarche', '1950-01-15', 'Paris, France', 'Male', true, NOW(), NOW())
@@ -26,8 +26,8 @@ ON DUPLICATE KEY UPDATE UpdatedAt = NOW();
 Ouvrez un **NOUVEAU** terminal (pas celui de Cursor) et exécutez :
 
 ```bash
-cd /Users/kassyimbadollou/Documents/gegeDot
-docker exec -i gegeDot-mysql mysql -u root -ppassword gegeDot < scripts/check_and_create_jean.sql
+cd /Users/kassyimbadollou/Documents/yeboekun
+docker exec -i yeboekun-mysql mysql -u root -ppassword yeboekun < scripts/check_and_create_jean.sql
 ```
 
 ## Après l'insertion

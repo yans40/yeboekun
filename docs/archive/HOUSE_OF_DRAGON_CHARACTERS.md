@@ -70,20 +70,20 @@ Ce script SQL ajoute les personnages principaux de House of the Dragon (prequel 
 
 ### Option 1 : Depuis le terminal
 ```bash
-docker exec -i gegeDot-mysql mysql -u root -ppassword gegeDot < scripts/add_house_of_dragon_characters.sql
+docker exec -i yeboekun-mysql mysql -u root -ppassword yeboekun < scripts/add_house_of_dragon_characters.sql
 ```
 
 ### Option 2 : Via phpMyAdmin
 1. Ouvrez http://localhost:8080
-2. Connectez-vous avec `gegedot` / `password`
-3. Sélectionnez la base `gegeDot`
+2. Connectez-vous avec `yeboekun` / `password`
+3. Sélectionnez la base `yeboekun`
 4. Allez dans l'onglet "SQL"
 5. Copiez-collez le contenu de `scripts/add_house_of_dragon_characters.sql`
 6. Cliquez sur "Exécuter"
 
 ### Option 3 : Depuis MySQL CLI
 ```sql
-USE gegeDot;
+USE yeboekun;
 source scripts/add_house_of_dragon_characters.sql;
 ```
 

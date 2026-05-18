@@ -1,4 +1,4 @@
-# GegeDot / Yeboekun — Instructions projet pour Claude Code
+# Yeboekun / Yeboekun — Instructions projet pour Claude Code
 
 ## Architecture d'agents
 
@@ -8,7 +8,7 @@ Ce projet est piloté par un **PO orchestrateur**, **Émile**, qui catch tous le
 - **Ada** — backend (.NET 9 + EF Core + MySQL)
 - **Iris** — QA / release manager
 
-Spécifications complètes dans `docs/agents/gegedot-*.md`. Émile est défini dans `docs/agents/gegedot-po-orchestrator.md`.
+Spécifications complètes dans `docs/agents/yeboekun-*.md`. Émile est défini dans `docs/agents/yeboekun-po-orchestrator.md`.
 
 ## Comportement par défaut
 
@@ -61,10 +61,10 @@ Les fichiers source vivent dans `docs/agents/`. Pour les activer comme sous-agen
 
 ```bash
 mkdir -p .claude/agents
-cp docs/agents/gegedot-frontend-architect.md .claude/agents/
-cp docs/agents/gegedot-backend-architect.md  .claude/agents/
-cp docs/agents/gegedot-qa-challenger.md      .claude/agents/
-cp docs/agents/gegedot-po-orchestrator.md    .claude/agents/
+cp docs/agents/yeboekun-frontend-architect.md .claude/agents/
+cp docs/agents/yeboekun-backend-architect.md  .claude/agents/
+cp docs/agents/yeboekun-qa-challenger.md      .claude/agents/
+cp docs/agents/yeboekun-po-orchestrator.md    .claude/agents/
 ```
 
 `.claude/` est dans le `.gitignore` — la source de vérité reste `docs/agents/`.

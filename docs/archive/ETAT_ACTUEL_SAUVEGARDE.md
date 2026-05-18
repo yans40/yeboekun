@@ -6,13 +6,13 @@
 ## ✅ Fichiers modifiés
 
 ### 1. Backend - DTO
-**Fichier**: `backend/src/GegeDot.Services/DTOs/PersonDto.cs`
+**Fichier**: `backend/src/Yeboekun.Services/DTOs/PersonDto.cs`
 **Modifications**:
 - Ajout de `public int? Parent1Id { get; set; }` (ligne 44)
 - Ajout de `public int? Parent2Id { get; set; }` (ligne 45)
 
 ### 2. Backend - Service
-**Fichier**: `backend/src/GegeDot.Services/Services/PersonService.cs`
+**Fichier**: `backend/src/Yeboekun.Services/Services/PersonService.cs`
 **Modifications**:
 - Méthode `CreatePersonAsync` modifiée pour créer automatiquement les relations parent-enfant
 - Validation de l'existence des parents
@@ -54,12 +54,12 @@
 ## 📝 Commandes Git à exécuter
 
 ```bash
-cd /Users/kassyimbadollou/Documents/gegeDot
+cd /Users/kassyimbadollou/Documents/yeboekun
 
 # Ajouter les fichiers
 git add frontend/hierarchical-tree-beta-fixed.html
-git add backend/src/GegeDot.Services/DTOs/PersonDto.cs
-git add backend/src/GegeDot.Services/Services/PersonService.cs
+git add backend/src/Yeboekun.Services/DTOs/PersonDto.cs
+git add backend/src/Yeboekun.Services/Services/PersonService.cs
 
 # Créer le commit
 git commit -m "Approche hybride pour selection/creation des parents - Recherche avec autocompletion et creation rapide avec detection de doublons"
@@ -75,8 +75,8 @@ git status
 
 # Voir les différences
 git diff frontend/hierarchical-tree-beta-fixed.html
-git diff backend/src/GegeDot.Services/DTOs/PersonDto.cs
-git diff backend/src/GegeDot.Services/Services/PersonService.cs
+git diff backend/src/Yeboekun.Services/DTOs/PersonDto.cs
+git diff backend/src/Yeboekun.Services/Services/PersonService.cs
 ```
 
 ## 📋 Checklist avant commit

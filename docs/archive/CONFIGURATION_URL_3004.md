@@ -24,7 +24,7 @@ Vous devriez recevoir une liste JSON (peut être vide `[]` si aucune personne).
 
 ### 2. Vérifier les logs du backend
 ```bash
-docker logs gegeDot-backend
+docker logs yeboekun-backend
 ```
 
 Recherchez :
@@ -56,7 +56,7 @@ docker-compose restart backend
 
 ### Voir les logs en temps réel
 ```bash
-docker logs -f gegeDot-backend
+docker logs -f yeboekun-backend
 ```
 
 ### Tester l'API directement

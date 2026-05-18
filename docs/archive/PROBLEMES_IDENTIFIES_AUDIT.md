@@ -19,7 +19,7 @@ Créer un endpoint similaire :
 public async Task<IActionResult> CreateSpouseRelationship(int personId, int spouseId, [FromBody] CreateSpouseDto? dto = null)
 ```
 
-**Fichier à modifier** : `backend/src/GegeDot.API/Controllers/PersonsController.cs`
+**Fichier à modifier** : `backend/src/Yeboekun.API/Controllers/PersonsController.cs`
 
 ---
 
@@ -40,7 +40,7 @@ Créer un endpoint pour gérer les relations :
 public async Task<IActionResult> UpdatePersonRelationships(int id, UpdateRelationshipsDto dto)
 ```
 
-**Fichier à modifier** : `backend/src/GegeDot.API/Controllers/PersonsController.cs`
+**Fichier à modifier** : `backend/src/Yeboekun.API/Controllers/PersonsController.cs`
 
 ---
 
@@ -80,7 +80,7 @@ public DateTime? DeathDate { get; set; }
 ```
 
 **Fichiers à modifier** :
-- `backend/src/GegeDot.Services/DTOs/PersonDto.cs`
+- `backend/src/Yeboekun.Services/DTOs/PersonDto.cs`
 - Créer une classe de validation
 
 ---
@@ -104,7 +104,7 @@ if (person1Id == person2Id)
 // Vérifier les cycles (à implémenter)
 ```
 
-**Fichier à modifier** : `backend/src/GegeDot.API/Controllers/PersonsController.cs`
+**Fichier à modifier** : `backend/src/Yeboekun.API/Controllers/PersonsController.cs`
 
 ---
 
@@ -157,9 +157,9 @@ if (person1Id == person2Id)
 ## 🔧 Fichiers à Modifier
 
 ### Backend
-- `backend/src/GegeDot.API/Controllers/PersonsController.cs` - Ajouter les endpoints manquants
-- `backend/src/GegeDot.Services/DTOs/PersonDto.cs` - Ajouter les validations
-- `backend/src/GegeDot.Services/DTOs/RelationshipDto.cs` - Déjà existe, peut être utilisé
+- `backend/src/Yeboekun.API/Controllers/PersonsController.cs` - Ajouter les endpoints manquants
+- `backend/src/Yeboekun.Services/DTOs/PersonDto.cs` - Ajouter les validations
+- `backend/src/Yeboekun.Services/DTOs/RelationshipDto.cs` - Déjà existe, peut être utilisé
 
 ### Frontend
 - `frontend/professional-fan-view.html` - Modifier `handlePersonSubmit()` pour gérer les relations en édition

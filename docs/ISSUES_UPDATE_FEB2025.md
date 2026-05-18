@@ -1,6 +1,6 @@
 # Mise à jour des issues GitHub - Février 2025
 
-Ce document contient les mises à jour à appliquer aux issues du dépôt [yans40/gegeDot](https://github.com/yans40/gegeDot/issues) pour refléter l'état actuel du projet (vue évoluée, UI shell, etc.).
+Ce document contient les mises à jour à appliquer aux issues du dépôt [yans40/yeboekun](https://github.com/yans40/yeboekun/issues) pour refléter l'état actuel du projet (vue évoluée, UI shell, etc.).
 
 ---
 
@@ -72,9 +72,9 @@ Voir PLAN_UI_SHELL.md pour les détails.
 ```
 **Mise à jour (fév. 2025)** — Structure existante :
 
-- `backend/tests/GegeDot.Tests/` avec PersonServiceTests (xunit, Moq, FluentAssertions)
-- Problème : la CI exécute `dotnet test` sur GegeDot.API.csproj qui ne référence pas les tests
-- À faire : pointer la CI vers `backend/GegeDot.sln` ou `GegeDot.Tests.csproj`
+- `backend/tests/Yeboekun.Tests/` avec PersonServiceTests (xunit, Moq, FluentAssertions)
+- Problème : la CI exécute `dotnet test` sur Yeboekun.API.csproj qui ne référence pas les tests
+- À faire : pointer la CI vers `backend/Yeboekun.sln` ou `Yeboekun.Tests.csproj`
 ```
 
 ---
@@ -100,7 +100,7 @@ Voir PLAN_UI_SHELL.md pour les détails.
 ```
 **Mise à jour (fév. 2025)** — Problèmes identifiés dans .github/workflows/ci.yml :
 
-1. `dotnet test` cible GegeDot.API (0 tests) au lieu de GegeDot.Tests
+1. `dotnet test` cible Yeboekun.API (0 tests) au lieu de Yeboekun.Tests
 2. .NET 8 dans la CI vs .NET 9 dans le projet
 3. `test-suite.html` référencé mais absent du frontend
 4. security-scan-results.sarif inexistant
@@ -118,7 +118,7 @@ Voir docs/archive/ pour la doc archivée.
 ```
 **Mise à jour (fév. 2025)** — État actuel :
 
-- Backend : PersonServiceTests (à mettre à jour), structure GegeDot.Tests OK
+- Backend : PersonServiceTests (à mettre à jour), structure Yeboekun.Tests OK
 - Frontend : tests Jest pour React (PersonForm, PersonCard, api) dans src/__tests__/
 - La vue principale (professional-fan-view.html) est en vanilla HTML/JS, non couverte par les tests React
 - CI : ne lance pas correctement les tests backend
@@ -147,7 +147,7 @@ Recoupement avec #14, #15, #16 — envisager une issue consolidée "Tests et CI"
 
 ```bash
 # Depuis la racine du projet
-cd /Users/kassyimbadollou/Documents/gegeDot
+cd /Users/kassyimbadollou/Documents/yeboekun
 
 # #7
 gh issue comment 7 --body "**Mise à jour (fév. 2025)** — Progression significative :
@@ -181,9 +181,9 @@ gh issue comment 12 --body "**Mise à jour (fév. 2025)** — Responsive implém
 # #14
 gh issue comment 14 --body "**Mise à jour (fév. 2025)** — Structure existante :
 
-- backend/tests/GegeDot.Tests/ avec PersonServiceTests (xunit, Moq, FluentAssertions)
-- Problème : la CI exécute dotnet test sur GegeDot.API.csproj qui ne référence pas les tests
-- À faire : pointer la CI vers backend/GegeDot.sln ou GegeDot.Tests.csproj"
+- backend/tests/Yeboekun.Tests/ avec PersonServiceTests (xunit, Moq, FluentAssertions)
+- Problème : la CI exécute dotnet test sur Yeboekun.API.csproj qui ne référence pas les tests
+- À faire : pointer la CI vers backend/Yeboekun.sln ou Yeboekun.Tests.csproj"
 
 # #15
 gh issue comment 15 --body "**Mise à jour (fév. 2025)** — PersonServiceTests existant mais obsolète :
@@ -195,7 +195,7 @@ gh issue comment 15 --body "**Mise à jour (fév. 2025)** — PersonServiceTests
 # #16
 gh issue comment 16 --body "**Mise à jour (fév. 2025)** — Problèmes identifiés dans .github/workflows/ci.yml :
 
-1. dotnet test cible GegeDot.API (0 tests) au lieu de GegeDot.Tests
+1. dotnet test cible Yeboekun.API (0 tests) au lieu de Yeboekun.Tests
 2. .NET 8 dans la CI vs .NET 9 dans le projet
 3. test-suite.html référencé mais absent du frontend
 4. security-scan-results.sarif inexistant
@@ -204,7 +204,7 @@ gh issue comment 16 --body "**Mise à jour (fév. 2025)** — Problèmes identif
 # #6
 gh issue comment 6 --body "**Mise à jour (fév. 2025)** — État actuel :
 
-- Backend : PersonServiceTests (à mettre à jour), structure GegeDot.Tests OK
+- Backend : PersonServiceTests (à mettre à jour), structure Yeboekun.Tests OK
 - Frontend : tests Jest pour React (PersonForm, PersonCard, api) dans src/__tests__/
 - La vue principale (professional-fan-view.html) est en vanilla HTML/JS, non couverte par les tests React
 - CI : ne lance pas correctement les tests backend

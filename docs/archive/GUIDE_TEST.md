@@ -1,4 +1,4 @@
-# 🧪 Guide de Test - GegeDot Phase 1
+# 🧪 Guide de Test - Yeboekun Phase 1
 
 ## 🚀 Préparation
 
@@ -16,7 +16,7 @@ docker-compose up -d
 sleep 5
 
 # Démarrer le backend
-cd backend/src/GegeDot.API
+cd backend/src/Yeboekun.API
 dotnet run --urls=http://localhost:5001
 
 # Dans un autre terminal, démarrer le frontend
@@ -26,7 +26,7 @@ python3 -m http.server 3004 --bind 127.0.0.1
 
 #### Option B : Manuel
 1. **Docker Desktop** : Démarrer manuellement
-2. **Backend** : `cd backend/src/GegeDot.API && dotnet run --urls=http://localhost:5001`
+2. **Backend** : `cd backend/src/Yeboekun.API && dotnet run --urls=http://localhost:5001`
 3. **Frontend** : `cd frontend && python3 -m http.server 3004 --bind 127.0.0.1`
 
 ### 3. Exécuter la Migration SQL
@@ -35,13 +35,13 @@ python3 -m http.server 3004 --bind 127.0.0.1
 
 #### Via MySQL en ligne de commande :
 ```bash
-mysql -h 127.0.0.1 -P 3306 -u root -ppassword gegeDot < scripts/migration_add_person_fields.sql
+mysql -h 127.0.0.1 -P 3306 -u root -ppassword yeboekun < scripts/migration_add_person_fields.sql
 ```
 
 #### Via phpMyAdmin :
 1. Ouvrir http://localhost:8080
 2. Se connecter (utilisateur: `root`, mot de passe: `password`)
-3. Sélectionner la base `gegeDot`
+3. Sélectionner la base `yeboekun`
 4. Aller dans l'onglet "SQL"
 5. Copier-coller le contenu de `scripts/migration_add_person_fields.sql`
 6. Cliquer sur "Exécuter"
@@ -235,7 +235,7 @@ docker ps
 ### Backend ne démarre pas
 **Solution** : Vérifier les logs :
 ```bash
-cd backend/src/GegeDot.API
+cd backend/src/Yeboekun.API
 dotnet run --urls=http://localhost:5001
 ```
 

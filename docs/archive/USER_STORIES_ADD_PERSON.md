@@ -9,7 +9,7 @@ Fonctionnalité permettant aux utilisateurs d'ajouter de nouvelles personnes à 
 
 ### **US-001 : Ajout d'une Nouvelle Personne**
 
-**En tant que** utilisateur de GegeDot  
+**En tant que** utilisateur de Yeboekun  
 **Je veux** pouvoir ajouter une nouvelle personne à l'arbre généalogique  
 **Afin de** enrichir ma base de données familiale
 
@@ -47,7 +47,7 @@ Fonctionnalité permettant aux utilisateurs d'ajouter de nouvelles personnes à 
 
 ### **US-002 : Normalisation des Caractères**
 
-**En tant que** utilisateur de GegeDot  
+**En tant que** utilisateur de Yeboekun  
 **Je veux** que les noms soient automatiquement normalisés  
 **Afin de** avoir une uniformité dans l'affichage et la recherche
 
@@ -78,7 +78,7 @@ Fonctionnalité permettant aux utilisateurs d'ajouter de nouvelles personnes à 
 
 ### **US-003 : Détection et Gestion des Doublons**
 
-**En tant que** utilisateur de GegeDot  
+**En tant que** utilisateur de Yeboekun  
 **Je veux** être averti des doublons potentiels  
 **Afin de** éviter d'enregistrer la même personne plusieurs fois
 
@@ -111,7 +111,7 @@ Fonctionnalité permettant aux utilisateurs d'ajouter de nouvelles personnes à 
 
 ### **US-004 : Gestion des Relations Familiales**
 
-**En tant que** utilisateur de GegeDot  
+**En tant que** utilisateur de Yeboekun  
 **Je veux** pouvoir définir les relations familiales lors de l'ajout  
 **Afin de** construire automatiquement l'arbre généalogique
 
@@ -145,7 +145,7 @@ Fonctionnalité permettant aux utilisateurs d'ajouter de nouvelles personnes à 
 
 ### **US-005 : Sauvegarde et Confirmation**
 
-**En tant que** utilisateur de GegeDot  
+**En tant que** utilisateur de Yeboekun  
 **Je veux** avoir une confirmation claire de la sauvegarde  
 **Afin de** m'assurer que mes données sont bien enregistrées
 

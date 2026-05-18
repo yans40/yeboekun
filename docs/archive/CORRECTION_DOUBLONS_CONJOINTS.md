@@ -21,7 +21,7 @@ Lors de l'affichage des conjoints, chaque conjoint apparaissait **deux fois** au
 
 ### Backend - Déduplication
 
-**Fichier** : `backend/src/GegeDot.API/Controllers/PersonsController.cs`
+**Fichier** : `backend/src/Yeboekun.API/Controllers/PersonsController.cs`
 
 **Modification** : Ajout d'un `HashSet<int>` pour tracker les conjoints déjà traités.
 

@@ -8,7 +8,7 @@ Permettre d'ajouter des conjoints à une personne directement depuis le formulai
 
 ### 1. Backend - Nouvel Endpoint
 
-**Fichier** : `backend/src/GegeDot.API/Controllers/PersonsController.cs`
+**Fichier** : `backend/src/Yeboekun.API/Controllers/PersonsController.cs`
 
 **Nouvel endpoint** : `POST /api/persons/{personId}/spouses/{spouseId}`
 
@@ -51,7 +51,7 @@ public async Task<IActionResult> CreateSpouseRelationship(
 
 ### 2. DTO - Nouveau DTO
 
-**Fichier** : `backend/src/GegeDot.Services/DTOs/RelationshipDto.cs`
+**Fichier** : `backend/src/Yeboekun.Services/DTOs/RelationshipDto.cs`
 
 **Nouveau DTO** : `CreateSpouseRelationshipDto`
 

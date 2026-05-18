@@ -1,4 +1,4 @@
-# 🗺️ GegeDot Development Roadmap
+# 🗺️ Yeboekun Development Roadmap
 
 ## 📋 Current Status
 
@@ -79,7 +79,7 @@
 4. **Deploy** - Use Issue #5 for production deployment
 
 ### For Users
-1. **Clone repository**: `git clone https://github.com/yans40/gegeDot.git`
+1. **Clone repository**: `git clone https://github.com/yans40/yeboekun.git`
 2. **Follow README.md** for local setup
 3. **Check DEPLOYMENT.md** for production deployment
 
@@ -122,8 +122,8 @@
 
 ## 🔗 Links
 
-- **Repository**: https://github.com/yans40/gegeDot
-- **Issues**: https://github.com/yans40/gegeDot/issues
+- **Repository**: https://github.com/yans40/yeboekun
+- **Issues**: https://github.com/yans40/yeboekun/issues
 - **Documentation**: See README.md, ARCHITECTURE.md, DEPLOYMENT.md
 
 ---

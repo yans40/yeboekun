@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"/><title>Yeboekun — éventail v3 · B adaptatif</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500;1,600&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#1F1A14; --ink2:#3D342A; --ink3:#766A58; --ink4:#A89F8C;
+    --ivory:#F4EFE6; --cream:#FAF6EC; --paper2:#ECE5D6;
+    --line:#CABFA6; --line2:#DDD2B8; --sepia:#7D5A36; --rust:#A4502A;
+    --olive:#6A7242;
+    --asc-1:#3D342A; --asc-2:#5A4528; --asc-3:#7D5A36;
+    --asc-4:#9C7849; --asc-5:#BFA180;
+    --desc-1:#52582F; --desc-2:#6A7242;
+    --vide-stroke:#CABFA6;
+  }
+  * { box-sizing:border-box; }
+  html,body { margin:0; padding:0; background:var(--paper2); color:var(--ink);
+    font-family:'Geist',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+  .em { font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500; letter-spacing:-0.015em; }
+  .mono { font-family:'Geist Mono',monospace; }
+  .eyebrow { font-family:'Geist Mono',monospace; font-size:10px; letter-spacing:0.18em;
+    text-transform:uppercase; color:var(--ink3); }
+
+  header { padding:64px 96px 40px; background:var(--ivory); border-bottom:1px solid var(--line2); }
+  header h1 { margin:0; font-size:64px; line-height:0.98; letter-spacing:-0.02em; }
+  header .lede { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:20px;
+    color:var(--ink2); max-width:800px; line-height:1.45; margin-top:16px;}
+  header .changes { display:flex; gap:36px; margin-top:32px; padding-top:20px; border-top:1px solid var(--line2);}
+  header .changes div { font-family:'Geist Mono',monospace; font-size:10px; color:var(--ink3);
+    letter-spacing:0.05em; line-height:1.6;}
+  header .changes div strong { color:var(--ink); font-weight:500; display:block;
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px; letter-spacing:-0.005em; }
+
+  /* ARTBOARD ========================================================= */
+  .stage { background:var(--paper2); padding:48px 0 96px; }
+  .artboard { width:1440px; margin:0 auto 32px; background:var(--ivory);
+    border:1px solid var(--line2); position:relative; }
+  .artboard .cap { padding:18px 32px; border-bottom:1px solid var(--line2);
+    display:flex; justify-content:space-between; align-items:baseline; gap:32px;
+    background:var(--cream); }
+  .artboard .cap .title { font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:24px; color:var(--ink); }
+  .artboard .cap .id { font-family:'Geist Mono',monospace; font-size:10px;
+    letter-spacing:0.14em; text-transform:uppercase; color:var(--ink3); }
+  .artboard .cap .verdict { font-family:'Geist Mono',monospace; font-size:9.5px;
+    letter-spacing:0.1em; text-transform:uppercase; padding:3px 8px;
+    border:1px solid var(--sepia); background:var(--ivory); color:var(--sepia);}
+
+  .artboard svg.fan { display:block; width:1440px; height:880px; cursor:default; }
+
+  /* fan elements */
+  .fan-grid-soft { stroke:var(--line); stroke-width:0.4; fill:none; opacity:0.5; }
+  .ego-disc      { fill:var(--cream); stroke:var(--ink2); stroke-width:1.4; }
+  .ego-name      { font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500;
+    font-size:21px; fill:var(--ink); text-anchor:middle; letter-spacing:-0.005em;}
+  .ego-dates     { font-family:'Geist Mono',monospace; font-size:11px; fill:var(--ink3);
+    text-anchor:middle; letter-spacing:0.06em;}
+
+  .sector       { stroke:var(--ivory); stroke-width:1; cursor:pointer;
+    transition:filter .15s ease, stroke .15s ease; }
+  .sector:hover { filter:brightness(1.08); stroke:var(--ink); stroke-width:1.6; }
+  .sector:focus-visible { outline:none; stroke:var(--rust); stroke-width:2; }
+  .sector.empty { fill:transparent; stroke:var(--vide-stroke); stroke-width:0.6;
+    stroke-dasharray:1.5 2.5; cursor:default; }
+  .sector.empty:hover { filter:none; stroke:var(--vide-stroke); }
+
+  .sector-text  { font-family:'Cormorant Garamond',serif; font-style:italic;
+    fill:var(--cream); pointer-events:none; text-anchor:middle; }
+  .sector-dates { font-family:'Geist Mono',monospace; fill:var(--cream);
+    fill-opacity:0.7; letter-spacing:0.04em; pointer-events:none; text-anchor:middle;}
+  .empty-cross  { stroke:var(--ink4); stroke-width:0.6; opacity:0.5; pointer-events:none; }
+
+  /* selected sector — slightly raised + ring */
+  .sector.selected { stroke:var(--rust); stroke-width:2.4; }
+
+  .gen-ring-label { font-family:'Geist Mono',monospace; font-size:9px;
+    letter-spacing:0.16em; text-transform:uppercase; fill:var(--ink4); pointer-events:none; }
+
+  /* corner title */
+  .corner-title { position:absolute; top:96px; left:64px; max-width:340px; pointer-events:none; }
+  .corner-title .em-h { font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:36px; line-height:1.1; color:var(--ink); letter-spacing:-0.015em; }
+  .corner-title .pill { display:inline-block; padding:5px 11px;
+    background:var(--cream); border:1px solid var(--line); margin-top:14px; margin-right:6px;
+    font-family:'Geist Mono',monospace; font-size:10px; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--ink2);}
+  .corner-title .hint { font-family:'Geist Mono',monospace; font-size:10px;
+    letter-spacing:0.08em; color:var(--ink3); margin-top:18px; line-height:1.5; }
+
+  .legend { position:absolute; top:96px; right:48px; padding:18px 22px;
+    background:rgba(250,246,236,0.92); border:1px solid var(--line2); pointer-events:none;}
+  .legend .row { display:flex; align-items:center; gap:10px; margin:6px 0;
+    font-family:'Geist Mono',monospace; font-size:9.5px; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--ink2);}
+  .legend .sw { width:18px; height:10px; }
+  .legend .sw.dashed { background:transparent; border:0.6px dashed var(--vide-stroke); }
+
+  /* DETAIL PANEL ===================================================== */
+  .detail-panel { position:absolute; top:32px; right:32px; width:340px; min-height:120px;
+    background:var(--ink); color:var(--ivory); padding:32px 32px 28px;
+    transform:translateX(380px); opacity:0; transition:transform .35s cubic-bezier(.4,0,.2,1), opacity .25s;
+    z-index:10; border:1px solid var(--ink2); }
+  .detail-panel.open { transform:translateX(0); opacity:1; }
+  .detail-panel .close { position:absolute; top:14px; right:14px;
+    background:transparent; border:none; color:var(--ivory); font-family:'Geist Mono',monospace;
+    font-size:14px; cursor:pointer; opacity:0.6; padding:6px; }
+  .detail-panel .close:hover { opacity:1; }
+  .detail-panel .gen-tag { font-family:'Geist Mono',monospace; font-size:9px;
+    letter-spacing:0.18em; text-transform:uppercase; color:#BFA180; }
+  .detail-panel .name { font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-weight:500; font-size:32px; line-height:1.1; margin:8px 0 10px;
+    letter-spacing:-0.015em; color:var(--ivory); }
+  .detail-panel .dates { font-family:'Geist Mono',monospace; font-size:12px;
+    letter-spacing:0.06em; color:#CABFA6; margin-bottom:24px; }
+  .detail-panel .meta { display:grid; grid-template-columns:auto 1fr; gap:6px 18px;
+    font-size:13px; line-height:1.55; }
+  .detail-panel .meta dt { font-family:'Geist Mono',monospace; font-size:9px;
+    letter-spacing:0.12em; text-transform:uppercase; color:#A89F8C; padding-top:4px;}
+  .detail-panel .meta dd { font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:15px; color:var(--ivory); margin:0; }
+  .detail-panel .branch { margin-top:24px; padding-top:18px; border-top:1px solid #3D342A;
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:14px;
+    color:#CABFA6; line-height:1.5; }
+
+  /* OVERRIDES bloc ==================================================== */
+  .overrides { width:1440px; margin:32px auto 96px; background:#1F1A14; color:#F4EFE6;
+    padding:48px 56px; }
+  .overrides h2 { margin:0 0 8px; font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:32px; letter-spacing:-0.015em;}
+  .overrides p { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px;
+    color:#CABFA6; max-width:680px; line-height:1.5; margin:0 0 24px;}
+  .overrides pre { font-family:'Geist Mono',monospace; font-size:11.5px; line-height:1.7;
+    color:#F4EFE6; background:rgba(0,0,0,0.25); padding:22px 26px; margin:0; overflow:auto;
+    border-left:2px solid #7D5A36; }
+  .overrides pre .c { color:#A89F8C; font-style:italic; }
+  .overrides pre .k { color:#D9A77E; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">YEBOEKUN · MODE CONTEMPLATION · ÉVENTAIL V3</div>
+  <h1 class="em">B retenu, adaptatif, cliquable.</h1>
+  <div class="lede">Suite aux retours : un seul agencement (270/90), texte horizontal partout, bascule automatique « P. Nom » dès qu'un nom déborde, secteurs interactifs avec fiche détail.</div>
+  <div class="changes">
+    <div><strong>Orientation</strong>tout horizontal · jamais retourné</div>
+    <div><strong>Débordement</strong>auto « P. Nom » · puis « P. N. »</div>
+    <div><strong>Cliquable</strong>hover · focus · panneau fiche</div>
+    <div><strong>Adaptive</strong>seuil de mesure · pas de gen</div>
+    <div><strong>Asymétrie</strong>maternelle creuse conservée</div>
+  </div>
+</header>
+
+<div class="stage">
+
+  <div class="artboard" id="board">
+    <div class="cap">
+      <span class="id">B v3 · 1440 × 880</span>
+      <span class="title em">Asymétrique 270 / 90 — adaptatif horizontal cliquable</span>
+      <span class="verdict">v3 · retours intégrés</span>
+    </div>
+    <svg class="fan" viewBox="0 0 1440 880" id="fan" role="tree" aria-label="Éventail généalogique de Marguerite Lefèvre"></svg>
+
+    <!-- Detail panel rendered into board -->
+    <aside class="detail-panel" id="detail" aria-live="polite" role="dialog" aria-label="Fiche personne"></aside>
+  </div>
+
+</div>
+
+<div class="overrides">
+  <h2>Overrides CSS — inchangés depuis v2</h2>
+  <p>Échelle générationnelle dérivée par luminance des tokens officiels. Texte d'arc toujours en cream pour le contraste AA. Aucune teinte inventée.</p>
+  <pre><span class="c">/* tokens additionnels — uniquement luminance */</span>
+:root {
+  <span class="k">--asc-1</span>: #3D342A; <span class="c">/* = ink2     */</span>
+  <span class="k">--asc-2</span>: #5A4528;
+  <span class="k">--asc-3</span>: #7D5A36; <span class="c">/* = sépia    */</span>
+  <span class="k">--asc-4</span>: #9C7849;
+  <span class="k">--asc-5</span>: #BFA180; <span class="c">/* sépia délavé */</span>
+  <span class="k">--desc-1</span>: #52582F;
+  <span class="k">--desc-2</span>: #6A7242; <span class="c">/* = olive    */</span>
+}
+
+<span class="c">/* texte d'arc — toujours cream, jamais ink3 sur sépia (échec AA) */</span>
+.sector-text  { fill: var(--cream); }
+.sector-dates { fill: var(--cream); fill-opacity: .7; }
+
+<span class="c">/* interactions */</span>
+.sector { transition: filter .15s, stroke .15s; cursor: pointer; }
+.sector:hover         { filter: brightness(1.08); stroke: var(--ink); }
+.sector:focus-visible { outline: none; stroke: var(--rust); stroke-width: 2; }
+.sector.selected      { stroke: var(--rust); stroke-width: 2.4; }
+</pre>
+</div>
+
+<script>
+/* Wait for the brand font before measuring text widths — otherwise the
+   canvas falls back to a wider generic serif and over-abbreviates names. */
+(async function(){
+await document.fonts.ready;
+
+/* ============= DATA ============================================== */
+const ego = { name:"Marguerite Lefèvre", dates:"1955—", b:1955, gen:0, branch:"ego" };
+const asc = [
+  /* gen 1 */ [
+    { fn:"Henri",     ln:"Lefèvre",            b:1925, d:2010, lieu:"Lyon" },
+    { fn:"Anne",      ln:"Moreau-Vasseur",     b:1930, d:2018, lieu:"Annecy" },
+  ],
+  /* gen 2 */ [
+    { fn:"Pierre",    ln:"Lefèvre",            b:1898, d:1972, lieu:"Lyon" },
+    { fn:"Marie",     ln:"Tixier",             b:1902, d:1981, lieu:"Vienne" },
+    { fn:"Bernard",   ln:"Moreau",             b:1900, d:1968, lieu:"Annecy" },
+    { fn:"Hélène",    ln:"Vasseur",            b:1905, d:1989, lieu:"Chambéry" },
+  ],
+  /* gen 3 */ [
+    { fn:"Auguste",   ln:"Lefèvre",            b:1872, d:1942 },
+    { fn:"Léontine",  ln:"Berger",             b:1875, d:1951 },
+    { fn:"Émile",     ln:"Tixier",             b:1878, d:1948 },
+    { fn:"Madeleine", ln:"Cordier",            b:1880, d:1956 },
+    { fn:"Joseph",    ln:"Moreau",             b:1873, d:1934 },
+    { fn:"Suzanne",   ln:"Devillers",          b:1876, d:1955 },
+    { fn:"Étienne",   ln:"Vasseur",            b:1879, d:1946 },
+    { fn:"Anne-Marie",ln:"Faugeron",           b:1882, d:1964 },
+  ],
+  /* gen 4 — 8/16 */ [
+    { fn:"Eugène",    ln:"Lefèvre",            b:1845, d:1918 },
+    { fn:"Augustine", ln:"Roux-Beaumarchais",  b:1848, d:1922 },
+    { fn:"Charles",   ln:"Berger",             b:1850, d:1916 },
+    { fn:"Marguerite",ln:"Sénéchal",           b:1853, d:1928 },
+    { fn:"Théodore",  ln:"Tixier",             b:1851, d:1909 },
+    { fn:"Joséphine", ln:"Moncourt",           b:1855, d:1932 },
+    { fn:"Léon",      ln:"Cordier",            b:1855, d:1921 },
+    { fn:"Adèle",     ln:"de Saint-Maurice",   b:1859, d:1934 },
+    null, null, null, null, null, null, null, null,
+  ],
+  /* gen 5 — 4/32 */ [
+    { fn:"Augustin",  ln:"Lefèvre",            b:1820, d:1892 },
+    { fn:"Hortense",  ln:"Lecocq",             b:1822, d:1888 },
+    { fn:"Octave",    ln:"Roux",               b:1818, d:1881 },
+    { fn:"Eulalie",   ln:"Beaumarchais",       b:1824, d:1899 },
+    null,null,null,null, null,null,null,null,
+    null,null,null,null, null,null,null,null,
+    null,null,null,null, null,null,null,null,
+  ],
+];
+const desc = [
+  [ { fn:"Antoine", ln:"Lefèvre", b:1985 }, { fn:"Camille", ln:"Lefèvre", b:1988 } ],
+  [ { fn:"Léa", ln:"Lefèvre", b:2010 }, { fn:"Sacha", ln:"Lefèvre", b:2014 }, { fn:"Théo", ln:"Lefèvre", b:2018 } ],
+];
+
+const branchLabel = (gen, idx) => {
+  /* derive parent path : father (gauche) ou mother (droite) à chaque génération */
+  let path = [];
+  let n = idx, g = gen;
+  while (g >= 1){
+    const inMother = (n & 1) === 1;
+    path.unshift(inMother ? "mère" : "père");
+    n = n >> 1; g--;
+  }
+  return path.join(" · ");
+};
+
+/* ============= GEOMETRY ========================================== */
+const D = Math.PI/180;
+const polar = (cx,cy,r,deg) => [cx + r*Math.cos(deg*D), cy + r*Math.sin(deg*D)];
+
+function arcSectorPath(cx,cy,rIn,rOut,a1,a2){
+  const [x1,y1] = polar(cx,cy,rOut,a1);
+  const [x2,y2] = polar(cx,cy,rOut,a2);
+  const [x3,y3] = polar(cx,cy,rIn ,a2);
+  const [x4,y4] = polar(cx,cy,rIn ,a1);
+  const large = Math.abs(a2-a1) > 180 ? 1 : 0;
+  return `M${x1.toFixed(2)},${y1.toFixed(2)} `
+       + `A${rOut},${rOut} 0 ${large} 1 ${x2.toFixed(2)},${y2.toFixed(2)} `
+       + `L${x3.toFixed(2)},${y3.toFixed(2)} `
+       + `A${rIn},${rIn} 0 ${large} 0 ${x4.toFixed(2)},${y4.toFixed(2)} Z`;
+}
+
+/* available width (perpendicular to radial) at sector at radius r,
+   sector angular width sw (deg) — usable text length */
+function availWidth(r, swDeg, padding=0.86){
+  return 2 * r * Math.sin(swDeg/2 * D) * padding;
+}
+
+/* ============= ADAPTIVE TEXT ===================================== */
+/* Off-screen measurer — re-uses one canvas */
+const measureCanvas = document.createElement('canvas');
+const mctx = measureCanvas.getContext('2d');
+
+function measure(text, fontSize, italic=true){
+  mctx.font = `${italic?'italic ':''}500 ${fontSize}px "Cormorant Garamond", serif`;
+  return mctx.measureText(text).width;
+}
+function measureMono(text, fontSize){
+  mctx.font = `500 ${fontSize}px "Geist Mono", monospace`;
+  return mctx.measureText(text).width;
+}
+
+/* given a person and the available pixel width, pick best label */
+function adaptName(p, maxWidth, fontSize){
+  if (!p) return null;
+  const full   = `${p.fn} ${p.ln}`;
+  const initial= `${p.fn[0]}. ${p.ln}`;
+  const dotdot = `${p.fn[0]}. ${p.ln[0]}.`;
+  if (measure(full,    fontSize) <= maxWidth) return { text: full,    mode:"full" };
+  if (measure(initial, fontSize) <= maxWidth) return { text: initial, mode:"initial" };
+  return { text: dotdot, mode:"min" };
+}
+
+/* font size by ring depth (rOut - rIn) — keep dates underneath fitting */
+function fontSizeForRing(g){
+  /* gen 1..5 ascendant */
+  return [14, 12.5, 11, 10, 9.5][g-1];
+}
+function fontSizeForDescRing(g){ return [13, 11][g-1]; }
+
+/* ============= BUILD FAN ========================================= */
+const RADII     = [82, 162, 242, 312, 372, 428];
+const DESC_RADII= [82, 168, 250];
+const layout = { ascStart: 135, ascSpan: 270, descStart: 45, descSpan: 90 };
+
+const ns = "http://www.w3.org/2000/svg";
+const svg = document.getElementById('fan');
+const cx = 720, cy = 510;
+
+/* generation rings (subtle) */
+for (let g=1; g<=5; g++){
+  const c = document.createElementNS(ns,'circle');
+  c.setAttribute('cx',cx); c.setAttribute('cy',cy);
+  c.setAttribute('r',RADII[g]); c.setAttribute('class','fan-grid-soft');
+  svg.appendChild(c);
+}
+
+/* ===== ASCENDANTS ===== */
+for (let g=1; g<=5; g++){
+  const rIn = RADII[g-1], rOut = RADII[g];
+  const sectors = 2**g;
+  const sw = layout.ascSpan / sectors; /* sector width in degrees */
+  /* gen 1 sectors are huge (135°) so their midpoint sits close to the
+     ego disc — push the text outward and shrink the font to keep horizontal
+     text from bleeding into the centre. */
+  const fs = g === 1 ? 12.5 : fontSizeForRing(g);
+  const dfs = Math.max(7.5, fs - 2.5);
+  const rOffset = g === 1 ? 0.70 : 0.50; /* fraction of ring depth from inner */
+
+  for (let i=0; i<sectors; i++){
+    const a1 = layout.ascStart + i*sw;
+    const a2 = a1 + sw;
+    const mid = (a1+a2)/2;
+    const rMid = rIn + (rOut - rIn) * rOffset;
+    const [tx,ty] = polar(cx,cy,rMid,mid);
+
+    const p = asc[g-1][i];
+    const grp = document.createElementNS(ns,'g');
+    grp.setAttribute('class', `gen gen-${g}`);
+
+    /* sector path */
+    const path = document.createElementNS(ns,'path');
+    path.setAttribute('d', arcSectorPath(cx,cy,rIn,rOut,a1,a2));
+
+    if (!p){
+      path.setAttribute('class','sector empty');
+      grp.appendChild(path);
+      const cs=4;
+      const cross = document.createElementNS(ns,'path');
+      cross.setAttribute('d',`M${tx-cs},${ty} L${tx+cs},${ty} M${tx},${ty-cs} L${tx},${ty+cs}`);
+      cross.setAttribute('class','empty-cross');
+      grp.appendChild(cross);
+      svg.appendChild(grp);
+      continue;
+    }
+
+    path.setAttribute('class','sector');
+    path.setAttribute('fill', `var(--asc-${g})`);
+    path.setAttribute('tabindex','0');
+    path.setAttribute('role','treeitem');
+    path.setAttribute('aria-level', g+1);
+    path.dataset.kind  = 'asc';
+    path.dataset.gen   = g;
+    path.dataset.idx   = i;
+    grp.appendChild(path);
+
+    /* native tooltip */
+    const title = document.createElementNS(ns,'title');
+    title.textContent = `${p.fn} ${p.ln} · ${p.b}–${p.d||''} · gen ${g} ascendante (${branchLabel(g,i)})`;
+    grp.appendChild(title);
+
+    /* available width = MIN of arc-width at rIn (closest to center, narrowest)
+       and the chord depth (rOut-rIn) projected horizontally */
+    /* horizontal text: width limited by perpendicular extent of sector at the
+       text vertical center. For a sector with angular width sw at radius r,
+       a horizontal line through (cx + r*cos(mid), cy + r*sin(mid)) intersects
+       the sector boundaries — for our purposes, use chord = 2*r*sin(sw/2) at
+       inner radius (most constraining for horizontal). For mid angles near
+       horizontal (0/180°) the chord is mostly horizontal already.            */
+
+    /* Pragmatic approximation: usable width = chord at rMid * |cos(angle from horizontal)|
+       + (rOut - rIn) * |sin(angle from horizontal)|. Take a robust average.
+       For simplicity we use a conservative envelope:                          */
+    const chord = 2 * rMid * Math.sin(sw/2 * D);
+    const depth = rOut - rIn;
+    /* horizontal projection — depends on sector orientation. mid angle from east. */
+    const orient = mid % 180; /* 0 = horizontal, 90 = vertical */
+    const horizFraction = Math.abs(Math.cos(orient * D));
+    const vertFraction  = Math.abs(Math.sin(orient * D));
+    /* horizontal text fits in: */
+    const avail = (chord * vertFraction + depth * horizFraction) * 0.86;
+    const availDates = avail; /* same line constraint */
+
+    const nameChoice = adaptName(p, avail, fs);
+    /* dates */
+    const dateStr = `${p.b}–${p.d||''}`;
+    const datesFit = measureMono(dateStr, dfs) <= avail;
+
+    /* place text horizontally — name above, dates below */
+    const nameY = datesFit ? ty - 2 : ty + fs/3;
+    const tName = document.createElementNS(ns,'text');
+    tName.setAttribute('class','sector-text');
+    tName.setAttribute('x', tx); tName.setAttribute('y', nameY);
+    tName.setAttribute('font-size', fs);
+    tName.textContent = nameChoice.text;
+    grp.appendChild(tName);
+
+    if (datesFit){
+      const tDates = document.createElementNS(ns,'text');
+      tDates.setAttribute('class','sector-dates');
+      tDates.setAttribute('x', tx); tDates.setAttribute('y', ty + fs - 2);
+      tDates.setAttribute('font-size', dfs);
+      tDates.textContent = dateStr;
+      grp.appendChild(tDates);
+    }
+
+    svg.appendChild(grp);
+  }
+}
+
+/* ===== DESCENDANTS ===== */
+for (let g=1; g<=2; g++){
+  const arr = desc[g-1];
+  const sw = layout.descSpan / arr.length;
+  const rIn = DESC_RADII[g-1], rOut = DESC_RADII[g];
+  const fs = fontSizeForDescRing(g);
+  const dfs = Math.max(8, fs - 2);
+
+  arr.forEach((p, i) => {
+    const a1 = layout.descStart + i*sw;
+    const a2 = a1 + sw;
+    const mid = (a1+a2)/2;
+    const rMid = (rIn+rOut)/2;
+    const [tx,ty] = polar(cx,cy,rMid,mid);
+
+    const grp = document.createElementNS(ns,'g');
+    grp.setAttribute('class',`gen desc-gen-${g}`);
+
+    const path = document.createElementNS(ns,'path');
+    path.setAttribute('d', arcSectorPath(cx,cy,rIn,rOut,a1,a2));
+    path.setAttribute('class','sector');
+    path.setAttribute('fill', `var(--desc-${g})`);
+    path.setAttribute('tabindex','0');
+    path.setAttribute('role','treeitem');
+    path.setAttribute('aria-level', g);
+    path.dataset.kind  = 'desc';
+    path.dataset.gen   = g;
+    path.dataset.idx   = i;
+    grp.appendChild(path);
+
+    const title = document.createElementNS(ns,'title');
+    title.textContent = `${p.fn} ${p.ln} · ${p.b}— · gen ${g} descendante`;
+    grp.appendChild(title);
+
+    /* horizontal text */
+    const chord = 2*rMid*Math.sin(sw/2 * D);
+    const depth = rOut - rIn;
+    const orient = mid % 180;
+    const avail  = (chord * Math.abs(Math.sin(orient*D)) + depth * Math.abs(Math.cos(orient*D))) * 0.86;
+    const nameChoice = adaptName(p, avail, fs);
+    const dateStr = `${p.b}—`;
+    const datesFit = measureMono(dateStr, dfs) <= avail;
+
+    const nameY = datesFit ? ty - 2 : ty + fs/3;
+    const tName = document.createElementNS(ns,'text');
+    tName.setAttribute('class','sector-text');
+    tName.setAttribute('x', tx); tName.setAttribute('y', nameY);
+    tName.setAttribute('font-size', fs);
+    tName.textContent = nameChoice.text;
+    grp.appendChild(tName);
+
+    if (datesFit){
+      const tDates = document.createElementNS(ns,'text');
+      tDates.setAttribute('class','sector-dates');
+      tDates.setAttribute('x', tx); tDates.setAttribute('y', ty + fs - 2);
+      tDates.setAttribute('font-size', dfs);
+      tDates.textContent = dateStr;
+      grp.appendChild(tDates);
+    }
+
+    svg.appendChild(grp);
+  });
+}
+
+/* ===== EGO ===== */
+const ego1 = document.createElementNS(ns,'circle');
+ego1.setAttribute('cx',cx); ego1.setAttribute('cy',cy); ego1.setAttribute('r',RADII[0]);
+ego1.setAttribute('class','ego-disc'); ego1.setAttribute('tabindex','0');
+ego1.dataset.kind='ego';
+svg.appendChild(ego1);
+const en = document.createElementNS(ns,'text');
+en.setAttribute('class','ego-name'); en.setAttribute('x',cx); en.setAttribute('y',cy-2);
+en.textContent = ego.name;
+svg.appendChild(en);
+const ed = document.createElementNS(ns,'text');
+ed.setAttribute('class','ego-dates'); ed.setAttribute('x',cx); ed.setAttribute('y',cy+18);
+ed.textContent = ego.dates;
+svg.appendChild(ed);
+
+/* ring labels */
+for (let g=1; g<=5; g++){
+  const r = (RADII[g-1]+RADII[g])/2;
+  const [lx,ly] = polar(cx,cy,r,layout.ascStart - 4);
+  const t = document.createElementNS(ns,'text');
+  t.setAttribute('class','gen-ring-label');
+  t.setAttribute('x',lx); t.setAttribute('y',ly+3);
+  t.setAttribute('text-anchor','end');
+  t.textContent = `GEN ${g}`;
+  svg.appendChild(t);
+}
+
+/* ============= INTERACTION ====================================== */
+const detail = document.getElementById('detail');
+let selectedNode = null;
+
+function getPersonByDataset(d){
+  if (d.kind === 'ego') return { p: ego, kind:'ego', gen:0, idx:0 };
+  const arr = d.kind === 'asc' ? asc : desc;
+  return { p: arr[+d.gen - 1][+d.idx], kind:d.kind, gen:+d.gen, idx:+d.idx };
+}
+
+function openDetail(node){
+  if (selectedNode) selectedNode.classList.remove('selected');
+  selectedNode = node;
+  if (node) node.classList.add('selected');
+
+  const { p, kind, gen, idx } = getPersonByDataset(node.dataset);
+  if (!p) return;
+
+  const dateStr = p.d ? `${p.b} – ${p.d}` : `${p.b} —`;
+  const branchTxt = kind === 'ego' ? "C'est vous, le centre."
+    : kind === 'asc' ? `Branche ${branchLabel(gen, idx)} · génération ${gen} ascendante`
+    : `Génération ${gen} descendante`;
+  const lieuLine = p.lieu ? `<dt>Lieu</dt><dd>${p.lieu}</dd>` : '';
+  const ageLine = p.d ? `<dt>Âge</dt><dd>${p.d - p.b} ans</dd>` : '';
+
+  detail.innerHTML = `
+    <button class="close" aria-label="Fermer">×</button>
+    <div class="gen-tag">${kind === 'ego' ? 'EGO' : kind === 'asc' ? `ASCENDANT · GEN ${gen}` : `DESCENDANT · GEN ${gen}`}</div>
+    <div class="name">${p.fn || p.name?.split(' ')[0]} ${p.ln || (p.name?.split(' ').slice(1).join(' '))}</div>
+    <div class="dates">${dateStr}</div>
+    <dl class="meta">
+      ${lieuLine}
+      ${ageLine}
+      <dt>Sources</dt><dd>État-civil · à compléter</dd>
+    </dl>
+    <div class="branch">${branchTxt}</div>`;
+  detail.classList.add('open');
+  detail.querySelector('.close').addEventListener('click', closeDetail);
+}
+function closeDetail(){
+  detail.classList.remove('open');
+  if (selectedNode){ selectedNode.classList.remove('selected'); selectedNode = null; }
+}
+
+svg.addEventListener('click', (e) => {
+  const target = e.target.closest('.sector:not(.empty), .ego-disc');
+  if (target) openDetail(target);
+});
+svg.addEventListener('keydown', (e) => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.sector:not(.empty), .ego-disc')){
+    e.preventDefault();
+    openDetail(e.target);
+  }
+  if (e.key === 'Escape') closeDetail();
+});
+
+/* corner overlay */
+const overlay = document.createElement('div');
+overlay.innerHTML = `
+  <div class="corner-title">
+    <div class="em-h">Ce qui nous précède,<br/>ce qui nous suit.</div>
+    <span class="pill">↑ 5 gen ascendantes</span>
+    <span class="pill">↓ 2 gen descendantes</span>
+    <div class="hint">Cliquez un secteur · Tab pour naviguer · Esc pour refermer</div>
+  </div>
+  <div class="legend">
+    <div class="row"><span class="sw" style="background:var(--asc-3)"></span>Ascendants</div>
+    <div class="row"><span class="sw" style="background:var(--desc-2)"></span>Descendants</div>
+    <div class="row"><span class="sw dashed"></span>À rechercher</div>
+  </div>`;
+const board = document.getElementById('board');
+while (overlay.firstChild) board.appendChild(overlay.firstChild);
+
+/* default open : ego */
+openDetail(ego1);
+
+})();
+</script>
+</body></html>

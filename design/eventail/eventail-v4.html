@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"/><title>Yeboekun — éventail v4 · hybride</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500;1,600&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#1F1A14; --ink2:#3D342A; --ink3:#766A58; --ink4:#A89F8C;
+    --ivory:#F4EFE6; --cream:#FAF6EC; --paper2:#ECE5D6;
+    --line:#CABFA6; --line2:#DDD2B8; --sepia:#7D5A36; --rust:#A4502A;
+    --olive:#6A7242;
+    --asc-1:#3D342A; --asc-2:#5A4528; --asc-3:#7D5A36;
+    --asc-4:#9C7849; --asc-5:#BFA180;
+    --desc-1:#52582F; --desc-2:#6A7242;
+    --vide-stroke:#CABFA6;
+  }
+  * { box-sizing:border-box; }
+  html,body { margin:0; padding:0; background:var(--paper2); color:var(--ink);
+    font-family:'Geist',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+  .em { font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500; letter-spacing:-0.015em; }
+  .mono { font-family:'Geist Mono',monospace; }
+  .eyebrow { font-family:'Geist Mono',monospace; font-size:10px; letter-spacing:0.18em;
+    text-transform:uppercase; color:var(--ink3); }
+
+  header { padding:64px 96px 0; background:var(--ivory); border-bottom:1px solid var(--line2); }
+  header h1 { margin:0; font-size:64px; line-height:0.98; letter-spacing:-0.02em; }
+  header .lede { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:20px;
+    color:var(--ink2); max-width:820px; line-height:1.45; margin-top:16px;}
+
+  .tradeoff { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0;
+    margin-top:48px; border-top:1px solid var(--line2);}
+  .tradeoff .col { padding:32px 32px 36px; border-right:1px solid var(--line2); }
+  .tradeoff .col:last-child { border-right:none; }
+  .tradeoff .col.reco { background:var(--cream); position:relative;}
+  .tradeoff .col.reco::before { content:""; position:absolute; top:0; left:0; right:0;
+    height:2px; background:var(--sepia);}
+  .tradeoff .col h3 { margin:0 0 4px; font-family:'Geist Mono',monospace; font-size:10px;
+    letter-spacing:0.16em; text-transform:uppercase; color:var(--ink3); font-weight:500;}
+  .tradeoff .col h3 .badge { display:inline-block; margin-left:8px; padding:2px 7px;
+    background:var(--sepia); color:var(--ivory); border-radius:2px; font-size:9px;
+    letter-spacing:0.1em; }
+  .tradeoff .col .title { font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:24px; line-height:1.15; color:var(--ink); margin:6px 0 14px; letter-spacing:-0.01em;}
+  .tradeoff .col p { font-family:'Cormorant Garamond',serif; font-size:15px; line-height:1.55;
+    color:var(--ink2); margin:0 0 12px;}
+  .tradeoff .col ul { list-style:none; padding:0; margin:14px 0 0;
+    font-family:'Geist Mono',monospace; font-size:10.5px; letter-spacing:0.04em;
+    color:var(--ink2); line-height:1.8;}
+  .tradeoff .col ul li { padding-left:16px; position:relative; }
+  .tradeoff .col ul li::before { content:""; position:absolute; left:0; top:9px;
+    width:8px; height:1px; background:var(--ink3); }
+  .tradeoff .col ul li.con { color:var(--rust); }
+  .tradeoff .col ul li.con::before { background:var(--rust); }
+
+  /* ARTBOARD ========================================================= */
+  .stage { background:var(--paper2); padding:48px 0 96px; }
+  .artboard { width:1440px; margin:0 auto 32px; background:var(--ivory);
+    border:1px solid var(--line2); position:relative; }
+  .artboard .cap { padding:18px 32px; border-bottom:1px solid var(--line2);
+    display:flex; justify-content:space-between; align-items:baseline; gap:32px;
+    background:var(--cream); }
+  .artboard .cap .title { font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:24px; color:var(--ink); }
+  .artboard .cap .id { font-family:'Geist Mono',monospace; font-size:10px;
+    letter-spacing:0.14em; text-transform:uppercase; color:var(--ink3); }
+  .artboard .cap .verdict { font-family:'Geist Mono',monospace; font-size:9.5px;
+    letter-spacing:0.1em; text-transform:uppercase; padding:3px 8px;
+    border:1px solid var(--sepia); background:var(--ivory); color:var(--sepia);}
+
+  /* BREADCRUMB ======================================================= */
+  .focus-bar { height:0; overflow:hidden; background:var(--ink); color:var(--ivory);
+    transition:height .3s cubic-bezier(.4,0,.2,1); }
+  .focus-bar.on { height:56px; }
+  .focus-bar .inner { display:flex; align-items:center; gap:16px; padding:0 32px;
+    height:56px; }
+  .focus-bar .lookthru { font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:17px; letter-spacing:-0.005em; color:#CABFA6; }
+  .focus-bar .lookthru strong { color:var(--ivory); font-weight:500; }
+  .focus-bar .spacer { flex:1; }
+  .focus-bar button.return { background:transparent; border:1px solid #5A4528;
+    color:var(--ivory); padding:8px 16px; font-family:'Geist Mono',monospace; font-size:11px;
+    letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; transition:background .15s;}
+  .focus-bar button.return:hover { background:#3D342A; border-color:var(--sepia);}
+  .focus-bar button.return::before { content:"← "; }
+
+  .artboard svg.fan { display:block; width:1440px; height:880px; cursor:default;
+    transition:opacity .25s ease; }
+  .artboard svg.fan.fading { opacity:0; }
+
+  /* fan elements */
+  .fan-grid-soft { stroke:var(--line); stroke-width:0.4; fill:none; opacity:0.5; }
+  .ego-disc      { fill:var(--cream); stroke:var(--ink2); stroke-width:1.4; cursor:pointer; }
+  .ego-name      { font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:500;
+    font-size:21px; fill:var(--ink); text-anchor:middle; letter-spacing:-0.005em; pointer-events:none;}
+  .ego-name.small { font-size:18px; }
+  .ego-dates     { font-family:'Geist Mono',monospace; font-size:11px; fill:var(--ink3);
+    text-anchor:middle; letter-spacing:0.06em; pointer-events:none;}
+  .ego-here      { font-family:'Geist Mono',monospace; font-size:8.5px;
+    fill:var(--sepia); letter-spacing:0.15em; text-anchor:middle; text-transform:uppercase;
+    pointer-events:none; }
+
+  .sector       { stroke:var(--ivory); stroke-width:1; cursor:pointer;
+    transition:filter .15s ease, stroke .15s ease; }
+  .sector:hover { filter:brightness(1.08); stroke:var(--ink); stroke-width:1.6; }
+  .sector:focus-visible { outline:none; stroke:var(--rust); stroke-width:2; }
+  .sector.empty { fill:transparent; stroke:var(--vide-stroke); stroke-width:0.6;
+    stroke-dasharray:1.5 2.5; cursor:default; }
+  .sector.empty:hover { filter:none; stroke:var(--vide-stroke); }
+
+  .sector-text  { font-family:'Cormorant Garamond',serif; font-style:italic;
+    fill:var(--cream); pointer-events:none; text-anchor:middle; }
+  .sector-dates { font-family:'Geist Mono',monospace; fill:var(--cream);
+    fill-opacity:0.7; letter-spacing:0.04em; pointer-events:none; text-anchor:middle;}
+  .empty-cross  { stroke:var(--ink4); stroke-width:0.6; opacity:0.5; pointer-events:none; }
+
+  /* marker dot on the original ego when not centered */
+  .marker-orig { fill:var(--rust); pointer-events:none; }
+
+  .sector.selected { stroke:var(--rust); stroke-width:2.4; }
+
+  .gen-ring-label { font-family:'Geist Mono',monospace; font-size:9px;
+    letter-spacing:0.16em; text-transform:uppercase; fill:var(--ink4); pointer-events:none; }
+
+  /* corner title */
+  .corner-title { position:absolute; top:96px; left:64px; max-width:340px; pointer-events:none;
+    transition:top .3s cubic-bezier(.4,0,.2,1); }
+  #board.has-focus .corner-title { top:152px; }
+  #board.has-focus .legend       { top:152px; }
+  .corner-title .em-h { font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:32px; line-height:1.1; color:var(--ink); letter-spacing:-0.015em; }
+  .corner-title .hint { font-family:'Geist Mono',monospace; font-size:10px;
+    letter-spacing:0.08em; color:var(--ink3); margin-top:18px; line-height:1.6; }
+
+  .legend { position:absolute; top:96px; right:48px; padding:18px 22px;
+    background:rgba(250,246,236,0.92); border:1px solid var(--line2); pointer-events:none;
+    transition:top .3s cubic-bezier(.4,0,.2,1);}
+  .legend .row { display:flex; align-items:center; gap:10px; margin:6px 0;
+    font-family:'Geist Mono',monospace; font-size:9.5px; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--ink2);}
+  .legend .sw { width:18px; height:10px; }
+  .legend .sw.dashed { background:transparent; border:0.6px dashed var(--vide-stroke); }
+
+  /* DETAIL PANEL ===================================================== */
+  .detail-panel { position:absolute; top:32px; right:32px; width:360px;
+    background:var(--ink); color:var(--ivory); padding:32px 32px 24px;
+    transform:translateX(400px); opacity:0;
+    transition:transform .35s cubic-bezier(.4,0,.2,1), opacity .25s, top .3s cubic-bezier(.4,0,.2,1);
+    z-index:10; border:1px solid var(--ink2); }
+  #board.has-focus .detail-panel { top:88px; }
+  .detail-panel.open { transform:translateX(0); opacity:1; }
+  .detail-panel .close { position:absolute; top:14px; right:14px;
+    background:transparent; border:none; color:var(--ivory); font-family:'Geist Mono',monospace;
+    font-size:14px; cursor:pointer; opacity:0.6; padding:6px; }
+  .detail-panel .close:hover { opacity:1; }
+  .detail-panel .gen-tag { font-family:'Geist Mono',monospace; font-size:9px;
+    letter-spacing:0.18em; text-transform:uppercase; color:#BFA180; }
+  .detail-panel .name { font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-weight:500; font-size:32px; line-height:1.1; margin:8px 0 10px;
+    letter-spacing:-0.015em; color:var(--ivory); }
+  .detail-panel .dates { font-family:'Geist Mono',monospace; font-size:12px;
+    letter-spacing:0.06em; color:#CABFA6; margin-bottom:24px; }
+  .detail-panel .meta { display:grid; grid-template-columns:auto 1fr; gap:6px 18px;
+    font-size:13px; line-height:1.55; margin-bottom:24px;}
+  .detail-panel .meta dt { font-family:'Geist Mono',monospace; font-size:9px;
+    letter-spacing:0.12em; text-transform:uppercase; color:#A89F8C; padding-top:4px;}
+  .detail-panel .meta dd { font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:15px; color:var(--ivory); margin:0; }
+  .detail-panel .branch { padding-top:18px; border-top:1px solid #3D342A;
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:13.5px;
+    color:#CABFA6; line-height:1.5; margin-bottom:18px;}
+  .detail-panel button.recenter { display:block; width:100%; padding:14px 16px;
+    background:var(--sepia); color:var(--ivory); border:none;
+    font-family:'Geist Mono',monospace; font-size:11px; letter-spacing:0.12em;
+    text-transform:uppercase; cursor:pointer; transition:background .15s;
+    text-align:left; position:relative; }
+  .detail-panel button.recenter:hover { background:#9C7849; }
+  .detail-panel button.recenter::after { content:"→"; position:absolute; right:16px;
+    top:50%; transform:translateY(-50%); font-family:serif; font-size:18px; }
+  .detail-panel button.recenter .hint { display:block; font-family:'Cormorant Garamond',serif;
+    font-style:italic; text-transform:none; letter-spacing:-0.005em; font-size:12px;
+    opacity:0.75; margin-top:4px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">YEBOEKUN · MODE CONTEMPLATION · ÉVENTAIL V4</div>
+  <h1 class="em">Les deux gestes, hiérarchisés.</h1>
+  <div class="lede">Le panneau pour <em>savoir qui c'est</em>. Le recentrage pour <em>habiter cette personne</em>. Le second devient une action engagée, déclenchée depuis le premier — pas un effet secondaire d'un clic curieux.</div>
+
+  <div class="tradeoff">
+    <div class="col">
+      <h3>Option A · consultation</h3>
+      <div class="title">Panneau seul</div>
+      <p>Chaque clic ouvre une fiche latérale. L'éventail reste l'éventail de Marguerite, immuable.</p>
+      <ul>
+        <li>Rapide — 12 personnes en 30 s</li>
+        <li>L'overview reste stable</li>
+        <li class="con">L'éventail devient un tableau de bord</li>
+        <li class="con">Les ancêtres restent abstraits</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3>Option B · contemplation</h3>
+      <div class="title">Recentrage</div>
+      <p>Chaque clic devient le nouvel ego. On voit le monde tel que cette personne le voyait.</p>
+      <ul>
+        <li>Immersif, narratif</li>
+        <li>Donne un sens fort à « ego »</li>
+        <li class="con">Animation lourde sur chaque clic</li>
+        <li class="con">Un clic curieux devient un voyage</li>
+      </ul>
+    </div>
+    <div class="col reco">
+      <h3>Option C · hybride <span class="badge">retenu</span></h3>
+      <div class="title">Panneau → recentrage opt-in</div>
+      <p>Clic = panneau. Le panneau propose <em class="em">« Faire d'elle le centre »</em> en bouton primaire. Fil d'ariane pour revenir.</p>
+      <ul>
+        <li>Consultation rapide par défaut</li>
+        <li>Contemplation = geste délibéré</li>
+        <li>Retour explicite à Marguerite</li>
+        <li>Pattern testable, jamais piégeux</li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<div class="stage">
+
+  <div class="artboard" id="board">
+    <div class="cap">
+      <span class="id">v4 · 1440 × 880 · hybride</span>
+      <span class="title em">Cliquez un secteur, puis « Faire d'elle le centre »</span>
+      <span class="verdict">prototype interactif</span>
+    </div>
+
+    <!-- Breadcrumb / focus bar — hidden when at original ego -->
+    <div class="focus-bar" id="focusBar">
+      <div class="inner">
+        <span class="lookthru" id="lookthru"></span>
+        <span class="spacer"></span>
+        <button class="return" id="btnReturn">Retour à Marguerite</button>
+      </div>
+    </div>
+
+    <svg class="fan" viewBox="0 0 1440 880" id="fan" role="tree" aria-label="Éventail généalogique"></svg>
+
+    <aside class="detail-panel" id="detail" aria-live="polite" role="dialog" aria-label="Fiche personne"></aside>
+  </div>
+
+</div>
+
+<script>
+(async function(){
+await document.fonts.ready;
+
+/* =========================================================================
+   GRAPHE FAMILIAL — chaque personne a un id, des parents, des enfants.
+   Permet de recalculer l'éventail depuis n'importe quel ego.
+   ========================================================================= */
+const G = {
+  /* descendants */
+  lea:       { fn:"Léa",       ln:"Lefèvre",  b:2010,          parents:["antoine"],            children:[] },
+  sacha:     { fn:"Sacha",     ln:"Lefèvre",  b:2014,          parents:["antoine"],            children:[] },
+  theo:      { fn:"Théo",      ln:"Lefèvre",  b:2018,          parents:["camille"],            children:[] },
+  antoine:   { fn:"Antoine",   ln:"Lefèvre",  b:1985,          parents:["marguerite"],         children:["lea","sacha"] },
+  camille:   { fn:"Camille",   ln:"Lefèvre",  b:1988,          parents:["marguerite"],         children:["theo"] },
+
+  /* ego */
+  marguerite:{ fn:"Marguerite",ln:"Lefèvre",  b:1955,          parents:["henri","anne"],       children:["antoine","camille"], lieu:"Grenoble" },
+
+  /* gen 1 asc */
+  henri:     { fn:"Henri",     ln:"Lefèvre",        b:1925, d:2010, lieu:"Lyon",      parents:["pierre","marie"],     children:["marguerite"] },
+  anne:      { fn:"Anne",      ln:"Moreau-Vasseur", b:1930, d:2018, lieu:"Annecy",    parents:["bernard","helene"],   children:["marguerite"] },
+
+  /* gen 2 asc */
+  pierre:    { fn:"Pierre",    ln:"Lefèvre",  b:1898, d:1972, lieu:"Lyon",      parents:["auguste","leontine"], children:["henri"] },
+  marie:     { fn:"Marie",     ln:"Tixier",   b:1902, d:1981, lieu:"Vienne",    parents:["emile","madeleine"],  children:["henri"] },
+  bernard:   { fn:"Bernard",   ln:"Moreau",   b:1900, d:1968, lieu:"Annecy",    parents:["joseph","suzanne"],   children:["anne"] },
+  helene:    { fn:"Hélène",    ln:"Vasseur",  b:1905, d:1989, lieu:"Chambéry",  parents:["etienne","annemarie"],children:["anne"] },
+
+  /* gen 3 asc */
+  auguste:   { fn:"Auguste",   ln:"Lefèvre",   b:1872, d:1942, parents:["eugene","augustine"], children:["pierre"] },
+  leontine:  { fn:"Léontine",  ln:"Berger",    b:1875, d:1951, parents:["charles","margsen"],  children:["pierre"] },
+  emile:     { fn:"Émile",     ln:"Tixier",    b:1878, d:1948, parents:["theodore","josephine"], children:["marie"] },
+  madeleine: { fn:"Madeleine", ln:"Cordier",   b:1880, d:1956, parents:["leon","adele"],       children:["marie"] },
+  joseph:    { fn:"Joseph",    ln:"Moreau",    b:1873, d:1934, parents:[],                     children:["bernard"] },
+  suzanne:   { fn:"Suzanne",   ln:"Devillers", b:1876, d:1955, parents:[],                     children:["bernard"] },
+  etienne:   { fn:"Étienne",   ln:"Vasseur",   b:1879, d:1946, parents:[],                     children:["helene"] },
+  annemarie: { fn:"Anne-Marie",ln:"Faugeron",  b:1882, d:1964, parents:[],                     children:["helene"] },
+
+  /* gen 4 asc — paternal branch deep */
+  eugene:    { fn:"Eugène",    ln:"Lefèvre",                 b:1845, d:1918, parents:["augustin","hortense"], children:["auguste"] },
+  augustine: { fn:"Augustine", ln:"Roux-Beaumarchais",       b:1848, d:1922, parents:["octave","eulalie"],    children:["auguste"] },
+  charles:   { fn:"Charles",   ln:"Berger",                  b:1850, d:1916, parents:[], children:["leontine"] },
+  margsen:   { fn:"Marguerite",ln:"Sénéchal",                b:1853, d:1928, parents:[], children:["leontine"] },
+  theodore:  { fn:"Théodore",  ln:"Tixier",                  b:1851, d:1909, parents:[], children:["emile"] },
+  josephine: { fn:"Joséphine", ln:"Moncourt",                b:1855, d:1932, parents:[], children:["emile"] },
+  leon:      { fn:"Léon",      ln:"Cordier",                 b:1855, d:1921, parents:[], children:["madeleine"] },
+  adele:     { fn:"Adèle",     ln:"de Saint-Maurice",        b:1859, d:1934, parents:[], children:["madeleine"] },
+
+  /* gen 5 asc — 4/32 known */
+  augustin:  { fn:"Augustin",  ln:"Lefèvre",        b:1820, d:1892, parents:[], children:["eugene"] },
+  hortense:  { fn:"Hortense",  ln:"Lecocq",         b:1822, d:1888, parents:[], children:["eugene"] },
+  octave:    { fn:"Octave",    ln:"Roux",           b:1818, d:1881, parents:[], children:["augustine"] },
+  eulalie:   { fn:"Eulalie",   ln:"Beaumarchais",   b:1824, d:1899, parents:[], children:["augustine"] },
+};
+
+const ORIGINAL_EGO = "marguerite";
+let currentEgo = ORIGINAL_EGO;
+
+/* =========================================================================
+   WALK GRAPH
+   ========================================================================= */
+function walkAsc(id, maxGen){
+  const out = [];
+  let prev = [id];
+  for (let g=1; g<=maxGen; g++){
+    const next = [];
+    for (const pid of prev){
+      const parents = pid && G[pid] ? G[pid].parents : [];
+      next.push(parents[0] || null, parents[1] || null);
+    }
+    out.push(next);
+    prev = next;
+  }
+  return out;
+}
+function walkDesc(id, maxGen){
+  const out = [];
+  let prev = [id];
+  for (let g=1; g<=maxGen; g++){
+    const next = [];
+    for (const pid of prev){
+      if (!pid) continue;
+      const ch = G[pid] ? G[pid].children : [];
+      next.push(...ch);
+    }
+    out.push(next);
+    prev = next;
+  }
+  return out;
+}
+
+const branchLabel = (gen, idx) => {
+  let path = [];
+  let n = idx, g = gen;
+  while (g >= 1){
+    path.unshift((n & 1) ? "mère" : "père");
+    n = n >> 1; g--;
+  }
+  return path.join(" · ");
+};
+
+/* =========================================================================
+   GEOMETRY
+   ========================================================================= */
+const D = Math.PI/180;
+const polar = (cx,cy,r,deg) => [cx + r*Math.cos(deg*D), cy + r*Math.sin(deg*D)];
+function arcSectorPath(cx,cy,rIn,rOut,a1,a2){
+  const [x1,y1] = polar(cx,cy,rOut,a1);
+  const [x2,y2] = polar(cx,cy,rOut,a2);
+  const [x3,y3] = polar(cx,cy,rIn ,a2);
+  const [x4,y4] = polar(cx,cy,rIn ,a1);
+  const large = Math.abs(a2-a1) > 180 ? 1 : 0;
+  return `M${x1.toFixed(2)},${y1.toFixed(2)} `
+       + `A${rOut},${rOut} 0 ${large} 1 ${x2.toFixed(2)},${y2.toFixed(2)} `
+       + `L${x3.toFixed(2)},${y3.toFixed(2)} `
+       + `A${rIn},${rIn} 0 ${large} 0 ${x4.toFixed(2)},${y4.toFixed(2)} Z`;
+}
+
+const measureCanvas = document.createElement('canvas');
+const mctx = measureCanvas.getContext('2d');
+function measure(text, fs){ mctx.font = `italic 500 ${fs}px "Cormorant Garamond", serif`; return mctx.measureText(text).width; }
+function measureMono(text, fs){ mctx.font = `500 ${fs}px "Geist Mono", monospace`; return mctx.measureText(text).width; }
+function adaptName(p, maxW, fs){
+  if (!p) return null;
+  const full   = `${p.fn} ${p.ln}`;
+  const initial= `${p.fn[0]}. ${p.ln}`;
+  const dotdot = `${p.fn[0]}. ${p.ln[0]}.`;
+  if (measure(full,    fs) <= maxW) return { text: full,    mode:"full" };
+  if (measure(initial, fs) <= maxW) return { text: initial, mode:"initial" };
+  return { text: dotdot, mode:"min" };
+}
+const fontSizeForAscRing  = g => [12.5, 12.5, 11, 10, 9.5][g-1];
+const fontSizeForDescRing = g => [13, 11][g-1];
+
+/* =========================================================================
+   BUILD FAN
+   ========================================================================= */
+const RADII     = [82, 162, 242, 312, 372, 428];
+const DESC_RADII= [82, 168, 250];
+const layout    = { ascStart: 135, ascSpan: 270, descStart: 45, descSpan: 90 };
+const ns = "http://www.w3.org/2000/svg";
+const svg = document.getElementById('fan');
+const cx = 720, cy = 510;
+
+function buildFan(egoId){
+  /* clear */
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  const ascData = walkAsc(egoId, 5);
+  const descData = walkDesc(egoId, 2);
+  const egoPerson = G[egoId];
+
+  /* generation rings */
+  for (let g=1; g<=5; g++){
+    const c = document.createElementNS(ns,'circle');
+    c.setAttribute('cx',cx); c.setAttribute('cy',cy);
+    c.setAttribute('r',RADII[g]); c.setAttribute('class','fan-grid-soft');
+    svg.appendChild(c);
+  }
+
+  /* ASCENDANTS */
+  for (let g=1; g<=5; g++){
+    const rIn = RADII[g-1], rOut = RADII[g];
+    const sectors = 2**g;
+    const sw = layout.ascSpan / sectors;
+    const fs = fontSizeForAscRing(g);
+    const dfs = Math.max(7.5, fs - 2.5);
+    const rOffset = g === 1 ? 0.70 : 0.50;
+    const arr = ascData[g-1];
+
+    for (let i=0; i<sectors; i++){
+      const a1 = layout.ascStart + i*sw;
+      const a2 = a1 + sw;
+      const mid = (a1+a2)/2;
+      const rMid = rIn + (rOut - rIn) * rOffset;
+      const [tx,ty] = polar(cx,cy,rMid,mid);
+
+      const pid = arr[i];
+      const p = pid ? G[pid] : null;
+      const grp = document.createElementNS(ns,'g');
+      grp.setAttribute('class', `gen gen-${g}`);
+
+      const path = document.createElementNS(ns,'path');
+      path.setAttribute('d', arcSectorPath(cx,cy,rIn,rOut,a1,a2));
+
+      if (!p){
+        path.setAttribute('class','sector empty');
+        grp.appendChild(path);
+        const cs=4;
+        const cross = document.createElementNS(ns,'path');
+        cross.setAttribute('d',`M${tx-cs},${ty} L${tx+cs},${ty} M${tx},${ty-cs} L${tx},${ty+cs}`);
+        cross.setAttribute('class','empty-cross');
+        grp.appendChild(cross);
+        svg.appendChild(grp);
+        continue;
+      }
+
+      path.setAttribute('class','sector');
+      path.setAttribute('fill', `var(--asc-${g})`);
+      path.setAttribute('tabindex','0');
+      path.setAttribute('role','treeitem');
+      path.setAttribute('aria-level', g+1);
+      path.dataset.kind='asc';
+      path.dataset.id  = pid;
+      path.dataset.gen = g;
+      path.dataset.idx = i;
+      grp.appendChild(path);
+
+      const title = document.createElementNS(ns,'title');
+      title.textContent = `${p.fn} ${p.ln} · ${p.b}–${p.d||''} · gen ${g} ascendante`;
+      grp.appendChild(title);
+
+      const chord = 2 * rMid * Math.sin(sw/2 * D);
+      const depth = rOut - rIn;
+      const orient = ((mid % 180)+180) % 180;
+      const avail = (chord * Math.abs(Math.sin(orient*D)) + depth * Math.abs(Math.cos(orient*D))) * 0.86;
+
+      const nameChoice = adaptName(p, avail, fs);
+      const dateStr = `${p.b}–${p.d||''}`;
+      const datesFit = measureMono(dateStr, dfs) <= avail;
+
+      const nameY = datesFit ? ty - 2 : ty + fs/3;
+      const tName = document.createElementNS(ns,'text');
+      tName.setAttribute('class','sector-text');
+      tName.setAttribute('x', tx); tName.setAttribute('y', nameY);
+      tName.setAttribute('font-size', fs);
+      tName.textContent = nameChoice.text;
+      grp.appendChild(tName);
+
+      if (datesFit){
+        const tDates = document.createElementNS(ns,'text');
+        tDates.setAttribute('class','sector-dates');
+        tDates.setAttribute('x', tx); tDates.setAttribute('y', ty + fs - 2);
+        tDates.setAttribute('font-size', dfs);
+        tDates.textContent = dateStr;
+        grp.appendChild(tDates);
+      }
+
+      /* marker if this person is the original ego */
+      if (pid === ORIGINAL_EGO && egoId !== ORIGINAL_EGO){
+        const dot = document.createElementNS(ns,'circle');
+        dot.setAttribute('cx', tx + (datesFit ? 0 : 0));
+        dot.setAttribute('cy', ty - fs - 2);
+        dot.setAttribute('r', 3);
+        dot.setAttribute('class','marker-orig');
+        grp.appendChild(dot);
+      }
+
+      svg.appendChild(grp);
+    }
+  }
+
+  /* DESCENDANTS */
+  for (let g=1; g<=2; g++){
+    const arr = descData[g-1];
+    if (!arr || arr.length === 0) continue;
+    const sw = layout.descSpan / arr.length;
+    const rIn = DESC_RADII[g-1], rOut = DESC_RADII[g];
+    const fs = fontSizeForDescRing(g);
+    const dfs = Math.max(8, fs - 2);
+
+    arr.forEach((pid, i) => {
+      const a1 = layout.descStart + i*sw;
+      const a2 = a1 + sw;
+      const mid = (a1+a2)/2;
+      const rMid = (rIn+rOut)/2;
+      const [tx,ty] = polar(cx,cy,rMid,mid);
+
+      const p = pid ? G[pid] : null;
+      const grp = document.createElementNS(ns,'g');
+      grp.setAttribute('class',`gen desc-gen-${g}`);
+
+      const path = document.createElementNS(ns,'path');
+      path.setAttribute('d', arcSectorPath(cx,cy,rIn,rOut,a1,a2));
+
+      if (!p){
+        path.setAttribute('class','sector empty');
+        grp.appendChild(path);
+        svg.appendChild(grp); return;
+      }
+
+      path.setAttribute('class','sector');
+      path.setAttribute('fill', `var(--desc-${g})`);
+      path.setAttribute('tabindex','0');
+      path.setAttribute('role','treeitem');
+      path.setAttribute('aria-level', g);
+      path.dataset.kind='desc';
+      path.dataset.id  = pid;
+      path.dataset.gen = g;
+      path.dataset.idx = i;
+      grp.appendChild(path);
+
+      const title = document.createElementNS(ns,'title');
+      title.textContent = `${p.fn} ${p.ln} · ${p.b}— · gen ${g} descendante`;
+      grp.appendChild(title);
+
+      const chord = 2*rMid*Math.sin(sw/2 * D);
+      const depth = rOut - rIn;
+      const orient = ((mid % 180)+180) % 180;
+      const avail  = (chord * Math.abs(Math.sin(orient*D)) + depth * Math.abs(Math.cos(orient*D))) * 0.86;
+      const nameChoice = adaptName(p, avail, fs);
+      const dateStr = `${p.b}—`;
+      const datesFit = measureMono(dateStr, dfs) <= avail;
+
+      const nameY = datesFit ? ty - 2 : ty + fs/3;
+      const tName = document.createElementNS(ns,'text');
+      tName.setAttribute('class','sector-text');
+      tName.setAttribute('x', tx); tName.setAttribute('y', nameY);
+      tName.setAttribute('font-size', fs);
+      tName.textContent = nameChoice.text;
+      grp.appendChild(tName);
+
+      if (datesFit){
+        const tDates = document.createElementNS(ns,'text');
+        tDates.setAttribute('class','sector-dates');
+        tDates.setAttribute('x', tx); tDates.setAttribute('y', ty + fs - 2);
+        tDates.setAttribute('font-size', dfs);
+        tDates.textContent = dateStr;
+        grp.appendChild(tDates);
+      }
+
+      if (pid === ORIGINAL_EGO && egoId !== ORIGINAL_EGO){
+        const dot = document.createElementNS(ns,'circle');
+        dot.setAttribute('cx', tx); dot.setAttribute('cy', ty - fs - 2);
+        dot.setAttribute('r', 3);
+        dot.setAttribute('class','marker-orig');
+        grp.appendChild(dot);
+      }
+
+      svg.appendChild(grp);
+    });
+  }
+
+  /* EGO disc */
+  const egoCircle = document.createElementNS(ns,'circle');
+  egoCircle.setAttribute('cx',cx); egoCircle.setAttribute('cy',cy); egoCircle.setAttribute('r',RADII[0]);
+  egoCircle.setAttribute('class','ego-disc');
+  egoCircle.setAttribute('tabindex','0');
+  egoCircle.dataset.kind='ego';
+  egoCircle.dataset.id = egoId;
+  svg.appendChild(egoCircle);
+
+  const fullName = `${egoPerson.fn} ${egoPerson.ln}`;
+  const nameClass = fullName.length > 18 ? 'ego-name small' : 'ego-name';
+  const en = document.createElementNS(ns,'text');
+  en.setAttribute('class', nameClass);
+  en.setAttribute('x',cx); en.setAttribute('y', cy - 4);
+  en.textContent = fullName;
+  svg.appendChild(en);
+
+  const ed = document.createElementNS(ns,'text');
+  ed.setAttribute('class','ego-dates'); ed.setAttribute('x',cx); ed.setAttribute('y',cy+15);
+  ed.textContent = egoPerson.d ? `${egoPerson.b}–${egoPerson.d}` : `${egoPerson.b}—`;
+  svg.appendChild(ed);
+
+  /* small "vous êtes ici" tag when looking through someone else's eyes */
+  if (egoId !== ORIGINAL_EGO){
+    const tag = document.createElementNS(ns,'text');
+    tag.setAttribute('class','ego-here');
+    tag.setAttribute('x', cx); tag.setAttribute('y', cy + 32);
+    tag.textContent = "VOUS REGARDEZ À TRAVERS";
+    svg.appendChild(tag);
+  }
+
+  /* ring labels */
+  for (let g=1; g<=5; g++){
+    const r = (RADII[g-1]+RADII[g])/2;
+    const [lx,ly] = polar(cx,cy,r,layout.ascStart - 4);
+    const t = document.createElementNS(ns,'text');
+    t.setAttribute('class','gen-ring-label');
+    t.setAttribute('x',lx); t.setAttribute('y',ly+3);
+    t.setAttribute('text-anchor','end');
+    t.textContent = `GEN ${g}`;
+    svg.appendChild(t);
+  }
+}
+
+/* =========================================================================
+   INTERACTION : panel + recentrage hybride
+   ========================================================================= */
+const detail   = document.getElementById('detail');
+const focusBar = document.getElementById('focusBar');
+const lookthru = document.getElementById('lookthru');
+const btnReturn= document.getElementById('btnReturn');
+let selectedId = null;
+
+function updateFocusBar(){
+  const board = document.getElementById('board');
+  if (currentEgo === ORIGINAL_EGO){
+    focusBar.classList.remove('on');
+    board.classList.remove('has-focus');
+  } else {
+    const p = G[currentEgo];
+    lookthru.innerHTML = `Vous regardez à travers les yeux de <strong>${p.fn} ${p.ln}</strong>`;
+    focusBar.classList.add('on');
+    board.classList.add('has-focus');
+  }
+}
+
+function openDetail(pid, kind, gen){
+  selectedId = pid;
+  /* deselect all then select new */
+  svg.querySelectorAll('.sector.selected').forEach(n => n.classList.remove('selected'));
+  const node = svg.querySelector(`[data-id="${pid}"]`);
+  if (node && node.classList) node.classList.add('selected');
+
+  const p = G[pid];
+  if (!p) return;
+
+  const dateStr = p.d ? `${p.b} – ${p.d}` : `${p.b} —`;
+  const isEgo = kind === 'ego';
+  const isOriginal = pid === ORIGINAL_EGO;
+
+  const branchTxt =
+    isEgo && isOriginal ? "C'est vous, le centre."
+    : isEgo ? `Recentré sur ${p.fn} · cliquez « Retour » pour revenir à Marguerite.`
+    : kind === 'asc'  ? `Branche ${branchLabel(gen, +svg.querySelector(`[data-id="${pid}"]`)?.dataset.idx || 0)} · gen ${gen} ascendante de ${G[currentEgo].fn}`
+    : `Génération ${gen} descendante de ${G[currentEgo].fn}`;
+
+  const lieuLine = p.lieu ? `<dt>Lieu</dt><dd>${p.lieu}</dd>` : '';
+  const ageLine  = p.d ? `<dt>Âge</dt><dd>${p.d - p.b} ans</dd>` : '';
+  const yearsBefore = currentEgo !== pid ? `<dt>Écart</dt><dd>${Math.abs(G[currentEgo].b - p.b)} ans</dd>` : '';
+
+  const recenterBtn = (!isEgo && G[pid].parents.length + G[pid].children.length > 0) ? `
+    <button class="recenter" data-target="${pid}">
+      Faire d'${p.fn[0].match(/[AEIOU]/i)?'':'h'}${p.fn[0].match(/[AEIOU]/i)?'elle':'lui'} le centre
+      <span class="hint">voir le monde tel que ${p.fn} le voyait</span>
+    </button>` : (isEgo && !isOriginal) ? `` : '';
+
+  /* simpler: "Faire d'elle le centre" assumes female; we'll just use neutral */
+  const recenterBtnFixed = (!isEgo) ? `
+    <button class="recenter" data-target="${pid}">
+      Faire de ${p.fn} le centre
+      <span class="hint">voir le monde tel que ${p.fn} le voyait</span>
+    </button>` : '';
+
+  detail.innerHTML = `
+    <button class="close" aria-label="Fermer">×</button>
+    <div class="gen-tag">${isEgo ? (isOriginal?'EGO ORIGINEL':'CENTRE ACTUEL') : kind === 'asc' ? `ASCENDANT · GEN ${gen}` : `DESCENDANT · GEN ${gen}`}</div>
+    <div class="name">${p.fn} ${p.ln}</div>
+    <div class="dates">${dateStr}</div>
+    <dl class="meta">
+      ${lieuLine}
+      ${ageLine}
+      ${yearsBefore}
+      <dt>Sources</dt><dd>État-civil · à compléter</dd>
+    </dl>
+    <div class="branch">${branchTxt}</div>
+    ${recenterBtnFixed}`;
+  detail.classList.add('open');
+
+  detail.querySelector('.close').addEventListener('click', closeDetail);
+  const rb = detail.querySelector('button.recenter');
+  if (rb) rb.addEventListener('click', () => setEgo(rb.dataset.target));
+}
+
+function closeDetail(){
+  detail.classList.remove('open');
+  svg.querySelectorAll('.sector.selected').forEach(n => n.classList.remove('selected'));
+  selectedId = null;
+}
+
+async function setEgo(newId){
+  if (!G[newId] || newId === currentEgo) return;
+  /* fade out */
+  svg.classList.add('fading');
+  detail.classList.remove('open');
+  await new Promise(r => setTimeout(r, 260));
+  currentEgo = newId;
+  buildFan(currentEgo);
+  updateFocusBar();
+  /* fade in */
+  svg.classList.remove('fading');
+  /* re-open detail on new ego */
+  await new Promise(r => setTimeout(r, 280));
+  openDetail(newId, 'ego', 0);
+}
+
+btnReturn.addEventListener('click', () => setEgo(ORIGINAL_EGO));
+
+svg.addEventListener('click', (e) => {
+  const target = e.target.closest('.sector:not(.empty), .ego-disc');
+  if (!target) return;
+  const pid = target.dataset.id;
+  const kind = target.dataset.kind;
+  const gen  = +target.dataset.gen || 0;
+  openDetail(pid, kind, gen);
+});
+svg.addEventListener('keydown', (e) => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.sector:not(.empty), .ego-disc')){
+    e.preventDefault();
+    const pid = e.target.dataset.id;
+    const kind = e.target.dataset.kind;
+    const gen  = +e.target.dataset.gen || 0;
+    openDetail(pid, kind, gen);
+  }
+  if (e.key === 'Escape') closeDetail();
+});
+
+/* ============= OVERLAY CHROME =================================== */
+const overlay = document.createElement('div');
+overlay.innerHTML = `
+  <div class="corner-title">
+    <div class="em-h">Ce qui nous précède,<br/>ce qui nous suit.</div>
+    <div class="hint">Cliquez un secteur · le panneau s'ouvre<br/>« Faire de X le centre » pour basculer en contemplation<br/>Esc · ferme le panneau</div>
+  </div>
+  <div class="legend">
+    <div class="row"><span class="sw" style="background:var(--asc-3)"></span>Ascendants</div>
+    <div class="row"><span class="sw" style="background:var(--desc-2)"></span>Descendants</div>
+    <div class="row"><span class="sw dashed"></span>À rechercher</div>
+    <div class="row"><span class="sw" style="background:var(--rust); border-radius:50%; width:8px; height:8px; margin-left:5px;"></span>Ego d'origine</div>
+  </div>`;
+const board = document.getElementById('board');
+while (overlay.firstChild) board.appendChild(overlay.firstChild);
+
+/* INIT */
+buildFan(currentEgo);
+updateFocusBar();
+openDetail(currentEgo, 'ego', 0);
+
+})();
+</script>
+</body></html>

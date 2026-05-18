@@ -56,7 +56,7 @@ Cette version alpha établit une base solide et fonctionnelle pour la visualisat
 
 ### **Backend**
 ```
-GegeDot.API/
+Yeboekun.API/
 ├── Controllers/
 │   └── PersonsController.cs (endpoint /family)
 ├── Program.cs (CORS configuré)
@@ -173,7 +173,7 @@ frontend/
 
 ## 🎉 Conclusion
 
-Cette version Alpha 1.0.0 représente une **base solide et fonctionnelle** pour l'application GegeDot. Toutes les fonctionnalités essentielles sont opérationnelles, l'architecture est stable, et le code est prêt pour les développements futurs.
+Cette version Alpha 1.0.0 représente une **base solide et fonctionnelle** pour l'application Yeboekun. Toutes les fonctionnalités essentielles sont opérationnelles, l'architecture est stable, et le code est prêt pour les développements futurs.
 
 **La Phase 2 peut maintenant commencer avec confiance !** 🚀
 

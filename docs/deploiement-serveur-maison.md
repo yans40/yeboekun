@@ -2,7 +2,7 @@
 
 ## Contexte
 
-GegeDot est une application d'arbre généalogique familiale composée de :
+Yeboekun est une application d'arbre généalogique familiale composée de :
 - Un **backend** .NET 9 (API REST)
 - Un **frontend** React / TypeScript
 - Une **base de données** MySQL 8.0
@@ -187,7 +187,7 @@ yandark@yandark-server:~$
 ## Étape 5 — Installer Docker
 
 ### Pourquoi Docker ?
-Docker permet de faire tourner GegeDot et ses dépendances (MySQL, phpMyAdmin) dans des conteneurs isolés, sans rien installer directement sur Ubuntu. C'est la même configuration qu'en développement.
+Docker permet de faire tourner Yeboekun et ses dépendances (MySQL, phpMyAdmin) dans des conteneurs isolés, sans rien installer directement sur Ubuntu. C'est la même configuration qu'en développement.
 
 ### Ce qu'on a fait
 ```bash
@@ -210,14 +210,14 @@ Ligne vide = Docker fonctionne, aucun conteneur en cours.
 
 ---
 
-## Étape 6 — Déployer GegeDot
+## Étape 6 — Déployer Yeboekun
 
 ### Ce qu'on a fait
 
 ```bash
 # Cloner le projet depuis GitHub
-git clone https://github.com/yans40/gegeDot.git
-cd gegeDot
+git clone https://github.com/yans40/yeboekun.git
+cd yeboekun
 
 # Basculer sur la branche de production
 git checkout main
@@ -243,13 +243,13 @@ Résultat obtenu :
 ✔ Image mcr.microsoft.com/dotnet/sdk:9.0   Pulled
 ✔ Image mysql:8.0                           Pulled
 ✔ Image phpmyadmin/phpmyadmin               Pulled
-✔ Image gegedot-frontend                    Built
-✔ Network gegedot_gegeDot-network           Created
-✔ Volume gegedot_mysql_data                 Created
-✔ Container gegeDot-mysql                   Started
-✔ Container gegeDot-backend                 Started
-✔ Container gegeDot-phpmyadmin              Started
-✔ Container gegeDot-frontend                Started
+✔ Image yeboekun-frontend                    Built
+✔ Network yeboekun_yeboekun-network           Created
+✔ Volume yeboekun_mysql_data                 Created
+✔ Container yeboekun-mysql                   Started
+✔ Container yeboekun-backend                 Started
+✔ Container yeboekun-phpmyadmin              Started
+✔ Container yeboekun-frontend                Started
 ```
 
 ### Vérification
@@ -261,10 +261,10 @@ Les 4 conteneurs doivent être en état **Up** :
 
 | Conteneur | Port | Rôle |
 |-----------|------|------|
-| gegeDot-frontend | 3000 | Interface web React |
-| gegeDot-backend | 5001 | API .NET |
-| gegeDot-mysql | 3306 | Base de données |
-| gegeDot-phpmyadmin | 8080 | Interface admin BDD |
+| yeboekun-frontend | 3000 | Interface web React |
+| yeboekun-backend | 5001 | API .NET |
+| yeboekun-mysql | 3306 | Base de données |
+| yeboekun-phpmyadmin | 8080 | Interface admin BDD |
 
 > **Note** : au premier démarrage, le backend peut redémarrer plusieurs fois le temps que MySQL s'initialise. C'est normal — Docker le relance automatiquement jusqu'à ce que la connexion réussisse.
 
@@ -272,7 +272,7 @@ Les 4 conteneurs doivent être en état **Up** :
 
 | Service | URL |
 |---------|-----|
-| GegeDot | http://192.168.1.160:3000 |
+| Yeboekun | http://192.168.1.160:3000 |
 | phpMyAdmin | http://192.168.1.160:8080 |
 | API backend | http://192.168.1.160:5001 |
 
@@ -281,7 +281,7 @@ Les 4 conteneurs doivent être en état **Up** :
 ## Étape 7 — Cloudflare Tunnel (accès depuis internet)
 
 ### Pourquoi ?
-Sans tunnel, GegeDot est accessible uniquement sur le réseau local. Cloudflare Tunnel crée une connexion **sortante** du serveur vers Cloudflare :
+Sans tunnel, Yeboekun est accessible uniquement sur le réseau local. Cloudflare Tunnel crée une connexion **sortante** du serveur vers Cloudflare :
 - Pas besoin d'ouvrir des ports sur la box
 - L'IP réelle du serveur reste cachée
 - HTTPS et protection DDoS inclus gratuitement
@@ -315,22 +315,22 @@ Credentials saved to: /home/yandark/.cloudflared/cert.pem
 
 ### Créer le tunnel
 ```bash
-cloudflared tunnel create gegedot
+cloudflared tunnel create yeboekun
 ```
 
 Résultat :
 ```
 Tunnel credentials written to /home/yandark/.cloudflared/[TUNNEL-ID].json
-Created tunnel gegedot with id [TUNNEL-ID]
+Created tunnel yeboekun with id [TUNNEL-ID]
 ```
 
 ### Configurer le DNS
 ```bash
 # Domaine racine
-cloudflared tunnel route dns gegedot yeboekun.uk
+cloudflared tunnel route dns yeboekun yeboekun.uk
 
 # Sous-domaine www
-cloudflared tunnel route dns gegedot www.yeboekun.uk
+cloudflared tunnel route dns yeboekun www.yeboekun.uk
 ```
 
 ### Fichier de configuration
@@ -380,7 +380,7 @@ Résultat attendu :
 > `cdg` = datacenter Cloudflare de Paris — connexion optimale depuis la France.
 
 ### Résultat final
-GegeDot est accessible depuis n'importe où dans le monde :
+Yeboekun est accessible depuis n'importe où dans le monde :
 - **http://yeboekun.uk**
 - **http://www.yeboekun.uk**
 
@@ -399,7 +399,7 @@ branche main     ──► version stable, déployée sur le serveur ROG
 ### Mettre à jour le serveur après un merge sur main
 
 ```bash
-cd ~/gegeDot
+cd ~/yeboekun
 git pull origin main
 docker compose down
 docker compose up -d --build
@@ -427,14 +427,14 @@ ssh yandark@192.168.1.160
 docker ps
 
 # Voir les logs d'un service
-docker logs gegeDot-backend --tail 30
-docker logs gegeDot-mysql --tail 10
+docker logs yeboekun-backend --tail 30
+docker logs yeboekun-mysql --tail 10
 
 # Redémarrer un service spécifique
 docker compose restart backend
 
-# Mettre à jour GegeDot (après merge sur main)
-cd ~/gegeDot && git pull origin main && docker compose down && docker compose up -d --build
+# Mettre à jour Yeboekun (après merge sur main)
+cd ~/yeboekun && git pull origin main && docker compose down && docker compose up -d --build
 
 # Vérifier l'état du tunnel Cloudflare
 sudo systemctl status cloudflared
