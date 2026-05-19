@@ -843,10 +843,10 @@ const PersonForm: React.FC<PersonFormProps> = ({
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="URL de la photo"
+              label={t('form.field_photo_url')}
               value={formData.photoUrl}
               onChange={handleChange('photoUrl')}
-              placeholder="https://example.com/photo.jpg"
+              placeholder={t('form.field_photo_url_placeholder')}
             />
           </Grid>
         </Grid>

@@ -115,7 +115,9 @@
     "subsection_parents": "Parents",
     "subsection_children": "Enfants",
     "spouse_add_error_conflict": "Ce conjoint est déjà lié à cette personne.",
-    "spouse_add_error_dates": "Dates invalides — la date de fin doit être postérieure à la date de début."
+    "spouse_add_error_dates": "Dates invalides — la date de fin doit être postérieure à la date de début.",
+    "field_photo_url": "URL de la photo",
+    "field_photo_url_placeholder": "https://example.com/photo.jpg"
   },
   "modal": {
     "edit_mode_title": "Mode édition"

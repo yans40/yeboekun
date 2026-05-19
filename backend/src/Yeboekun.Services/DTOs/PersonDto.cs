@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Yeboekun.Services.DTOs;
 
 /// <summary>
@@ -69,15 +67,9 @@ public class PersonDto
 
 public class CreatePersonDto
 {
-    [Required(ErrorMessage = "Le prénom est obligatoire")]
-    [StringLength(100, ErrorMessage = "Le prénom ne peut pas dépasser 100 caractères")]
+    // Validation déléguée à CreatePersonDtoValidator (FluentValidation) — cf. Yeboekun.Services/Validators/
     public string FirstName { get; set; } = string.Empty;
-    
-    [Required(ErrorMessage = "Le nom est obligatoire")]
-    [StringLength(100, ErrorMessage = "Le nom ne peut pas dépasser 100 caractères")]
     public string LastName { get; set; } = string.Empty;
-    
-    [StringLength(100, ErrorMessage = "Le deuxième prénom ne peut pas dépasser 100 caractères")]
     public string? MiddleName { get; set; }
     
     public DateTime? BirthDate { get; set; }
@@ -91,7 +83,6 @@ public class CreatePersonDto
     public string? PhotoUrl { get; set; }
     public string? Biography { get; set; }
 
-    [RegularExpression("^(M|F|O|Male|Female|Other)$", ErrorMessage = "Le genre doit être M, F, O, Male, Female ou Other")]
     public string Gender { get; set; } = "M";
 
     public bool IsAlive { get; set; } = true;
@@ -102,14 +93,9 @@ public class CreatePersonDto
 
 public class UpdatePersonDto
 {
-    [Required(ErrorMessage = "Le prénom est obligatoire")]
-    [StringLength(100, ErrorMessage = "Le prénom ne peut pas dépasser 100 caractères")]
+    // Validation déléguée à UpdatePersonDtoValidator (FluentValidation) — cf. Yeboekun.Services/Validators/
     public string FirstName { get; set; } = string.Empty;
-    
-    [Required(ErrorMessage = "Le nom est obligatoire")]
-    [StringLength(100, ErrorMessage = "Le nom ne peut pas dépasser 100 caractères")]
     public string LastName { get; set; } = string.Empty;
-    [StringLength(100, ErrorMessage = "Le deuxième prénom ne peut pas dépasser 100 caractères")]
     public string? MiddleName { get; set; }
     
     public DateTime? BirthDate { get; set; }
@@ -123,7 +109,6 @@ public class UpdatePersonDto
     public string? PhotoUrl { get; set; }
     public string? Biography { get; set; }
 
-    [RegularExpression("^(M|F|O|Male|Female|Other)$", ErrorMessage = "Le genre doit être M, F, O, Male, Female ou Other")]
     public string Gender { get; set; } = "M";
 
     public bool IsAlive { get; set; } = true;
