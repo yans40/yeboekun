@@ -1,14 +1,28 @@
 # PROJECT_STATE — Yeboekun / Yeboekun
 
 > Source de vérité du projet — pilotée par Émile (Claude Code)
-> Dernière mise à jour : 2026-05-17 — FanCanvasV2 v5 qa-validated, PR #50 prête pour merge main — Émile
+> Dernière mise à jour : 2026-05-19 — Lot 4 qa-validated par Iris, PR à ouvrir vers dev — Émile
 
 ---
 
-## Lot en cours : **FanCanvasV2 v5 — prêt pour merge main**
+## Lot en cours : **Lot 4 — Vue Atelier**
 
-- **Branche active** : `dev`
-- **Statut** : PR #50 `qa-validated` — merge main en attente d'approbation PO.
+- **Branche active** : `feature/vue-atelier`
+- **Statut** : `qa-validated` par Iris — PR à ouvrir vers `dev` après `dotnet test` + `npm run build` + `npm test` verts (Iris n'avait pas la permission Bash)
+
+### Ce qui a été livré
+- `PersonForm` refactorisé en 4 sections collapsibles (Identité, Vie, Famille, Conjoints)
+- Section Conjoints avec dates début/fin, mode édition uniquement
+- `addSpouse` / `removeSpouse` dans `api.ts`
+- FluentValidation wired pour `CreatePersonDto`, `UpdatePersonDto`, `CreateSpouseRelationshipDto` — 36 tests xUnit
+- `[CustomValidation]` / `[DataAnnotations]` doublon supprimé de `PersonDto.cs` (Iris)
+- 2 chaînes hardcodées i18n corrigées par Iris (`form.field_photo_url`)
+- `docs/qa/QA_LOT_4_ATELIER.md` créé par Iris
+
+### Tickets backlog issus du QA (non bloquants)
+- **M2** : validation frontale dates conjoint manquante dans `handleAddSpouse` (aller-retour réseau inutile)
+- **M3** : `force=true` hardcodé dans `updatePerson` — bypass DuplicateDetection (dette pré-Lot 4)
+- **M4** : titres dialog ArbreView non passés par `t()` (dette pré-Lot 4)
 
 ---
 
@@ -27,7 +41,6 @@
 
 ## Prochains lots
 
-- **Lot 4** — Vue Atelier (PersonForm en page dédiée `/atelier`)
 - **Lot 5** — Vue Tableau (dashboard)
 - **Lot 6** — **Accueil + ancrage + nuage** (à planifier) : gate déjà posé (hors scope Lot 6) ; Lot 6 regroupe **nuage de noms interactif** post-auth, **qui es-tu / trois portes**, fallback non identifié, persistance ancrage — spec `docs/ideas/IDEA_ANCRAGE_UTILISATEUR.md`. **Ne pas** retarder Lots 1–5 pour le nuage.
 

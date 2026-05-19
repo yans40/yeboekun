@@ -31,8 +31,8 @@ public class YeboekunContext : DbContext
             entity.Property(e => e.DeathStatus).HasMaxLength(50);
             entity.Property(e => e.PhotoUrl).HasMaxLength(500);
             entity.Property(e => e.Gender).HasConversion<string>();
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)");
 
             // Indexes
             entity.HasIndex(e => e.LastName).HasDatabaseName("IX_Persons_LastName");
@@ -45,7 +45,7 @@ public class YeboekunContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.RelationshipType).HasConversion<int>();
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             // Foreign keys
             entity.HasOne(e => e.Person1)
@@ -78,8 +78,8 @@ public class YeboekunContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+            entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)");
 
             // Foreign key
             entity.HasOne(e => e.RootPerson)

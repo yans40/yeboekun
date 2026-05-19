@@ -114,6 +114,32 @@ class ApiService {
     return response.data;
   }
 
+  /**
+   * Crée un lien conjugal entre deux personnes.
+   * @param personId   - La personne dont on édite la fiche
+   * @param spouseId   - Le conjoint à lier
+   * @param startDate  - Date de début de l'union (optionnel, format "yyyy-MM-dd")
+   * @param endDate    - Date de fin de l'union (optionnel, format "yyyy-MM-dd")
+   */
+  async addSpouse(
+    personId: number,
+    spouseId: number,
+    startDate?: string,
+    endDate?: string,
+  ): Promise<void> {
+    await this.api.post(`/persons/${personId}/spouses/${spouseId}`, {
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
+    });
+  }
+
+  /**
+   * Supprime le lien conjugal entre deux personnes.
+   */
+  async removeSpouse(personId: number, spouseId: number): Promise<void> {
+    await this.api.delete(`/persons/${personId}/spouses/${spouseId}`);
+  }
+
   // River view API
   async getRiverView(id: number, depth = 3): Promise<RiverViewData> {
     const response = await this.api.get<RiverViewData>(`/persons/${id}/river-view`, {

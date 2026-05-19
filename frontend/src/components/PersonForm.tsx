@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -6,10 +6,10 @@ import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
-import { CreatePersonDto, UpdatePersonDto, Person } from '@/types';
+import { useTranslation } from 'react-i18next';
+import { CreatePersonDto, UpdatePersonDto, Person, SpouseInfo } from '@/types';
 import { apiService } from '@/services/api';
-import { colors, fonts, radius, spacing } from '@/theme/tokens';
+import { colors, fonts, radius, spacing, shadows } from '@/theme/tokens';
 
 // ─── NativeSelect ─────────────────────────────────────────────────────────────
 interface NativeSelectProps {
@@ -298,6 +298,179 @@ const NativeSwitch: React.FC<{
   </label>
 );
 
+// ─── CollapsibleSection ───────────────────────────────────────────────────────
+
+/**
+ * Section avec en-tête cliquable (chevron) et contenu conditionnellement rendu.
+ * Utilise un rendu conditionnel (pas de display:none) pour éviter les refs cassées
+ * dans les TextField MUI imbriqués.
+ */
+interface CollapsibleSectionProps {
+  title: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}
+
+const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
+  title,
+  defaultOpen = true,
+  children,
+}) => {
+  const [open, setOpen] = useState(defaultOpen);
+  /** Identifiant stable côté React 18 — relie le bouton au contenu (WCAG 4.1.3) */
+  const uid = useId();
+  const contentId = `collapsible-content-${uid.replace(/:/g, '')}`;
+
+  return (
+    <div style={{
+      border: `1px solid ${colors.line2}`,
+      borderRadius: radius.md,
+      overflow: 'hidden',
+      marginBottom: spacing[3],
+    }}>
+      {/* En-tête */}
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+        aria-controls={contentId}
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: `${spacing[2]}px ${spacing[3]}px`,
+          fontFamily: fonts.sans,
+          fontSize: 12,
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          color: colors.ink3,
+          backgroundColor: colors.paper2,
+          border: 'none',
+          cursor: 'pointer',
+          userSelect: 'none',
+          transition: 'background-color 120ms ease',
+        }}
+      >
+        <span>{title}</span>
+        {/* Chevron animé */}
+        <span style={{
+          fontSize: 10,
+          transform: open ? 'rotate(0deg)' : 'rotate(-90deg)',
+          transition: 'transform 200ms ease',
+          display: 'inline-block',
+          color: colors.ink4,
+        }}>
+          ▾
+        </span>
+      </button>
+
+      {/* Contenu — rendu conditionnel pour préserver le state des champs */}
+      {open && (
+        <div
+          id={contentId}
+          role="region"
+          aria-label={title}
+          style={{
+            padding: `${spacing[3]}px ${spacing[3]}px ${spacing[3]}px`,
+            backgroundColor: colors.cream,
+          }}
+        >
+          {children}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── SectionLabel — petit titre de sous-groupe ────────────────────────────────
+
+const SectionLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <p style={{
+    margin: `0 0 ${spacing[1]}px`,
+    fontFamily: fonts.sans,
+    fontSize: '0.75rem',
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.08em',
+    color: colors.ink3,
+  }}>
+    {children}
+  </p>
+);
+
+// ─── ImmediateNote — note "enregistrement immédiat" ───────────────────────────
+
+const ImmediateNote: React.FC<{ text: string }> = ({ text }) => (
+  <span style={{
+    display: 'block',
+    marginBottom: spacing[2],
+    fontFamily: fonts.sans,
+    fontSize: '0.75rem',
+    color: colors.ink4,
+  }}>
+    {text}
+  </span>
+);
+
+// ─── SpouseRow — une ligne conjoint dans la liste ─────────────────────────────
+
+interface SpouseRowProps {
+  onRemove: () => void;
+  labelConjoint: string;
+  labelDates: string;
+}
+
+const SpouseRow: React.FC<SpouseRowProps> = ({ onRemove, labelConjoint, labelDates }) => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: `${spacing[2]}px ${spacing[3]}px`,
+    backgroundColor: colors.paper,
+    border: `1px solid ${colors.line2}`,
+    borderRadius: radius.md,
+    marginBottom: spacing[1],
+    boxShadow: shadows.xs,
+  }}>
+    <div>
+      <span style={{ fontFamily: fonts.sans, fontSize: 14, color: colors.ink, fontWeight: 500 }}>
+        {labelConjoint}
+      </span>
+      {labelDates && (
+        <span style={{
+          display: 'block',
+          fontFamily: fonts.mono,
+          fontSize: 11,
+          color: colors.ink4,
+          marginTop: 2,
+        }}>
+          {labelDates}
+        </span>
+      )}
+    </div>
+    <button
+      type="button"
+      onClick={onRemove}
+      aria-label={`Supprimer ${labelConjoint}`}
+      style={{
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        color: colors.rust,
+        fontSize: 18,
+        lineHeight: 1,
+        padding: `0 ${spacing[1]}px`,
+        opacity: 0.7,
+        flexShrink: 0,
+      }}
+    >
+      ×
+    </button>
+  </div>
+);
+
 // ─── PersonForm ───────────────────────────────────────────────────────────────
 
 const PersonForm: React.FC<PersonFormProps> = ({
@@ -311,6 +484,8 @@ const PersonForm: React.FC<PersonFormProps> = ({
   inline = false,
   onSaved,
 }) => {
+  const { t } = useTranslation();
+
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [parent1Id, setParent1Id] = useState<number | ''>('');
   const [parent2Id, setParent2Id] = useState<number | ''>('');
@@ -320,6 +495,13 @@ const PersonForm: React.FC<PersonFormProps> = ({
   const [currentChildren, setCurrentChildren] = useState<Person[]>([]);
   const [newParentId, setNewParentId] = useState<number | ''>('');
   const [newChildId, setNewChildId] = useState<number | ''>('');
+
+  // ── Conjoints ──────────────────────────────────────────────────────────────
+  const [currentSpouses, setCurrentSpouses] = useState<SpouseInfo[]>([]);
+  const [newSpouseId, setNewSpouseId] = useState<number | ''>('');
+  const [newSpouseStartDate, setNewSpouseStartDate] = useState('');
+  const [newSpouseEndDate, setNewSpouseEndDate] = useState('');
+  const [spouseError, setSpouseError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<CreatePersonDto>({
     firstName: '',
@@ -371,13 +553,18 @@ const PersonForm: React.FC<PersonFormProps> = ({
     }
     setErrors({});
     setRelationError(null);
+    setSpouseError(null);
     setConfirmDelete(false);
     setParent1Id('');
     setParent2Id('');
     setNewParentId('');
     setNewChildId('');
+    setNewSpouseId('');
+    setNewSpouseStartDate('');
+    setNewSpouseEndDate('');
     setCurrentParents([]);
     setCurrentChildren([]);
+    setCurrentSpouses([]);
 
     if (!person) return;
     let cancelled = false;
@@ -386,6 +573,9 @@ const PersonForm: React.FC<PersonFormProps> = ({
       .catch(() => {});
     apiService.getChildren(person.id)
       .then(r => { if (!cancelled) setCurrentChildren(r); })
+      .catch(() => {});
+    apiService.getSpouses(person.id)
+      .then(r => { if (!cancelled) setCurrentSpouses(r); })
       .catch(() => {});
     return () => { cancelled = true; };
   }, [person, open]);
@@ -507,6 +697,57 @@ const PersonForm: React.FC<PersonFormProps> = ({
     }
   };
 
+  // ── Handlers Conjoints ─────────────────────────────────────────────────────
+
+  const handleAddSpouse = async () => {
+    if (!person || newSpouseId === '') return;
+    setSpouseError(null);
+    try {
+      await apiService.addSpouse(
+        person.id,
+        newSpouseId as number,
+        newSpouseStartDate || undefined,
+        newSpouseEndDate || undefined,
+      );
+      // Recharger depuis l'API pour avoir la structure SpouseInfo complète
+      const updated = await apiService.getSpouses(person.id);
+      setCurrentSpouses(updated);
+      setNewSpouseId('');
+      setNewSpouseStartDate('');
+      setNewSpouseEndDate('');
+    } catch (error: unknown) {
+      // Discrimination fine selon le code HTTP renvoyé par le backend
+      const status =
+        error !== null &&
+        typeof error === 'object' &&
+        'response' in error &&
+        error.response !== null &&
+        typeof error.response === 'object' &&
+        'status' in error.response
+          ? (error.response as { status: number }).status
+          : undefined;
+
+      if (status === 409) {
+        setSpouseError(t('form.spouse_add_error_conflict'));
+      } else if (status === 400) {
+        setSpouseError(t('form.spouse_add_error_dates'));
+      } else {
+        setSpouseError(t('form.spouse_add_error'));
+      }
+    }
+  };
+
+  const handleRemoveSpouse = async (spouseId: number) => {
+    if (!person) return;
+    setSpouseError(null);
+    try {
+      await apiService.removeSpouse(person.id, spouseId);
+      setCurrentSpouses(prev => prev.filter(s => s.spouse.id !== spouseId));
+    } catch {
+      setSpouseError(t('form.spouse_remove_error'));
+    }
+  };
+
   const handleChange = (field: keyof CreatePersonDto) => (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | any
   ) => {
@@ -525,293 +766,385 @@ const PersonForm: React.FC<PersonFormProps> = ({
     }
   };
 
-  // ── Contenu partagé (identique en mode Dialog et en mode inline) ─────────────
+  // ── Helpers d'affichage pour les dates de conjoints ───────────────────────
+
+  const formatSpouseDates = (info: SpouseInfo): string => {
+    const start = info.marriageStartDate ? info.marriageStartDate.slice(0, 10) : null;
+    const end   = info.marriageEndDate   ? info.marriageEndDate.slice(0, 10)   : null;
+    if (start && end)  return `${start} → ${end}`;
+    if (start && !end) return `depuis ${start}`;
+    return '';
+  };
+
+  const formatParentLabel = (p: Person): string => {
+    if (p.gender === 'M') return t('form.parent_label_father', { name: p.fullName });
+    if (p.gender === 'F') return t('form.parent_label_mother', { name: p.fullName });
+    return t('form.parent_label_other', { name: p.fullName });
+  };
+
+  // ── Liste des personnes disponibles pour ajouter un conjoint ─────────────
+  // Exclut : la personne elle-même + conjoints déjà enregistrés
+  const availableSpouses = persons.filter(
+    p => person && p.id !== person.id && !currentSpouses.some(s => s.spouse.id === p.id),
+  );
+
+  // ── Contenu partagé (identique en mode Dialog et en mode inline) ─────────
 
   const formContent = (
-    <Grid container spacing={2}>
-      <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Prénom *"
-                value={formData.firstName}
-                onChange={handleChange('firstName')}
-                error={!!errors.firstName}
-                helperText={errors.firstName}
-                required
-              />
-            </Grid>
+    <div style={{ padding: '0 4px' }}>
+      {/* ── Section Identité ──────────────────────────────────────────────── */}
+      <CollapsibleSection title={t('form.section_identity')} defaultOpen={true}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label={t('form.field_firstname')}
+              value={formData.firstName}
+              onChange={handleChange('firstName')}
+              error={!!errors.firstName}
+              helperText={errors.firstName}
+              required
+            />
+          </Grid>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Nom *"
-                value={formData.lastName}
-                onChange={handleChange('lastName')}
-                error={!!errors.lastName}
-                helperText={errors.lastName}
-                required
-              />
-            </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label={t('form.field_lastname')}
+              value={formData.lastName}
+              onChange={handleChange('lastName')}
+              error={!!errors.lastName}
+              helperText={errors.lastName}
+              required
+            />
+          </Grid>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Nom de famille"
-                value={formData.middleName}
-                onChange={handleChange('middleName')}
-              />
-            </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label={t('form.field_middle_name')}
+              value={formData.middleName}
+              onChange={handleChange('middleName')}
+            />
+          </Grid>
 
+          <Grid item xs={12} sm={6}>
+            <NativeSelect
+              label={t('form.gender')}
+              value={formData.gender}
+              onChange={handleChange('gender') as any}
+            >
+              <option value="M">{t('form.gender_male')}</option>
+              <option value="F">{t('form.gender_female')}</option>
+              <option value="O">{t('form.gender_other')}</option>
+            </NativeSelect>
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label={t('form.field_photo_url')}
+              value={formData.photoUrl}
+              onChange={handleChange('photoUrl')}
+              placeholder={t('form.field_photo_url_placeholder')}
+            />
+          </Grid>
+        </Grid>
+      </CollapsibleSection>
+
+      {/* ── Section Vie ───────────────────────────────────────────────────── */}
+      <CollapsibleSection title={t('form.section_life')} defaultOpen={true}>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            {/* Remplace MUI FormControlLabel + Switch */}
+            <NativeSwitch
+              id="isAlive-switch"
+              checked={formData.isAlive}
+              onChange={handleChange('isAlive')}
+              label={t('form.field_is_alive')}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label={t('form.field_birth_date')}
+              type="date"
+              value={formData.birthDate}
+              onChange={handleChange('birthDate')}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label={t('form.field_death_date')}
+              type="date"
+              value={formData.deathDate}
+              onChange={handleChange('deathDate')}
+              InputLabelProps={{ shrink: true }}
+              error={!!errors.deathDate}
+              helperText={errors.deathDate}
+              disabled={formData.isAlive}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label={t('form.field_birth_place')}
+              value={formData.birthPlace}
+              onChange={handleChange('birthPlace')}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label={t('form.field_death_place')}
+              value={formData.deathPlace}
+              onChange={handleChange('deathPlace')}
+              disabled={formData.isAlive}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label={t('form.field_biography')}
+              multiline
+              rows={4}
+              value={formData.biography}
+              onChange={handleChange('biography')}
+              placeholder={t('form.field_biography_placeholder')}
+            />
+          </Grid>
+        </Grid>
+      </CollapsibleSection>
+
+      {/* ── Section Famille — mode création (père/mère initiaux) ─────────── */}
+      {!person && persons.length > 0 && (
+        <CollapsibleSection title={t('form.section_family')} defaultOpen={false}>
+          <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <NativeSelect
-                label="Genre"
-                value={formData.gender}
-                onChange={handleChange('gender') as any}
+                label={t('form.father_optional')}
+                value={parent1Id}
+                onChange={(e) => setParent1Id(e.target.value === '' ? '' : Number(e.target.value))}
               >
-                <option value="M">Homme</option>
-                <option value="F">Femme</option>
-                <option value="O">Autre</option>
+                <option value="">{t('form.none_male')}</option>
+                {persons
+                  .filter(p => p.gender === 'M' || p.gender === 'O' || p.gender === null)
+                  .map(p => (
+                    <option key={p.id} value={p.id}>{p.fullName}</option>
+                  ))}
               </NativeSelect>
             </Grid>
 
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Date de naissance"
-                type="date"
-                value={formData.birthDate}
-                onChange={handleChange('birthDate')}
-                InputLabelProps={{ shrink: true }}
-              />
+              <NativeSelect
+                label={t('form.mother_optional')}
+                value={parent2Id}
+                onChange={(e) => setParent2Id(e.target.value === '' ? '' : Number(e.target.value))}
+              >
+                <option value="">{t('form.none_female')}</option>
+                {persons
+                  .filter(p => p.gender === 'F' || p.gender === 'O' || p.gender === null)
+                  .map(p => (
+                    <option key={p.id} value={p.id}>{p.fullName}</option>
+                  ))}
+              </NativeSelect>
             </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Date de décès"
-                type="date"
-                value={formData.deathDate}
-                onChange={handleChange('deathDate')}
-                InputLabelProps={{ shrink: true }}
-                error={!!errors.deathDate}
-                helperText={errors.deathDate}
-                disabled={formData.isAlive}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Lieu de naissance"
-                value={formData.birthPlace}
-                onChange={handleChange('birthPlace')}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Lieu de décès"
-                value={formData.deathPlace}
-                onChange={handleChange('deathPlace')}
-                disabled={formData.isAlive}
-              />
-            </Grid>
-
-            {/* Père / Mère — mode création uniquement */}
-            {!person && persons.length > 0 && (
-              <>
-                <Grid item xs={12} sm={6}>
-                  <NativeSelect
-                    label="Père (optionnel)"
-                    value={parent1Id}
-                    onChange={(e) => setParent1Id(e.target.value === '' ? '' : Number(e.target.value))}
-                  >
-                    <option value="">Aucun</option>
-                    {persons
-                      .filter(p => p.gender === 'M' || p.gender === 'O' || p.gender === null)
-                      .map(p => (
-                        <option key={p.id} value={p.id}>{p.fullName}</option>
-                      ))}
-                  </NativeSelect>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <NativeSelect
-                    label="Mère (optionnel)"
-                    value={parent2Id}
-                    onChange={(e) => setParent2Id(e.target.value === '' ? '' : Number(e.target.value))}
-                  >
-                    <option value="">Aucune</option>
-                    {persons
-                      .filter(p => p.gender === 'F' || p.gender === 'O' || p.gender === null)
-                      .map(p => (
-                        <option key={p.id} value={p.id}>{p.fullName}</option>
-                      ))}
-                  </NativeSelect>
-                </Grid>
-              </>
-            )}
-
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="URL de la photo"
-                value={formData.photoUrl}
-                onChange={handleChange('photoUrl')}
-                placeholder="https://example.com/photo.jpg"
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Biographie"
-                multiline
-                rows={4}
-                value={formData.biography}
-                onChange={handleChange('biography')}
-                placeholder="Racontez l'histoire de cette personne..."
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              {/* Remplace MUI FormControlLabel + Switch */}
-              <NativeSwitch
-                id="isAlive-switch"
-                checked={formData.isAlive}
-                onChange={handleChange('isAlive')}
-                label="Personne vivante"
-              />
-            </Grid>
-
-            {/* Relations familiales — mode édition */}
-            {person && persons.length > 0 && (
-              <>
-                {relationError && (
-                  <Grid item xs={12}>
-                    <NativeAlert onClose={() => setRelationError(null)}>
-                      {relationError}
-                    </NativeAlert>
-                  </Grid>
-                )}
-                <Grid item xs={12}>
-                  <Divider sx={{ my: 1 }} />
-                  {/* Remplace MUI Typography subtitle2 */}
-                  <p style={{
-                    margin: `0 0 ${spacing[1]}px`,
-                    fontFamily: fonts.sans,
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    color: colors.ink3,
-                  }}>
-                    Parents
-                  </p>
-                  {/* Remplace MUI Typography caption */}
-                  <span style={{
-                    display: 'block',
-                    marginBottom: spacing[2],
-                    fontFamily: fonts.sans,
-                    fontSize: '0.75rem',
-                    color: colors.ink4,
-                  }}>
-                    Les ajouts et suppressions sont enregistrés immédiatement.
-                  </span>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
-                    {currentParents.length === 0 && (
-                      <span style={{ fontFamily: fonts.sans, fontSize: 14, color: colors.ink4 }}>
-                        Aucun parent enregistré
-                      </span>
-                    )}
-                    {[...currentParents]
-                      .sort((a, b) => {
-                        const order = (g: string | null) => g === 'M' ? 0 : g === 'F' ? 1 : 2;
-                        return order(a.gender) - order(b.gender);
-                      })
-                      .map(p => {
-                        const parentLabel = p.gender === 'M' ? 'Père' : p.gender === 'F' ? 'Mère' : 'Parent';
-                        return (
-                          <NativeChip
-                            key={p.id}
-                            label={`${parentLabel} : ${p.fullName}`}
-                            onDelete={() => handleRemoveParent(p.id)}
-                            colorVariant="primary"
-                          />
-                        );
-                      })}
-                  </Box>
-                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
-                    <div style={{ flex: 1 }}>
-                      <NativeSelect
-                        label="Ajouter un parent"
-                        value={newParentId}
-                        onChange={(e) => setNewParentId(e.target.value === '' ? '' : Number(e.target.value))}
-                        size="small"
-                      >
-                        <option value="">Choisir...</option>
-                        {persons
-                          .filter(p => p.id !== person.id && !currentParents.some(cp => cp.id === p.id))
-                          .map(p => <option key={p.id} value={p.id}>{p.fullName}</option>)}
-                      </NativeSelect>
-                    </div>
-                    <NativeBtn variant="outlined" size="small" onClick={handleAddParent} disabled={newParentId === ''}>
-                      Ajouter
-                    </NativeBtn>
-                  </Box>
-                </Grid>
-
-                <Grid item xs={12}>
-                  {/* Remplace MUI Typography subtitle2 */}
-                  <p style={{
-                    margin: `0 0 ${spacing[2]}px`,
-                    fontFamily: fonts.sans,
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    color: colors.ink3,
-                  }}>
-                    Enfants
-                  </p>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
-                    {currentChildren.length === 0 && (
-                      <span style={{ fontFamily: fonts.sans, fontSize: 14, color: colors.ink4 }}>
-                        Aucun enfant enregistré
-                      </span>
-                    )}
-                    {currentChildren.map(c => (
-                      <NativeChip
-                        key={c.id}
-                        label={c.fullName}
-                        onDelete={() => handleRemoveChild(c.id)}
-                        colorVariant="secondary"
-                      />
-                    ))}
-                  </Box>
-                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
-                    <div style={{ flex: 1 }}>
-                      <NativeSelect
-                        label="Ajouter un enfant"
-                        value={newChildId}
-                        onChange={(e) => setNewChildId(e.target.value === '' ? '' : Number(e.target.value))}
-                        size="small"
-                      >
-                        <option value="">Choisir...</option>
-                        {persons
-                          .filter(p => p.id !== person.id && !currentChildren.some(cc => cc.id === p.id))
-                          .map(p => <option key={p.id} value={p.id}>{p.fullName}</option>)}
-                      </NativeSelect>
-                    </div>
-                    <NativeBtn variant="outlined" size="small" onClick={handleAddChild} disabled={newChildId === ''}>
-                      Ajouter
-                    </NativeBtn>
-                  </Box>
-                </Grid>
-              </>
-            )}
           </Grid>
+        </CollapsibleSection>
+      )}
+
+      {/* ── Section Famille — mode édition (parents + enfants) ───────────── */}
+      {person && persons.length > 0 && (
+        <CollapsibleSection title={t('form.section_family')} defaultOpen={true}>
+          {relationError && (
+            <div style={{ marginBottom: spacing[3] }}>
+              <NativeAlert onClose={() => setRelationError(null)}>
+                {relationError}
+              </NativeAlert>
+            </div>
+          )}
+
+          {/* ── Parents ─────────────────────────────────────────────────── */}
+          <SectionLabel>{t('form.subsection_parents')}</SectionLabel>
+          <ImmediateNote text={t('form.relations_immediate_note')} />
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+            {currentParents.length === 0 && (
+              <span style={{ fontFamily: fonts.sans, fontSize: 14, color: colors.ink4 }}>
+                {t('form.no_parents')}
+              </span>
+            )}
+            {[...currentParents]
+              .sort((a, b) => {
+                const order = (g: string | null) => g === 'M' ? 0 : g === 'F' ? 1 : 2;
+                return order(a.gender) - order(b.gender);
+              })
+              .map(p => (
+                <NativeChip
+                  key={p.id}
+                  label={formatParentLabel(p)}
+                  onDelete={() => handleRemoveParent(p.id)}
+                  colorVariant="primary"
+                />
+              ))}
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end', mb: spacing[3] / 8 }}>
+            <div style={{ flex: 1 }}>
+              <NativeSelect
+                label={t('form.add_parent')}
+                value={newParentId}
+                onChange={(e) => setNewParentId(e.target.value === '' ? '' : Number(e.target.value))}
+                size="small"
+              >
+                <option value="">{t('form.choose')}</option>
+                {persons
+                  .filter(p => p.id !== person.id && !currentParents.some(cp => cp.id === p.id))
+                  .map(p => <option key={p.id} value={p.id}>{p.fullName}</option>)}
+              </NativeSelect>
+            </div>
+            <NativeBtn variant="outlined" size="small" onClick={handleAddParent} disabled={newParentId === ''}>
+              {t('form.btn_add')}
+            </NativeBtn>
+          </Box>
+
+          {/* ── Enfants ──────────────────────────────────────────────────── */}
+          <div style={{ marginTop: spacing[4] }}>
+            <SectionLabel>{t('form.subsection_children')}</SectionLabel>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+              {currentChildren.length === 0 && (
+                <span style={{ fontFamily: fonts.sans, fontSize: 14, color: colors.ink4 }}>
+                  {t('form.no_children')}
+                </span>
+              )}
+              {currentChildren.map(c => (
+                <NativeChip
+                  key={c.id}
+                  label={c.fullName}
+                  onDelete={() => handleRemoveChild(c.id)}
+                  colorVariant="secondary"
+                />
+              ))}
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
+              <div style={{ flex: 1 }}>
+                <NativeSelect
+                  label={t('form.add_child')}
+                  value={newChildId}
+                  onChange={(e) => setNewChildId(e.target.value === '' ? '' : Number(e.target.value))}
+                  size="small"
+                >
+                  <option value="">{t('form.choose')}</option>
+                  {persons
+                    .filter(p => p.id !== person.id && !currentChildren.some(cc => cc.id === p.id))
+                    .map(p => <option key={p.id} value={p.id}>{p.fullName}</option>)}
+                </NativeSelect>
+              </div>
+              <NativeBtn variant="outlined" size="small" onClick={handleAddChild} disabled={newChildId === ''}>
+                {t('form.btn_add')}
+              </NativeBtn>
+            </Box>
+          </div>
+        </CollapsibleSection>
+      )}
+
+      {/* ── Section Conjoints — mode édition uniquement ───────────────────── */}
+      {person && (
+        <CollapsibleSection title={t('form.section_spouses')} defaultOpen={true}>
+          {spouseError && (
+            <div style={{ marginBottom: spacing[3] }}>
+              <NativeAlert onClose={() => setSpouseError(null)}>
+                {spouseError}
+              </NativeAlert>
+            </div>
+          )}
+
+          <ImmediateNote text={t('form.relations_immediate_note')} />
+
+          {/* Liste des conjoints existants */}
+          {currentSpouses.length === 0 && (
+            <span style={{ fontFamily: fonts.sans, fontSize: 14, color: colors.ink4, display: 'block', marginBottom: spacing[3] }}>
+              {t('form.no_spouses')}
+            </span>
+          )}
+          {currentSpouses.map(info => (
+            <SpouseRow
+              key={info.spouse.id}
+              onRemove={() => handleRemoveSpouse(info.spouse.id)}
+              labelConjoint={info.spouse.fullName}
+              labelDates={formatSpouseDates(info)}
+            />
+          ))}
+
+          {/* Formulaire d'ajout d'un conjoint */}
+          {persons.length > 0 && (
+            <div style={{
+              marginTop: spacing[3],
+              padding: `${spacing[3]}px`,
+              backgroundColor: colors.paper2,
+              borderRadius: radius.md,
+              border: `1px dashed ${colors.line}`,
+            }}>
+              <SectionLabel>{t('form.add_spouse')}</SectionLabel>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <NativeSelect
+                    label={t('form.add_spouse')}
+                    value={newSpouseId}
+                    onChange={(e) => setNewSpouseId(e.target.value === '' ? '' : Number(e.target.value))}
+                  >
+                    <option value="">{t('form.choose')}</option>
+                    {availableSpouses.map(p => (
+                      <option key={p.id} value={p.id}>{p.fullName}</option>
+                    ))}
+                  </NativeSelect>
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label={t('form.spouse_start_date')}
+                    type="date"
+                    value={newSpouseStartDate}
+                    onChange={e => setNewSpouseStartDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    size="small"
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label={t('form.spouse_end_date')}
+                    type="date"
+                    value={newSpouseEndDate}
+                    onChange={e => setNewSpouseEndDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    size="small"
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <NativeBtn
+                    type="button"
+                    variant="outlined"
+                    onClick={handleAddSpouse}
+                    disabled={newSpouseId === ''}
+                  >
+                    {t('form.add_spouse')}
+                  </NativeBtn>
+                </Grid>
+              </Grid>
+            </div>
+          )}
+        </CollapsibleSection>
+      )}
+    </div>
   );
 
   const actionsContent = (
@@ -824,7 +1157,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
             onClick={() => setConfirmDelete(true)}
             disabled={loading}
           >
-            Supprimer
+            {t('form.delete')}
           </NativeBtn>
         )}
         {person && onDelete && confirmDelete && (
@@ -836,10 +1169,10 @@ const PersonForm: React.FC<PersonFormProps> = ({
               disabled={loading}
               style={{ marginRight: spacing[1] }}
             >
-              Confirmer la suppression
+              {t('form.delete_confirm')}
             </NativeBtn>
             <NativeBtn onClick={() => setConfirmDelete(false)} disabled={loading}>
-              Annuler
+              {t('form.delete_cancel')}
             </NativeBtn>
           </>
         )}
@@ -848,7 +1181,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
       {/* Save / cancel */}
       <div>
         <NativeBtn onClick={onClose} disabled={loading} style={{ marginRight: spacing[1] }}>
-          Annuler
+          {t('form.cancel')}
         </NativeBtn>
         <NativeBtn
           type="submit"
@@ -856,7 +1189,7 @@ const PersonForm: React.FC<PersonFormProps> = ({
           disabled={loading}
           style={{ minWidth: 100 }}
         >
-          {loading ? 'Enregistrement...' : 'Enregistrer'}
+          {loading ? t('form.saving') : t('form.save')}
         </NativeBtn>
       </div>
     </>
@@ -876,13 +1209,13 @@ const PersonForm: React.FC<PersonFormProps> = ({
           </h6>
         </div>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-          <div style={{ padding: '16px 0', overflowY: 'auto', flex: 1 }}>
+          <div style={{ padding: `${spacing[3]}px ${spacing[3]}px`, overflowY: 'auto', flex: 1 }}>
             {formContent}
           </div>
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
-            padding: '12px 0',
+            padding: `${spacing[2]}px ${spacing[3]}px`,
             borderTop: `1px solid ${colors.line2}`,
             flexShrink: 0,
           }}>
