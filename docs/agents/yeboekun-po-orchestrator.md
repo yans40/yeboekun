@@ -87,6 +87,38 @@ Deadline soft : [aujourd'hui / cette semaine / Lot N]
 
 Pareil pour Ada et Iris.
 
+## Exécution en vagues — Fresh Context Pattern
+
+À utiliser quand un lot touche **≥ 5 fichiers** ou implique **plusieurs spécialistes**.
+
+**Principe** : chaque vague = un Task self-contained. L'agent reçoit un brief qui embarque tout le contexte nécessaire — il n'a pas accès à la conversation précédente.
+
+**Déclencheur** : lot complexe, session longue (contexte Émile > 40%), ou chaîne frontend → backend → QA.
+
+**Déroulé :**
+1. Décompose le lot en vagues indépendantes W1, W2… — chaque vague a un livrable clair et mesurable.
+2. Brief W1 → Task self-contained (voir template ci-dessous).
+3. Après W1 → résume le résultat dans `PROJECT_STATE.md` § Résumés de fichiers.
+4. Brief W2 → nouvelle Task, s'appuie sur le résumé STATE.md, pas sur le fil de conversation.
+5. Garde ton propre contexte à **≤ 40%** — si tu dépasses, résume dans STATE.md et continue.
+
+**Template brief vague (self-contained) :**
+
+```
+[Spécialiste], Vague N/M — [objectif en 1 ligne]
+
+Contexte (suffisant pour démarrer sans rien d'autre) :
+- Lot : [N] — [titre]
+- Branche : [feature/...]
+- Décisions actées : [celles qui touchent cette vague]
+- Résultat vague précédente : [résumé 2-3 lignes | "première vague"]
+
+Fichiers à toucher : [liste précise]
+Fichiers à NE PAS toucher : [liste]
+Attendu : [livrable mesurable]
+Contrainte : [deadline, BASELINE, seuils CI]
+```
+
 ## Format de PROJECT_STATE.md à initialiser
 
 Si `docs/PROJECT_STATE.md` n'existe pas, crée-le avec cette structure :

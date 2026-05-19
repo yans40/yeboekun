@@ -1,5 +1,7 @@
 using AutoMapper;
 using FluentAssertions;
+using FluentValidation;
+using FluentValidation.Results;
 using Yeboekun.API.Controllers;
 using Yeboekun.Core.Entities;
 using Yeboekun.Core.Interfaces;
@@ -22,12 +24,28 @@ public class PersonsControllerTests
     private readonly Mock<IMapper> _mapper = new();
     private readonly Mock<ITreeTraversalService> _treeService = new();
     private readonly Mock<IRiverViewService> _riverViewService = new();
+    // Validators configurés pour retourner un résultat valide par défaut
+    private readonly Mock<IValidator<CreatePersonDto>> _createPersonValidator = new();
+    private readonly Mock<IValidator<UpdatePersonDto>> _updatePersonValidator = new();
+    private readonly Mock<IValidator<CreateSpouseRelationshipDto>> _createSpouseValidator = new();
     private readonly PersonsController _controller;
 
     public PersonsControllerTests()
     {
         _uow.Setup(u => u.Persons).Returns(_personsRepo.Object);
         _uow.Setup(u => u.Relationships).Returns(_relRepo.Object);
+
+        // Par défaut les validators approuvent tout — chaque test qui veut tester
+        // un échec de validation doit surcharger ce comportement.
+        _createPersonValidator
+            .Setup(v => v.ValidateAsync(It.IsAny<CreatePersonDto>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+        _updatePersonValidator
+            .Setup(v => v.ValidateAsync(It.IsAny<UpdatePersonDto>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+        _createSpouseValidator
+            .Setup(v => v.ValidateAsync(It.IsAny<CreateSpouseRelationshipDto>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
 
         _controller = new PersonsController(
             _personService.Object,
@@ -36,7 +54,10 @@ public class PersonsControllerTests
             _mapper.Object,
             NullLogger<PersonsController>.Instance,
             _treeService.Object,
-            _riverViewService.Object);
+            _riverViewService.Object,
+            _createPersonValidator.Object,
+            _updatePersonValidator.Object,
+            _createSpouseValidator.Object);
     }
 
     // ── GET ─────────────────────────────────────────────────────────────────
@@ -103,6 +124,14 @@ public class PersonsControllerTests
     {
         var dto = new CreatePersonDto { FirstName = "", LastName = "Dupont", Gender = "M" };
 
+        // Le validator signale l'erreur — on simule ce que le vrai validator ferait
+        _createPersonValidator
+            .Setup(v => v.ValidateAsync(dto, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult(
+            [
+                new ValidationFailure(nameof(dto.FirstName), "Le prénom est obligatoire.")
+            ]));
+
         var result = await _controller.CreatePerson(dto);
 
         result.Result.Should().BeOfType<BadRequestObjectResult>();
@@ -120,6 +149,13 @@ public class PersonsControllerTests
             DeathDate = new DateTime(1970, 1, 1),
             IsAlive = false
         };
+
+        _createPersonValidator
+            .Setup(v => v.ValidateAsync(dto, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult(
+            [
+                new ValidationFailure(nameof(dto.DeathDate), "La date de décès doit être postérieure à la date de naissance.")
+            ]));
 
         var result = await _controller.CreatePerson(dto);
 
@@ -252,5 +288,97 @@ public class PersonsControllerTests
         var result = await _controller.CreateSpouseRelationship(5, 5);
 
         result.Should().BeOfType<BadRequestObjectResult>();
+    }
+
+    // ── Delete Spouse ────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task DeleteSpouseRelationship_WhenPersonNotFound_ShouldReturnNotFound()
+    {
+        _personsRepo.Setup(r => r.ExistsAsync(1)).ReturnsAsync(false);
+        _personsRepo.Setup(r => r.ExistsAsync(2)).ReturnsAsync(true);
+
+        var result = await _controller.DeleteSpouseRelationship(1, 2);
+
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task DeleteSpouseRelationship_WhenSpouseNotFound_ShouldReturnNotFound()
+    {
+        _personsRepo.Setup(r => r.ExistsAsync(1)).ReturnsAsync(true);
+        _personsRepo.Setup(r => r.ExistsAsync(2)).ReturnsAsync(false);
+
+        var result = await _controller.DeleteSpouseRelationship(1, 2);
+
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task DeleteSpouseRelationship_WhenRelationshipNotFound_ShouldReturnNotFound()
+    {
+        _personsRepo.Setup(r => r.ExistsAsync(It.IsAny<int>())).ReturnsAsync(true);
+        // Aucune relation entre les deux personnes
+        _relRepo.Setup(r => r.GetByPersonIdsAsync(1, 2))
+            .ReturnsAsync(new List<Relationship>());
+
+        var result = await _controller.DeleteSpouseRelationship(1, 2);
+
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task DeleteSpouseRelationship_WhenOnlyNonSpouseRelationExists_ShouldReturnNotFound()
+    {
+        _personsRepo.Setup(r => r.ExistsAsync(It.IsAny<int>())).ReturnsAsync(true);
+        // Une relation Parent existe entre les deux, mais pas de Spouse
+        _relRepo.Setup(r => r.GetByPersonIdsAsync(1, 2))
+            .ReturnsAsync(new List<Relationship>
+            {
+                new() { Id = 10, Person1Id = 1, Person2Id = 2, RelationshipType = RelationshipType.Parent }
+            });
+
+        var result = await _controller.DeleteSpouseRelationship(1, 2);
+
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task DeleteSpouseRelationship_WithBothReciprocalRecords_ShouldReturnNoContentAndDeleteBoth()
+    {
+        _personsRepo.Setup(r => r.ExistsAsync(It.IsAny<int>())).ReturnsAsync(true);
+        // Les deux enregistrements réciproques Spouse
+        _relRepo.Setup(r => r.GetByPersonIdsAsync(1, 2))
+            .ReturnsAsync(new List<Relationship>
+            {
+                new() { Id = 10, Person1Id = 1, Person2Id = 2, RelationshipType = RelationshipType.Spouse },
+                new() { Id = 11, Person1Id = 2, Person2Id = 1, RelationshipType = RelationshipType.Spouse }
+            });
+        _relRepo.Setup(r => r.DeleteAsync(It.IsAny<int>())).ReturnsAsync(true);
+
+        var result = await _controller.DeleteSpouseRelationship(1, 2);
+
+        result.Should().BeOfType<NoContentResult>();
+        // Les deux enregistrements réciproques sont supprimés
+        _relRepo.Verify(r => r.DeleteAsync(10), Times.Once);
+        _relRepo.Verify(r => r.DeleteAsync(11), Times.Once);
+    }
+
+    [Fact]
+    public async Task DeleteSpouseRelationship_WithSingleRecord_ShouldReturnNoContentAndDeleteIt()
+    {
+        // Cas dégradé : un seul enregistrement Spouse (cohérence partielle en base)
+        _personsRepo.Setup(r => r.ExistsAsync(It.IsAny<int>())).ReturnsAsync(true);
+        _relRepo.Setup(r => r.GetByPersonIdsAsync(3, 4))
+            .ReturnsAsync(new List<Relationship>
+            {
+                new() { Id = 20, Person1Id = 3, Person2Id = 4, RelationshipType = RelationshipType.Spouse }
+            });
+        _relRepo.Setup(r => r.DeleteAsync(20)).ReturnsAsync(true);
+
+        var result = await _controller.DeleteSpouseRelationship(3, 4);
+
+        result.Should().BeOfType<NoContentResult>();
+        _relRepo.Verify(r => r.DeleteAsync(20), Times.Once);
     }
 }

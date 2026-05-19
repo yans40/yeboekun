@@ -1,4 +1,5 @@
 using AutoMapper;
+using FluentValidation;
 using Yeboekun.Core.Entities;
 using Yeboekun.Core.Interfaces;
 using Yeboekun.Services.DTOs;
@@ -18,6 +19,9 @@ public class PersonsController : ControllerBase
     private readonly ILogger<PersonsController> _logger;
     private readonly ITreeTraversalService _treeTraversalService;
     private readonly IRiverViewService _riverViewService;
+    private readonly IValidator<CreatePersonDto> _createPersonValidator;
+    private readonly IValidator<UpdatePersonDto> _updatePersonValidator;
+    private readonly IValidator<CreateSpouseRelationshipDto> _createSpouseValidator;
 
     public PersonsController(
         IPersonService personService,
@@ -26,7 +30,10 @@ public class PersonsController : ControllerBase
         IMapper mapper,
         ILogger<PersonsController> logger,
         ITreeTraversalService treeTraversalService,
-        IRiverViewService riverViewService)
+        IRiverViewService riverViewService,
+        IValidator<CreatePersonDto> createPersonValidator,
+        IValidator<UpdatePersonDto> updatePersonValidator,
+        IValidator<CreateSpouseRelationshipDto> createSpouseValidator)
     {
         _personService = personService;
         _duplicateDetectionService = duplicateDetectionService;
@@ -35,6 +42,9 @@ public class PersonsController : ControllerBase
         _logger = logger;
         _treeTraversalService = treeTraversalService;
         _riverViewService = riverViewService;
+        _createPersonValidator = createPersonValidator;
+        _updatePersonValidator = updatePersonValidator;
+        _createSpouseValidator = createSpouseValidator;
     }
 
     /// <summary>
@@ -176,12 +186,13 @@ public class PersonsController : ControllerBase
     /// Vérifie les doublons potentiels avant création
     /// </summary>
     [HttpPost("check-duplicates")]
-    public async Task<ActionResult<object>> CheckDuplicates(CreatePersonDto createPersonDto)
+    public async Task<ActionResult<object>> CheckDuplicates(CreatePersonDto createPersonDto, CancellationToken cancellationToken = default)
     {
         try
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var validation = await _createPersonValidator.ValidateAsync(createPersonDto, cancellationToken);
+            if (!validation.IsValid)
+                return BadRequest(validation.Errors.Select(e => new { e.PropertyName, e.ErrorMessage }));
 
             // Mapper le DTO vers une entité Person temporaire pour la détection
             var tempPerson = _mapper.Map<Person>(createPersonDto);
@@ -206,35 +217,13 @@ public class PersonsController : ControllerBase
     /// Crée une nouvelle personne
     /// </summary>
     [HttpPost]
-    public async Task<ActionResult<PersonDto>> CreatePerson(CreatePersonDto createPersonDto)
+    public async Task<ActionResult<PersonDto>> CreatePerson(CreatePersonDto createPersonDto, CancellationToken cancellationToken = default)
     {
         try
         {
-            // Validation manuelle pour les champs obligatoires
-            if (string.IsNullOrWhiteSpace(createPersonDto.FirstName))
-            {
-                ModelState.AddModelError(nameof(createPersonDto.FirstName), "Le prénom est obligatoire");
-            }
-            
-            if (string.IsNullOrWhiteSpace(createPersonDto.LastName))
-            {
-                ModelState.AddModelError(nameof(createPersonDto.LastName), "Le nom est obligatoire");
-            }
-            
-            // Validation des dates
-            if (createPersonDto.DeathDate.HasValue && createPersonDto.BirthDate.HasValue && 
-                createPersonDto.DeathDate.Value < createPersonDto.BirthDate.Value)
-            {
-                ModelState.AddModelError(nameof(createPersonDto.DeathDate), "La date de décès doit être postérieure à la date de naissance");
-            }
-            
-            if (createPersonDto.IsAlive && createPersonDto.DeathDate.HasValue)
-            {
-                ModelState.AddModelError(nameof(createPersonDto.DeathDate), "Une personne vivante ne peut pas avoir de date de décès");
-            }
-            
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var validation = await _createPersonValidator.ValidateAsync(createPersonDto, cancellationToken);
+            if (!validation.IsValid)
+                return BadRequest(validation.Errors.Select(e => new { e.PropertyName, e.ErrorMessage }));
 
             var person = await _personService.CreatePersonAsync(createPersonDto);
             return CreatedAtAction(nameof(GetPerson), new { id = person.Id }, person);
@@ -250,12 +239,13 @@ public class PersonsController : ControllerBase
     /// Met à jour une personne existante
     /// </summary>
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdatePerson(int id, UpdatePersonDto updatePersonDto, [FromQuery] bool force = false)
+    public async Task<IActionResult> UpdatePerson(int id, UpdatePersonDto updatePersonDto, [FromQuery] bool force = false, CancellationToken cancellationToken = default)
     {
         try
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var validation = await _updatePersonValidator.ValidateAsync(updatePersonDto, cancellationToken);
+            if (!validation.IsValid)
+                return BadRequest(validation.Errors.Select(e => new { e.PropertyName, e.ErrorMessage }));
 
             if (!await _personService.PersonExistsAsync(id))
                 return NotFound($"Personne avec l'ID {id} non trouvée");
@@ -347,10 +337,17 @@ public class PersonsController : ControllerBase
     /// Crée une relation de conjoint entre deux personnes
     /// </summary>
     [HttpPost("{personId}/spouses/{spouseId}")]
-    public async Task<IActionResult> CreateSpouseRelationship(int personId, int spouseId, [FromBody] CreateSpouseRelationshipDto? dto = null)
+    public async Task<IActionResult> CreateSpouseRelationship(int personId, int spouseId, [FromBody] CreateSpouseRelationshipDto? dto = null, CancellationToken cancellationToken = default)
     {
         try
         {
+            if (dto is not null)
+            {
+                var validation = await _createSpouseValidator.ValidateAsync(dto, cancellationToken);
+                if (!validation.IsValid)
+                    return BadRequest(validation.Errors.Select(e => new { e.PropertyName, e.ErrorMessage }));
+            }
+
             // Vérifier que les deux personnes existent
             var personExists = await _unitOfWork.Persons.ExistsAsync(personId);
             var spouseExists = await _unitOfWork.Persons.ExistsAsync(spouseId);
@@ -701,6 +698,51 @@ public class PersonsController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Erreur lors de la construction de la Vue Rivière pour la personne {PersonId}", id);
+            return StatusCode(500, "Erreur interne du serveur");
+        }
+    }
+
+    /// <summary>
+    /// Supprime la relation de conjoint entre deux personnes (dans les deux sens).
+    /// Supprime les deux enregistrements réciproques créés par CreateSpouseRelationship.
+    /// </summary>
+    [HttpDelete("{personId}/spouses/{spouseId}")]
+    public async Task<IActionResult> DeleteSpouseRelationship(int personId, int spouseId)
+    {
+        try
+        {
+            var personExists = await _unitOfWork.Persons.ExistsAsync(personId);
+            var spouseExists = await _unitOfWork.Persons.ExistsAsync(spouseId);
+
+            if (!personExists)
+                return NotFound($"Personne avec l'ID {personId} non trouvée");
+            if (!spouseExists)
+                return NotFound($"Conjoint avec l'ID {spouseId} non trouvé");
+
+            // Récupérer les deux entrées réciproques Spouse entre ces deux personnes
+            var relationships = await _unitOfWork.Relationships.GetByPersonIdsAsync(personId, spouseId);
+            var spouseRels = relationships
+                .Where(r => r.RelationshipType == RelationshipType.Spouse)
+                .ToList();
+
+            if (spouseRels.Count == 0)
+                return NotFound($"Aucune relation de conjoint trouvée entre les personnes {personId} et {spouseId}");
+
+            // Supprimer chaque enregistrement (réciproques inclus)
+            foreach (var rel in spouseRels)
+            {
+                await _unitOfWork.Relationships.DeleteAsync(rel.Id);
+            }
+
+            _logger.LogInformation(
+                "Relation de conjoint supprimée entre {PersonId} et {SpouseId} ({Count} enregistrement(s) supprimé(s))",
+                personId, spouseId, spouseRels.Count);
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur lors de la suppression de la relation de conjoint entre {PersonId} et {SpouseId}", personId, spouseId);
             return StatusCode(500, "Erreur interne du serveur");
         }
     }
